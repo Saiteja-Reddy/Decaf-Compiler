@@ -1,0 +1,35 @@
+class Program
+{
+// max size of array 100
+	int arr[100];
+	int i;
+	int n;
+	int temp;
+
+	void main()
+	{
+		callout("printf", "Enter the number of elements in the array: ");
+		
+		n = scanInt();
+
+		callout("printf", "Enter the elements in the array: \n");
+
+		for i = 1, n
+		{
+			arr[i] = scanInt();
+		}
+
+		callout("printf", "The even elements in the array are: \n");
+		
+		for i = 1, n
+		{
+			temp = arr[i] % 2;
+			if (temp == 0)
+			{
+				callout("printf", "%d\n", arr[i]);
+			}
+		}
+		return;
+	}
+
+}
