@@ -4,6 +4,7 @@
 
 %token ID
 %token INTEGER_LIT
+%token STRING_LIT
 %token HEX_LIT
 %token CLASS
 %token PROGRAM
@@ -11,6 +12,7 @@
 %token BOOLEAN
 %token VOID
 %token BREAK
+%token CALLOUT
 %token EQ
 %token PE
 %token ME
@@ -51,10 +53,14 @@ statement_list : statement | statement_list statement
 
 statement : location assign_op expr ';' | method_call ';'
 
-method_call : method_name '(' expr_list ')'
+method_call : method_name '(' expr_list ')' | method_name '(' ')' | CALLOUT '(' STRING_LIT ')'
+| CALLOUT '(' STRING_LIT ',' callout_args')'
+
+callout_args : callout_args ',' callout_arg | callout_arg
+
+callout_arg : expr | STRING_LIT
 
 expr_list : expr | expr_list ',' expr  
-
 
 
 method_name : ID

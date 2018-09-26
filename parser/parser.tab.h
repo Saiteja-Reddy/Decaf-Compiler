@@ -41,31 +41,35 @@
    enum yytokentype {
      ID = 258,
      INTEGER_LIT = 259,
-     HEX_LIT = 260,
-     CLASS = 261,
-     PROGRAM = 262,
-     INT = 263,
-     BOOLEAN = 264,
-     VOID = 265,
-     BREAK = 266,
-     EQ = 267,
-     PE = 268,
-     ME = 269
+     STRING_LIT = 260,
+     HEX_LIT = 261,
+     CLASS = 262,
+     PROGRAM = 263,
+     INT = 264,
+     BOOLEAN = 265,
+     VOID = 266,
+     BREAK = 267,
+     CALLOUT = 268,
+     EQ = 269,
+     PE = 270,
+     ME = 271
    };
 #endif
 /* Tokens.  */
 #define ID 258
 #define INTEGER_LIT 259
-#define HEX_LIT 260
-#define CLASS 261
-#define PROGRAM 262
-#define INT 263
-#define BOOLEAN 264
-#define VOID 265
-#define BREAK 266
-#define EQ 267
-#define PE 268
-#define ME 269
+#define STRING_LIT 260
+#define HEX_LIT 261
+#define CLASS 262
+#define PROGRAM 263
+#define INT 264
+#define BOOLEAN 265
+#define VOID 266
+#define BREAK 267
+#define CALLOUT 268
+#define EQ 269
+#define PE 270
+#define ME 271
 
 
 
