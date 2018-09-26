@@ -17,17 +17,17 @@
 
 program : CLASS PROGRAM '{' field_decl_list method_decl_list '}' 
 
-field_decl_list : field_decl | field_decl field_decl_list 
+field_decl_list : field_decl | field_decl_list field_decl  
 
 field_decl : type decl_list ';'
 
-decl_list : decl | decl_list ',' decl
+decl_list : decl | decl_list  ',' decl
 
 decl : ID | ID '[' intlit ']'
 
-method_decl_list : method_decl | method_decl method_decl_list 
+method_decl_list : method_decl |  method_decl_list method_decl
 
-method_decl :  type ID method_args_block block| VOID ID method_args_block block
+method_decl :  type ID method_args_block block | VOID ID method_args_block block 
 
 method_args_block : '(' ')'
 
