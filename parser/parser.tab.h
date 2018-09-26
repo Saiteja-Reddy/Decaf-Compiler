@@ -46,7 +46,11 @@
      PROGRAM = 262,
      INT = 263,
      BOOLEAN = 264,
-     VOID = 265
+     VOID = 265,
+     BREAK = 266,
+     EQ = 267,
+     PE = 268,
+     ME = 269
    };
 #endif
 /* Tokens.  */
@@ -58,6 +62,10 @@
 #define INT 263
 #define BOOLEAN 264
 #define VOID 265
+#define BREAK 266
+#define EQ 267
+#define PE 268
+#define ME 269
 
 
 

@@ -9,8 +9,12 @@ int lineno = 0;
 "void"			{return VOID;}
 "int"			{return INT;}
 "boolean"			{return BOOLEAN;}
+"break"			{return BREAK;}
 [a-zA-Z][a-zA-Z]*	{return ID;}
 "+"					{return '+';}
+"="					{return EQ;}
+"+="					{return PE;}
+"-="					{return ME;}
 "-"					{return '-';}
 "*"					{return '*';}
 "/"					{return '/';}
