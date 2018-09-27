@@ -42,44 +42,62 @@
      ID = 258,
      INTEGER_LIT = 259,
      STRING_LIT = 260,
-     HEX_LIT = 261,
-     CLASS = 262,
-     PROGRAM = 263,
-     INT = 264,
-     BOOLEAN = 265,
-     VOID = 266,
-     BREAK = 267,
-     CONTINUE = 268,
-     RETURN = 269,
-     CALLOUT = 270,
-     IF = 271,
-     ELSE = 272,
-     FOR = 273,
-     EQ = 274,
-     PE = 275,
-     ME = 276
+     CHAR_LIT = 261,
+     HEX_LIT = 262,
+     CLASS = 263,
+     PROGRAM = 264,
+     INT = 265,
+     BOOLEAN = 266,
+     TRUE = 267,
+     FALSE = 268,
+     VOID = 269,
+     BREAK = 270,
+     CONTINUE = 271,
+     RETURN = 272,
+     CALLOUT = 273,
+     IF = 274,
+     ELSE = 275,
+     FOR = 276,
+     EQ = 277,
+     PE = 278,
+     ME = 279,
+     LE = 280,
+     GE = 281,
+     DE = 282,
+     NE = 283,
+     DA = 284,
+     DO = 285
    };
 #endif
 /* Tokens.  */
 #define ID 258
 #define INTEGER_LIT 259
 #define STRING_LIT 260
-#define HEX_LIT 261
-#define CLASS 262
-#define PROGRAM 263
-#define INT 264
-#define BOOLEAN 265
-#define VOID 266
-#define BREAK 267
-#define CONTINUE 268
-#define RETURN 269
-#define CALLOUT 270
-#define IF 271
-#define ELSE 272
-#define FOR 273
-#define EQ 274
-#define PE 275
-#define ME 276
+#define CHAR_LIT 261
+#define HEX_LIT 262
+#define CLASS 263
+#define PROGRAM 264
+#define INT 265
+#define BOOLEAN 266
+#define TRUE 267
+#define FALSE 268
+#define VOID 269
+#define BREAK 270
+#define CONTINUE 271
+#define RETURN 272
+#define CALLOUT 273
+#define IF 274
+#define ELSE 275
+#define FOR 276
+#define EQ 277
+#define PE 278
+#define ME 279
+#define LE 280
+#define GE 281
+#define DE 282
+#define NE 283
+#define DA 284
+#define DO 285
 
 
 

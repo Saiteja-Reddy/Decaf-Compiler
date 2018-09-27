@@ -7,11 +7,14 @@ int yyerror();
 %token ID
 %token INTEGER_LIT
 %token STRING_LIT
+%token CHAR_LIT
 %token HEX_LIT
 %token CLASS
 %token PROGRAM
 %token INT
 %token BOOLEAN
+%token TRUE
+%token FALSE
 %token VOID
 %token BREAK
 %token CONTINUE
@@ -23,8 +26,16 @@ int yyerror();
 %token EQ
 %token PE
 %token ME
+%token LE
+%token GE
+%token DE
+%token NE
+%token DA
+%token DO
 %left '+' '-'
-%left '*' '/'
+%left '*' '/' '%'
+%left LE GE '<' '>' DE NE DA DO
+%right '!'
 
 %%
 
@@ -82,14 +93,24 @@ intlit : HEX_LIT | INTEGER_LIT
 
 type : INT | BOOLEAN;
 
-expr : '(' expr ')'
-	 |  expr '+' expr
-	 |  expr '-' expr
-	 |  expr '*' expr
-	 |  expr '/' expr
-	 |  ID
-	 | INTEGER_LIT
-	 ;	
+expr : '(' expr ')' | expr bin_op | method_call | location | literal | unaryexp
+
+unaryexp : '-' expr | '!' expr 
+
+literal : INTEGER_LIT | bool_lit | CHAR_LIT
+
+bool_lit : TRUE | FALSE	
+
+bin_op : arith_op | rel_op | eq_op | cond_op
+
+arith_op : '+' expr | '-' expr | '*' expr | '/' expr | '%' expr
+
+rel_op : LE expr | GE expr |'<' expr | '>' expr
+
+eq_op : DE expr | NE expr
+
+cond_op : DA expr | DO expr
+
 
 %%
 
