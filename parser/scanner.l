@@ -18,7 +18,7 @@ int lineno = 0;
 "if"			{return IF;}
 "else"			{return ELSE;}
 "for"			{return FOR;}
-[a-zA-Z][a-zA-Z0-9]*	{return ID;}
+[a-zA-Z_][a-zA-Z0-9]*	{return ID;}
 
 "+="					{return PE;}
 "-="					{return ME;}
