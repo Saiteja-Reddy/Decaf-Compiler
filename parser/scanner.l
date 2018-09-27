@@ -51,7 +51,7 @@ int lineno = 0;
 
 0[xX][0-9a-fA-F]+ {yylval = atoi(yytext); return HEX_LIT;}
 [0-9]+		{yylval = atoi(yytext); return INTEGER_LIT;}
-\"[a-zA-Z]+\"		{return STRING_LIT;}
+\".*+\"		{return STRING_LIT;}
 
 
 .					{ printf("Line No %d: Unrecognized Character\n", lineno); }

@@ -69,7 +69,7 @@ id_list : ID | id_list ',' ID
 
 statement_list : statement | statement_list statement
 
-statement : location assign_op expr ';' | method_call ';' | if_block | for_block | RETURN '[' expr ']' ';' | BREAK ';' | CONTINUE ';' | block
+statement : location assign_op expr ';' | method_call ';' | if_block | for_block | RETURN '[' expr ']' ';' | RETURN ';' | BREAK ';' | CONTINUE ';' | block
 
 method_call : method_name '(' expr_list ')' | method_name '(' ')' | CALLOUT '(' STRING_LIT ')' | CALLOUT '(' STRING_LIT ',' callout_args')'
 
