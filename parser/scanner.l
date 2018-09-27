@@ -10,8 +10,13 @@ int lineno = 0;
 "int"			{return INT;}
 "boolean"			{return BOOLEAN;}
 "break"			{return BREAK;}
+"continue"			{return CONTINUE;}
+"return"			{return RETURN;}
 "callout"			{return CALLOUT;}
-[a-zA-Z][a-zA-Z]*	{return ID;}
+"if"			{return IF;}
+"else"			{return ELSE;}
+"for"			{return FOR;}
+[a-zA-Z][a-zA-Z0-9]*	{return ID;}
 "+"					{return '+';}
 "="					{return EQ;}
 "+="					{return PE;}
@@ -31,7 +36,7 @@ int lineno = 0;
 \n		     		{++lineno;}
 0[xX][0-9a-fA-F]+ {yylval = atoi(yytext); return HEX_LIT;}
 [0-9]+		{yylval = atoi(yytext); return INTEGER_LIT;}
-\"[a-zA-Z]+\"		{yylval = yytext; return STRING_LIT;}
+\"[a-zA-Z]+\"		{return STRING_LIT;}
 
 
 .					{ printf("Line No %d: Unrecognized Character\n", lineno); }

@@ -49,10 +49,15 @@
      BOOLEAN = 265,
      VOID = 266,
      BREAK = 267,
-     CALLOUT = 268,
-     EQ = 269,
-     PE = 270,
-     ME = 271
+     CONTINUE = 268,
+     RETURN = 269,
+     CALLOUT = 270,
+     IF = 271,
+     ELSE = 272,
+     FOR = 273,
+     EQ = 274,
+     PE = 275,
+     ME = 276
    };
 #endif
 /* Tokens.  */
@@ -66,10 +71,15 @@
 #define BOOLEAN 265
 #define VOID 266
 #define BREAK 267
-#define CALLOUT 268
-#define EQ 269
-#define PE 270
-#define ME 271
+#define CONTINUE 268
+#define RETURN 269
+#define CALLOUT 270
+#define IF 271
+#define ELSE 272
+#define FOR 273
+#define EQ 274
+#define PE 275
+#define ME 276
 
 
 

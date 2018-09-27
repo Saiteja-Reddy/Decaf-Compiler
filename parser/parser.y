@@ -1,5 +1,7 @@
 %{
 #include <stdio.h>	
+int yylex();
+int yyerror();
 %}
 
 %token ID
@@ -12,7 +14,12 @@
 %token BOOLEAN
 %token VOID
 %token BREAK
+%token CONTINUE
+%token RETURN
 %token CALLOUT
+%token IF
+%token ELSE
+%token FOR
 %token EQ
 %token PE
 %token ME
@@ -23,7 +30,7 @@
 
 program : CLASS PROGRAM '{' progs '}'  | CLASS PROGRAM '{'  '}'
 
-progs : field_decl_list method_decl | field_decl_list 
+progs : field_decl_list method_decl_list | field_decl_list 
 
 field_decl_list : field_decl | field_decl_list field_decl  
 
@@ -51,17 +58,19 @@ id_list : ID | id_list ',' ID
 
 statement_list : statement | statement_list statement
 
-statement : location assign_op expr ';' | method_call ';'
+statement : location assign_op expr ';' | method_call ';' | if_block | for_block | RETURN '[' expr ']' ';' | BREAK ';' | CONTINUE ';' | block
 
-method_call : method_name '(' expr_list ')' | method_name '(' ')' | CALLOUT '(' STRING_LIT ')'
-| CALLOUT '(' STRING_LIT ',' callout_args')'
+method_call : method_name '(' expr_list ')' | method_name '(' ')' | CALLOUT '(' STRING_LIT ')' | CALLOUT '(' STRING_LIT ',' callout_args')'
 
 callout_args : callout_args ',' callout_arg | callout_arg
 
 callout_arg : expr | STRING_LIT
 
-expr_list : expr | expr_list ',' expr  
+if_block : IF '(' expr ')' block |  IF '(' expr ')' block ELSE block
 
+for_block : FOR ID EQ expr ',' expr block
+
+expr_list : expr | expr_list ',' expr  
 
 method_name : ID
 
@@ -72,8 +81,6 @@ assign_op : EQ | PE | ME
 intlit : HEX_LIT | INTEGER_LIT
 
 type : INT | BOOLEAN;
-
-
 
 expr : '(' expr ')'
 	 |  expr '+' expr
@@ -86,14 +93,16 @@ expr : '(' expr ')'
 
 %%
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 		yyparse();
 		printf("Parsing Over\n");
+		return 0;
 }
 
 
-yyerror(char *s)
+int yyerror(char *s)
 {
 	fprintf(stderr, "error: %s\n", s);
+	return 0;
 }
