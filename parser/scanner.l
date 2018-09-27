@@ -4,6 +4,7 @@ int lineno = 0;
 %}
 
 %%
+"//".* 		{return COMMENT;}
 "class"				{return CLASS;}
 "Program"			{return PROGRAM;}
 "void"			{return VOID;}

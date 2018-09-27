@@ -8,6 +8,7 @@ int yyerror();
 %token INTEGER_LIT
 %token STRING_LIT
 %token CHAR_LIT
+%token COMMENT
 %token HEX_LIT
 %token CLASS
 %token PROGRAM
@@ -43,15 +44,17 @@ program : CLASS PROGRAM '{' progs '}'  | CLASS PROGRAM '{'  '}'
 
 progs : field_decl_list method_decl_list | field_decl_list 
 
+comment : COMMENT
+
 field_decl_list : field_decl | field_decl_list field_decl  
 
-field_decl : type decl_list ';'
+field_decl : type decl_list ';' | comment
 
 decl_list : decl | decl_list  ',' decl
 
 decl : ID | ID '[' intlit ']'
 
-method_decl_list : method_decl |  method_decl_list method_decl
+method_decl_list : method_decl |  method_decl_list method_decl 
 
 method_decl :  type ID method_args_block block | VOID ID method_args_block block 
 
