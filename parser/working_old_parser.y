@@ -96,24 +96,7 @@ intlit : HEX_LIT | INTEGER_LIT
 
 type : INT | BOOLEAN;
 
-expr : '(' expr ')' 
-	| expr '+' expr 
-	|  expr '-' expr 
-	|  expr '*' expr 
-	|  expr '/' expr 
-	|  expr '%' expr 
-	|  expr LE expr 
-	|  expr GE expr 
-	|  expr '<' expr 
-	|  expr '>' expr 
-	|  expr NE expr 
-	|  expr DE expr 
-	|  expr DA expr 
-	|  expr DO expr 
-	| method_call 
-	| location 
-	| literal 
-	| unaryexp
+expr : '(' expr ')' | expr bin_op | method_call | location | literal | unaryexp
 
 unaryexp : '-' expr | '!' expr 
 
@@ -121,6 +104,15 @@ literal : INTEGER_LIT | bool_lit | CHAR_LIT
 
 bool_lit : TRUE | FALSE	
 
+bin_op : arith_op | rel_op | eq_op | cond_op
+
+arith_op : '+' expr | '-' expr | '*' expr | '/' expr | '%' expr
+
+rel_op : LE expr | GE expr |'<' expr | '>' expr
+
+eq_op : DE expr | NE expr
+
+cond_op : DA expr | DO expr
 
 
 %%
