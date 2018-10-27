@@ -22,4 +22,11 @@ class PostFixVisitor: public ASTvisitor {
     {
         std::cout << node.getIntLit() << " ";
     }
+
+    virtual void visit(ProgramASTnode& node) 
+    {
+        std::cout << "Class " << node.getProgramName() << " declared\n";
+    }
+
+
 };

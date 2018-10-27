@@ -36,7 +36,21 @@ int main(int argc, char *argv[])
 
     bool result = driver.parse_string(code, "input");
 
-    ast.clearAST();
+    if (result)
+    {
+        if (ast.root != NULL ) {
+            ProgramASTnode *pnode;
+
+            pnode = dynamic_cast<ProgramASTnode *>(ast.root);
+
+            if (pnode != NULL)
+                pfv.visit(*pnode);
+
+        }
+
+        // ast.clearAST(); 
+    }
+
 
 
 

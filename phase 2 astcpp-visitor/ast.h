@@ -1,13 +1,21 @@
-
 class BinaryASTnode;
 class TernaryASTnode;
 class IntLitASTnode;
+class ProgramASTnode;
+class FieldDecASTnode;
+class Variable;
+
+
+using namespace std;
+
+
 
 class ASTvisitor {
   public:
     virtual void visit(BinaryASTnode& node) = 0;
     virtual void visit(TernaryASTnode& node) = 0;
     virtual void visit(IntLitASTnode& node) = 0;
+    virtual void visit(ProgramASTnode& node) = 0;
 };
 
 class ASTnode {
@@ -16,33 +24,81 @@ class ASTnode {
      {
      }
 
-    //  virtual void printPostFix() const = 0;
-
      virtual void accept(ASTvisitor& V) = 0;
 
 };
 
+class ProgramASTnode: public ASTnode {
+    string name;
+
+    public:
+
+    ProgramASTnode(string name) : name(name) {}
+
+    string getProgramName() {
+        return name;
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+enum variableType {
+    Array = 1, Normal = 2
+};
+
+class Variable: public ASTnode {
+    
+    variableType declType;
+    string name;
+    unsigned int length;
+
+    public:
+
+    Variable(string name, unsigned int length) : name(name), length(length), declType(variableType::Array) {}
+    Variable(string name) : name(name), declType(variableType::Normal) {}
+
+    bool isArray() { return (declType == variableType::Array); }
+
+    string getName() { return name; };
+
+    unsigned int getLength() { return length; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+class FieldDecASTnode: public ASTnode {
+    string datatype;
+
+    vector<class Variable *> var_list;
+
+    public:
+
+    FieldDecASTnode(string dtype, class Variables *variables) : datatype(dtype), var_list(variables->getVarlist()) {}
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
 class BinaryASTnode : public ASTnode {
      std::string bin_operator;  
 
-// lhs and rhs can be of any type. 
-// So we need to use BaseAST
      ASTnode  *left;
      ASTnode *right;  
 
      public:
 
-// Constructor to initialize binary operator, 
-// lhs and rhs of the binary expression.
      BinaryASTnode (std::string op, ASTnode* _left, ASTnode* _right ) :
      bin_operator(op), left(_left), right(_right) {}  
-
-    /*  virtual void printPostFix() const 
-     {
-     	lhs->printPostFix();
-     	rhs->printPostFix();
-     	std::cout << bin_operator << " "; 
-     } */
 
     ASTnode* getLeft() {
         return left;
@@ -72,14 +128,6 @@ class TernaryASTnode : public ASTnode {
 
      TernaryASTnode (ASTnode *first, ASTnode *second, ASTnode *third ) :
      first(first), second(second), third(third) {}  
-
-  /*   virtual void printPostFix() const
-     {
-     	first->printPostFix();
-     	second->printPostFix();
-     	third->printPostFix();
-     	std::cout << "? " << std::endl; 
-     }  */
 
     ASTnode* getFirst()
     {
@@ -120,11 +168,6 @@ class IntLitASTnode: public ASTnode {
     {
       v.visit(*this);
     }
-    
-	/* virtual void printPostFix() const
-	{
-		std::cout << intlit << " " ;
-	} */
 
 };
 
