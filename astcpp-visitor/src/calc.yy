@@ -55,7 +55,7 @@
 
 %union {
 	int  			integerVal;
-    class ASTnode*		astnode;
+    ASTnode*		astnode;
 }
 
 %type <astnode>	line  
@@ -186,7 +186,6 @@ callout_args : callout_args COMMA callout_arg | callout_arg
 
 callout_arg : expr | STRING_LIT
 
-
 expr : L_P expr R_P
 	| expr ADD expr 
 	|  expr SUB expr 
@@ -206,10 +205,9 @@ expr : L_P expr R_P
 	| literal 
 	| unaryexp
 
-
 unaryexp : SUB expr | NOT expr 
 
-literal : INTEGER_LIT | bool_lit | CHAR_LIT
+literal : INTEGER_LIT | bool_lit | CHAR_LIT 
 
 bool_lit : TRUE | FALSE	
 
