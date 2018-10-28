@@ -891,12 +891,12 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 62 "calc.ll"
-{return token::INT;}
+{yylval->value = strdup(yytext); return token::INT;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 63 "calc.ll"
-{return token::BOOLEAN;}
+{yylval->value = strdup(yytext); return token::BOOLEAN;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
@@ -951,7 +951,7 @@ YY_RULE_SETUP
 case 16:
 YY_RULE_SETUP
 #line 75 "calc.ll"
-{return token::ID;}
+{yylval->value = strdup(yytext);return token::ID;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
@@ -961,62 +961,62 @@ YY_RULE_SETUP
 case 18:
 YY_RULE_SETUP
 #line 78 "calc.ll"
-{return token::INTEGER_LIT;}
+{yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 80 "calc.ll"
-{return token::PE;}
+{yylval->value = strdup(yytext);return token::PE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 81 "calc.ll"
-{return token::ME;}
+{yylval->value = strdup(yytext);return token::ME;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 82 "calc.ll"
-{return token::EQ;}
+{yylval->value = strdup(yytext);return token::EQ;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 84 "calc.ll"
-{return token::ADD;}
+{yylval->value = strdup(yytext);return token::ADD;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 85 "calc.ll"
-{return token::SUB;}
+{yylval->value = strdup(yytext);return token::SUB;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 86 "calc.ll"
-{return token::MUL;}
+{yylval->value = strdup(yytext);return token::MUL;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 87 "calc.ll"
-{return token::DIV;}
+{yylval->value = strdup(yytext);return token::DIV;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 88 "calc.ll"
-{return token::MOD;}
+{yylval->value = strdup(yytext);return token::MOD;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 89 "calc.ll"
-{return token::LT;}
+{yylval->value = strdup(yytext);return token::LT;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 90 "calc.ll"
-{return token::GT;}
+{yylval->value = strdup(yytext);return token::GT;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 91 "calc.ll"
-{return token::NOT;}
+{yylval->value = strdup(yytext);return token::NOT;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
@@ -1061,32 +1061,32 @@ YY_RULE_SETUP
 case 38:
 YY_RULE_SETUP
 #line 102 "calc.ll"
-{return token::NE; }
+{yylval->value = strdup(yytext);return token::NE; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 103 "calc.ll"
-{return token::DO; }
+{yylval->value = strdup(yytext);return token::DO; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 104 "calc.ll"
-{return token::GE; }
+{yylval->value = strdup(yytext);return token::GE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 105 "calc.ll"
-{return token::DA; }
+{yylval->value = strdup(yytext);return token::DA; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 106 "calc.ll"
-{return token::LE; }
+{yylval->value = strdup(yytext);return token::LE; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 107 "calc.ll"
-{return token::DE; }
+{yylval->value = strdup(yytext);return token::DE; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP

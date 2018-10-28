@@ -54,11 +54,15 @@
 /*** BEGIN EXAMPLE - Change the example grammar's tokens below ***/
 
 %union {
-	int  			integerVal;
     ASTnode*		astnode;
+    FieldDec* 		field;
+	FieldDecList* 	fields;
+	Variable*		var_decl;
+	Variables*		var_decls;
+	integerLit*   	intliteral;
+	char* value;
 }
 
-%type <astnode>	line  
 
 //%destructor { delete $$; } expr
 
@@ -89,33 +93,33 @@
 %token R_SQ
 %token L_P
 %token R_P
-%token EQ
-%token PE
-%token ME
+%token <value> EQ
+%token <value> PE
+%token <value> ME
 %token COMMA
 %token SEMI
-%token ID
-%token BOOLEAN
-%token INT
-%token INTEGER_LIT
+%token <value> ID
+%token <value> BOOLEAN
+%token <value> INT
+%token <intliteral> INTEGER_LIT
 %token HEX_LIT
-%token ADD
-%token SUB
-%token MUL
-%token DIV
-%token MOD
-%token LT
-%token GT
-%token NOT
+%token <value> ADD
+%token <value> SUB
+%token <value> MUL
+%token <value> DIV
+%token <value> MOD
+%token <value> LT
+%token <value> GT
+%token <value> NOT
 %token CHAR_LIT
 %token TRUE
 %token FALSE
-%token NE
-%token DO
-%token GE
-%token DA
-%token LE
-%token DE
+%token <value> NE
+%token <value> DO
+%token <value> GE
+%token <value> DA
+%token <value> LE
+%token <value> DE
 %token CALLOUT
 %token STRING_LIT
 %token RETURN
@@ -130,21 +134,34 @@
 %left LE GE LT GT DE NE DA DO
 %right NOT
 
+%type <astnode>	line  
+%type <fields> field_decl_list
+%type <field> field_decl
+%type <var_decls> decl_list
+%type <var_decl> decl
+%type <intliteral> intlit;
+%type <value> type;
+
+
 %%
 
-line :  CLASS PROGRAM L_FLO  R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}
+line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4); driver.ast.root = $$;}
+	|	CLASS PROGRAM L_FLO R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}
 
-field_decl_list : field_decl | field_decl_list field_decl
+field_decl_list :  field_decl { $$ = new FieldDecList(); 					$$->push_back($1)}
+		 | field_decl_list field_decl {$$->push_back($2);}
 
-field_decl : type decl_list SEMI
+field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);}
 
-decl_list : decl | decl_list  COMMA decl
+decl_list : decl {$$ = new Variables(); $$->push_back($1);} 
+		  | decl_list  COMMA decl {$$->push_back($3);}
 
-decl : ID | ID L_SQ intlit R_SQ
+decl : ID { $$ = new Variable(string($1));}
+	 | ID L_SQ intlit R_SQ {$$ = new Variable(string($1),$3->getValue());}
 
 type : INT | BOOLEAN;
 
-intlit : HEX_LIT | INTEGER_LIT
+intlit : INTEGER_LIT {$$ = $1;}
 
 
 

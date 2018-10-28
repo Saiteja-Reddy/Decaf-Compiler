@@ -1,21 +1,25 @@
-class BinaryASTnode;
-class TernaryASTnode;
-class IntLitASTnode;
 class ProgramASTnode;
-class FieldDecASTnode;
+class FieldDec;
+class FieldDecList;
 class Variable;
-
+class Variables;
+class integerLit;
+class Lit;
+class Expr;
 
 using namespace std;
 
 
-
 class ASTvisitor {
   public:
-    virtual void visit(BinaryASTnode& node) = 0;
-    virtual void visit(TernaryASTnode& node) = 0;
-    virtual void visit(IntLitASTnode& node) = 0;
     virtual void visit(ProgramASTnode& node) = 0;
+    virtual void visit(FieldDec& node) = 0;
+    virtual void visit(FieldDecList& node) = 0;
+    virtual void visit(Variable& node) = 0;
+    virtual void visit(Variables& node) = 0;
+    virtual void visit(integerLit& node) = 0;
+    virtual void visit(Lit& node) = 0;
+    virtual void visit(Expr& node) = 0;
 };
 
 class ASTnode {
@@ -31,13 +35,22 @@ class ASTnode {
 class ProgramASTnode: public ASTnode {
     string name;
 
+    class FieldDecList *fields;
+
     public:
 
     ProgramASTnode(string name) : name(name) {}
+    
+    ProgramASTnode(string name, class FieldDecList *fields ) : name(name), fields(fields) {}
 
     string getProgramName() {
         return name;
     }
+
+    class FieldDecList * getFields() {
+        return fields;
+    }
+
 
     virtual void accept(ASTvisitor& v)
     {
@@ -57,10 +70,10 @@ class Variable: public ASTnode {
 
     public:
 
-    Variable(string name, unsigned int length) : name(name), length(length), declType(variableType::Array) {}
-    Variable(string name) : name(name), declType(variableType::Normal) {}
+    Variable(string name, unsigned int length) : name(name), length(length), declType(::Array) {}
+    Variable(string name) : name(name), declType(::Normal) {}
 
-    bool isArray() { return (declType == variableType::Array); }
+    bool isArray() { return (declType == ::Array); }
 
     string getName() { return name; };
 
@@ -72,15 +85,22 @@ class Variable: public ASTnode {
     }
 };
 
-
-class FieldDecASTnode: public ASTnode {
-    string datatype;
-
-    vector<class Variable *> var_list;
+class Variables: public ASTnode {
+    
+    vector<class Variable *> vars_list;
 
     public:
+    Variables() {};
 
-    FieldDecASTnode(string dtype, class Variables *variables) : datatype(dtype), var_list(variables->getVarlist()) {}
+    void push_back(class Variable *var)
+    {
+        vars_list.push_back(var);
+    }
+
+    vector<class Variable *> getVarsList()
+    {
+        return vars_list;
+    }
 
     virtual void accept(ASTvisitor& v)
     {
@@ -89,86 +109,113 @@ class FieldDecASTnode: public ASTnode {
 };
 
 
-class BinaryASTnode : public ASTnode {
-     std::string bin_operator;  
+class FieldDec: public ASTnode {
+    string datatype;
 
-     ASTnode  *left;
-     ASTnode *right;  
+    vector<class Variable *> var_list;
 
-     public:
+    public:
 
-     BinaryASTnode (std::string op, ASTnode* _left, ASTnode* _right ) :
-     bin_operator(op), left(_left), right(_right) {}  
+    FieldDec(string dtype, class Variables *variables) : datatype(dtype), var_list(variables->getVarsList()) {}
 
-    ASTnode* getLeft() {
-        return left;
-    }
-
-    ASTnode* getRight() {
-        return right;
-    }
-
-    std::string getBin_operator() {
-        return bin_operator;
-    }
-     virtual void accept(ASTvisitor& v)
+    string getType()
     {
-      v.visit(*this);
+        return datatype;
     }
 
-};
-
-class TernaryASTnode : public ASTnode {
-
-     ASTnode  *first;
-     ASTnode *second;
-     ASTnode *third;  
-
-     public:
-
-     TernaryASTnode (ASTnode *first, ASTnode *second, ASTnode *third ) :
-     first(first), second(second), third(third) {}  
-
-    ASTnode* getFirst()
+    vector<class Variable *> getVarsList()
     {
-        return first;
+        return var_list;
     }
 
-    ASTnode* getSecond()
-    {
-        return second;
-    }
-
-    ASTnode* getThird()
-    {
-        return third;
-    }
-
-     virtual void accept(ASTvisitor& v) 
+    virtual void accept(ASTvisitor& v)
     {
       v.visit(*this);
     }
 };
 
-class IntLitASTnode: public ASTnode {
 
-	int intlit;
+class FieldDecList: public ASTnode {
+    
+    vector<class FieldDec *> declaration_list;
 
-	public:
+    public:
 
-	IntLitASTnode(int intlit): 
-	intlit(intlit){}
+    FieldDecList() {};
 
-    int getIntLit()
+    vector<class FieldDec *> getList()
     {
-        return intlit;
+        return declaration_list;
     }
 
-     virtual void accept(ASTvisitor& v) 
+    void push_back(class FieldDec *fieldDec)
+    {
+        declaration_list.push_back(fieldDec);
+    }
+
+    virtual void accept(ASTvisitor& v)
     {
       v.visit(*this);
     }
+};
 
+
+enum exprType {
+    binary = 1, location = 2, literal = 3, enclExpr = 4, unExpr = 5
+};
+
+class Expr: public ASTnode {
+    
+    exprType etype;
+
+    public:
+
+    Expr() {};
+
+    exprType getEtype() { return etype; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+enum literalType {
+    Int = 1, Bool = 2, Char = 3, String = 4
+};
+
+class Lit: public Expr {
+    
+    literalType ltype;
+
+    public:
+
+    Lit(literalType type) : ltype(type) {};
+
+    virtual int getValue() {return -1;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+class integerLit: public Lit {
+    
+    int value;
+
+    public:
+
+    integerLit(int value) : value(value), Lit(::Int) {};
+
+    virtual int getValue() {return value;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
 };
 
 class ASTContext {

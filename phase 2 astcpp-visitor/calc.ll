@@ -59,8 +59,8 @@ typedef decaf::Parser::token_type token_type;
 "//".*      {return token::COMMENT;}
 "class"             {return token::CLASS;}
 "Program"           {return token::PROGRAM;}
-"int"           {return token::INT;}
-"boolean"           {return token::BOOLEAN;}
+"int"           {yylval->value = strdup(yytext); return token::INT;}
+"boolean"           {yylval->value = strdup(yytext); return token::BOOLEAN;}
 "void"           {return token::VOID;}
 "true"          {return token::TRUE;}
 "false"         {return token::FALSE;}
@@ -72,23 +72,23 @@ typedef decaf::Parser::token_type token_type;
 "else"         {return token::ELSE;}
 "for"         {return token::FOR;}
 
-[a-zA-Z_][a-zA-Z0-9]*   {return token::ID;}
+[a-zA-Z_][a-zA-Z0-9]*   {yylval->value = strdup(yytext);return token::ID;}
 
 0[xX][0-9a-fA-F]+ {return token::HEX_LIT;}
-[0-9]+      {return token::INTEGER_LIT;}
+[0-9]+      {yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
 
-"+="                    {return token::PE;}
-"-="                    {return token::ME;}
-"="                 {return token::EQ;}
+"+="                {yylval->value = strdup(yytext);return token::PE;}
+"-="                {yylval->value = strdup(yytext);return token::ME;}
+"="                 {yylval->value = strdup(yytext);return token::EQ;}
 
-"+"                 {return token::ADD;}
-"-"                 {return token::SUB;}
-"*"                 {return token::MUL;}
-"/"                 {return token::DIV;}
-"%"                 {return token::MOD;}
-"<"                 {return token::LT;}
-">"                 {return token::GT;}
-"!"                 {return token::NOT;}
+"+"                 {yylval->value = strdup(yytext);return token::ADD;}
+"-"                 {yylval->value = strdup(yytext);return token::SUB;}
+"*"                 {yylval->value = strdup(yytext);return token::MUL;}
+"/"                 {yylval->value = strdup(yytext);return token::DIV;}
+"%"                 {yylval->value = strdup(yytext);return token::MOD;}
+"<"                 {yylval->value = strdup(yytext);return token::LT;}
+">"                 {yylval->value = strdup(yytext);return token::GT;}
+"!"                 {yylval->value = strdup(yytext);return token::NOT;}
 
 "{"                 {return token::L_FLO;}
 "}"                 {return token::R_FLO;}
@@ -99,12 +99,12 @@ typedef decaf::Parser::token_type token_type;
 ","                 {return token::COMMA;}
 ";"                 {return token::SEMI;}
 
-"!="                 {return token::NE; }
-"||"                 {return token::DO; }
-">="                 {return token::GE; }
-"&&"                 {return token::DA; }
-"<="                 {return token::LE; }
-"=="                 {return token::DE; }
+"!="                 {yylval->value = strdup(yytext);return token::NE; }
+"||"                 {yylval->value = strdup(yytext);return token::DO; }
+">="                 {yylval->value = strdup(yytext);return token::GE; }
+"&&"                 {yylval->value = strdup(yytext);return token::DA; }
+"<="                 {yylval->value = strdup(yytext);return token::LE; }
+"=="                 {yylval->value = strdup(yytext);return token::DE; }
 
 
 

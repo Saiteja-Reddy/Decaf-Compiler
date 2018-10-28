@@ -113,11 +113,16 @@ namespace decaf
     union semantic_type
 #line 56 "calc.yy"
 {
-	int  			integerVal;
-    class ASTnode*		astnode;
+    ASTnode*		astnode;
+    FieldDec* 		field;
+	FieldDecList* 	fields;
+	Variable*		var_decl;
+	Variables*		var_decls;
+	integerLit*   	intliteral;
+	char* value;
 }
 /* Line 303 of lalr1.cc.  */
-#line 121 "calc.tab.hh"
+#line 126 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;
@@ -251,7 +256,7 @@ namespace decaf
     typedef unsigned char token_number_type;
     /* Tables.  */
     /// For a state, the index in \a yytable_ of its portion.
-    static const short int yypact_[];
+    static const signed char yypact_[];
     static const signed char yypact_ninf_;
 
     /// For a state, default rule to reduce.
@@ -259,18 +264,18 @@ namespace decaf
     /// Zero means the default is an error.
     static const unsigned char yydefact_[];
 
-    static const short int yypgoto_[];
-    static const short int yydefgoto_[];
+    static const signed char yypgoto_[];
+    static const signed char yydefgoto_[];
 
     /// What to do in a state.
     /// \a yytable_[yypact_[s]]: what to do in state \a s.
     /// - if positive, shift that token.
     /// - if negative, reduce the rule which number is the opposite.
     /// - if zero, do what YYDEFACT says.
-    static const short int yytable_[];
+    static const unsigned char yytable_[];
     static const signed char yytable_ninf_;
 
-    static const short int yycheck_[];
+    static const signed char yycheck_[];
 
     /// For a state, its accessing symbol.
     static const unsigned char yystos_[];
@@ -296,7 +301,7 @@ namespace decaf
     /// A `-1'-separated list of the rules' RHS.
     static const rhs_number_type yyrhs_[];
     /// For each rule, the index of the first RHS symbol in \a yyrhs_.
-    static const unsigned short int yyprhs_[];
+    static const unsigned char yyprhs_[];
     /// For each rule, its source line number.
     static const unsigned char yyrline_[];
     /// For each scanner token number, its symbol number.

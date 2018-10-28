@@ -1,32 +1,77 @@
 #include "ast.h"
+using namespace std;
+
 
 class PostFixVisitor: public ASTvisitor {
     public:
 
-    virtual void visit(BinaryASTnode& node)
-    {
-        node.getLeft()->accept(*this);
-        node.getRight()->accept(*this);
-        std::cout << node.getBin_operator() << " ";
-    }
-
-    virtual void visit(TernaryASTnode& node)
-    {
-        node.getFirst()->accept(*this);
-        node.getSecond()->accept(*this);
-        node.getThird()->accept(*this);
-        std::cout << "? ";
-    }
-
-    virtual void visit(IntLitASTnode& node) 
-    {
-        std::cout << node.getIntLit() << " ";
-    }
-
     virtual void visit(ProgramASTnode& node) 
     {
-        std::cout << "Class " << node.getProgramName() << " declared\n";
+        cout << "Class " << node.getProgramName() << " declared\n";
+
+        class FieldDecList* fields = node.getFields();
+        fields->accept(*this);
+        cout << endl;
+
+        // vector<class FieldDec *> fieldslist = fields->getList(); 
+
+        // for(auto& i: fieldslist)
+        // {
+        //     cout <<  i->getType()   << endl;
+        // }
+
     }
 
+    virtual void visit(FieldDecList& node) 
+    {
+        // cout << "FieldDecList " << " declared\n";
 
+        vector<class FieldDec *> fieldslist = node.getList();
+
+        for(auto& i: fieldslist)
+        {
+            i->accept(*this);
+        }
+
+    }
+
+    virtual void visit(FieldDec& node) 
+    {
+        // cout << "FieldDec " << " declared\n";
+
+        cout << node.getType() << " - ";
+
+        vector<class Variable *> var_list = node.getVarsList();
+
+        for(auto& i: var_list)
+        {
+            cout << i->getName() << " ";
+        }
+
+    }
+
+    virtual void visit(Variable& node) 
+    {
+        cout << "Variable " << " declared\n";
+    }
+
+    virtual void visit(Variables& node) 
+    {
+        cout << "Variables " << " declared\n";
+    }
+
+    virtual void visit(Expr& node) 
+    {
+        cout << "Expr " << " declared\n";
+    }            
+
+    virtual void visit(Lit& node) 
+    {
+        cout << "Lit " << " declared\n";
+    }      
+
+    virtual void visit(integerLit& node) 
+    {
+        cout << "integerLit " << " declared\n";
+    }          
 };
