@@ -11,7 +11,6 @@ class PostFixVisitor: public ASTvisitor {
 
         class FieldDecList* fields = node.getFields();
         fields->accept(*this);
-        cout << endl;
 
         // vector<class FieldDec *> fieldslist = fields->getList(); 
 
@@ -45,8 +44,13 @@ class PostFixVisitor: public ASTvisitor {
 
         for(auto& i: var_list)
         {
-            cout << i->getName() << " ";
+            if(i->isArray())
+                cout << i->getName() << "[" << i->getLength() << "]" << " ";
+            else
+                cout << i->getName() << " ";
         }
+        
+        cout << endl;
 
     }
 

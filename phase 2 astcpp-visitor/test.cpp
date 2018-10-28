@@ -1,4 +1,5 @@
 class Program
 {
-	int a;
+	int a,b;
+	int c, hello[4];
 }
