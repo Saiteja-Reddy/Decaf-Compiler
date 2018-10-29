@@ -72,17 +72,20 @@ class PostFixVisitor: public ASTvisitor {
 
     virtual void visit(integerLit& node) 
     {
-        cout << "integerLit " << " declared\n";
+        // cout << "integerLit " << " declared\n";
+        cout << node.getValue();
     }     
 
     virtual void visit(boolLit& node) 
     {
-        cout << "boolLit " << " declared\n";
+        // cout << "boolLit " << " declared\n";
+        cout << node.getVal();
     }     
 
     virtual void visit(charLit& node) 
     {
-        cout << "charLit " << " declared\n";
+        // cout << "charLit " << " declared\n";
+        cout << node.getVal();
     }             
 
     virtual void visit(Block& node) 
@@ -183,25 +186,42 @@ class PostFixVisitor: public ASTvisitor {
         cout << node.getName() << "(";
         class Parameters* params = node.getParams();
         params->accept(*this);
-        cout << ") ";
+        cout << ")";
 
     }     
 
     virtual void visit(BinExpr& node) 
     {
-        cout << "BinExpr " << " declared\n";
+        // cout << "BinExpr " << " declared\n";
+        class Expr *lhs = node.getLhs();
+        class Expr *rhs = node.getRhs();
+        string op = node.getOp();
+
+        lhs->accept(*this);
+        cout << op;
+        rhs->accept(*this);
+
     }             
 
     virtual void visit(EncExpr& node) 
     {
-        cout << "EncExpr " << " declared\n";
+        // cout << "EncExpr " << " declared\n";
+        class Expr *expr = node.getexpr();
+        cout << "(";
+        expr->accept(*this);
+        cout << ")";
     }             
 
     virtual void visit(Parameters& node)
     {
         // cout << "Parameters " << " declared\n";
         vector<class Expr *> params = node.getParams();
-        cout << params.size() ;
+        // cout << params.size() ;
+        for(auto& i: params)
+        {
+            i->accept(*this);
+            cout << ",";
+        }                  
 
     }
 

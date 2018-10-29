@@ -193,7 +193,7 @@ decl_list : decl {$$ = new Variables(); $$->push_back($1);}
 		  | decl_list  COMMA decl {$$->push_back($3);}
 
 decl : ID { $$ = new Variable(string($1));}
-	 | ID L_SQ intlit R_SQ {cout << $3->getValue()  << " array size " << endl;$$ = new Variable(string($1),$3->getValue());}
+	 | ID L_SQ intlit R_SQ {$$ = new Variable(string($1),$3->getValue());}
 
 type : INT | BOOLEAN;
 

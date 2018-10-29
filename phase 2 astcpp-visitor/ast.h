@@ -309,7 +309,7 @@ class charLit: public Lit {
 
     public:
 
-    charLit(string value) : value(value[0]), Lit(::Char) {};
+    charLit(string value) : value(value[1]), Lit(::Char) {};
 
     virtual char getVal() {return value;};
 

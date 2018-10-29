@@ -457,7 +457,7 @@ namespace decaf
 
   case 12:
 #line 196 "calc.yy"
-    {cout << (yysemantic_stack_[(4) - (3)].intliteral)->getValue()  << " array size " << endl;(yyval.var_decl) = new Variable(string((yysemantic_stack_[(4) - (1)].value)),(yysemantic_stack_[(4) - (3)].intliteral)->getValue());;}
+    {(yyval.var_decl) = new Variable(string((yysemantic_stack_[(4) - (1)].value)),(yysemantic_stack_[(4) - (3)].intliteral)->getValue());;}
     break;
 
   case 15:
