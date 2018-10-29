@@ -552,10 +552,10 @@ static yyconst flex_int16_t yy_chk[195] =
 static yyconst flex_int16_t yy_rule_linenum[48] =
     {   0,
        59,   60,   61,   62,   63,   64,   65,   66,   67,   68,
-       69,   70,   71,   72,   73,   75,   77,   78,   80,   81,
-       82,   84,   85,   86,   87,   88,   89,   90,   91,   93,
-       94,   95,   96,   97,   98,   99,  100,  102,  103,  104,
-      105,  106,  107,  111,  117,  121,  125
+       69,   70,   71,   72,   73,   75,   77,   79,   81,   82,
+       83,   85,   86,   87,   88,   89,   90,   91,   92,   94,
+       95,   96,   97,   98,   99,  100,  101,  103,  104,  105,
+      106,  107,  108,  112,  118,  122,  126
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -956,168 +956,168 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 77 "calc.ll"
-{return token::HEX_LIT;}
+{yylval->intliteral = new integerLit(atoi(yytext)); return token::HEX_LIT;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 78 "calc.ll"
+#line 79 "calc.ll"
 {yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 80 "calc.ll"
+#line 81 "calc.ll"
 {yylval->value = strdup(yytext);return token::PE;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 81 "calc.ll"
+#line 82 "calc.ll"
 {yylval->value = strdup(yytext);return token::ME;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 82 "calc.ll"
+#line 83 "calc.ll"
 {yylval->value = strdup(yytext);return token::EQ;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 84 "calc.ll"
+#line 85 "calc.ll"
 {yylval->value = strdup(yytext);return token::ADD;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 85 "calc.ll"
+#line 86 "calc.ll"
 {yylval->value = strdup(yytext);return token::SUB;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 86 "calc.ll"
+#line 87 "calc.ll"
 {yylval->value = strdup(yytext);return token::MUL;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 87 "calc.ll"
+#line 88 "calc.ll"
 {yylval->value = strdup(yytext);return token::DIV;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 88 "calc.ll"
+#line 89 "calc.ll"
 {yylval->value = strdup(yytext);return token::MOD;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 89 "calc.ll"
+#line 90 "calc.ll"
 {yylval->value = strdup(yytext);return token::LT;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 90 "calc.ll"
+#line 91 "calc.ll"
 {yylval->value = strdup(yytext);return token::GT;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 91 "calc.ll"
+#line 92 "calc.ll"
 {yylval->value = strdup(yytext);return token::NOT;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 93 "calc.ll"
+#line 94 "calc.ll"
 {return token::L_FLO;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 94 "calc.ll"
+#line 95 "calc.ll"
 {return token::R_FLO;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 95 "calc.ll"
+#line 96 "calc.ll"
 {return token::L_SQ;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 96 "calc.ll"
+#line 97 "calc.ll"
 {return token::R_SQ;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 97 "calc.ll"
+#line 98 "calc.ll"
 {return token::L_P;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 98 "calc.ll"
+#line 99 "calc.ll"
 {return token::R_P;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 99 "calc.ll"
+#line 100 "calc.ll"
 {return token::COMMA;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 100 "calc.ll"
+#line 101 "calc.ll"
 {return token::SEMI;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 102 "calc.ll"
+#line 103 "calc.ll"
 {yylval->value = strdup(yytext);return token::NE; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 103 "calc.ll"
+#line 104 "calc.ll"
 {yylval->value = strdup(yytext);return token::DO; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 104 "calc.ll"
+#line 105 "calc.ll"
 {yylval->value = strdup(yytext);return token::GE; }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 105 "calc.ll"
+#line 106 "calc.ll"
 {yylval->value = strdup(yytext);return token::DA; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 106 "calc.ll"
+#line 107 "calc.ll"
 {yylval->value = strdup(yytext);return token::LE; }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 107 "calc.ll"
+#line 108 "calc.ll"
 {yylval->value = strdup(yytext);return token::DE; }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 111 "calc.ll"
+#line 112 "calc.ll"
 {return token::CHAR_LIT;}
 	YY_BREAK
 /* gobble up white-spaces ( Added \n here ********) */
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
-#line 117 "calc.ll"
+#line 118 "calc.ll"
 {
     yylloc->step();
 }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 121 "calc.ll"
+#line 122 "calc.ll"
 {return token::STRING_LIT;}
 	YY_BREAK
 /* pass all other characters up to bison */
 case 47:
 YY_RULE_SETUP
-#line 125 "calc.ll"
+#line 126 "calc.ll"
 {
     return static_cast<token_type>(*yytext);
 }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 130 "calc.ll"
+#line 131 "calc.ll"
 ECHO;
 	YY_BREAK
 #line 1124 "lex.decaf.cc"
@@ -2169,7 +2169,7 @@ void decaffree (void * ptr )
 
 /* %ok-for-header */
 
-#line 130 "calc.ll"
+#line 131 "calc.ll"
 
 
 

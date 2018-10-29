@@ -74,7 +74,8 @@ typedef decaf::Parser::token_type token_type;
 
 [a-zA-Z_][a-zA-Z0-9]*   {yylval->value = strdup(yytext);return token::ID;}
 
-0[xX][0-9a-fA-F]+ {return token::HEX_LIT;}
+0[xX][0-9a-fA-F]+ {yylval->intliteral = new integerLit(atoi(yytext)); return token::HEX_LIT;}
+
 [0-9]+      {yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
 
 "+="                {yylval->value = strdup(yytext);return token::PE;}

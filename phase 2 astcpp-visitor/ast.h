@@ -6,6 +6,13 @@ class Variables;
 class integerLit;
 class Lit;
 class Expr;
+class Statement;
+class Statements;
+class Block;
+class meth_arg;
+class meth_args;
+class meth_dec;
+class meth_decs;
 
 using namespace std;
 
@@ -20,6 +27,13 @@ class ASTvisitor {
     virtual void visit(integerLit& node) = 0;
     virtual void visit(Lit& node) = 0;
     virtual void visit(Expr& node) = 0;
+    virtual void visit(Block& node) = 0;
+    virtual void visit(Statement& node) = 0;
+    virtual void visit(Statements& node) = 0;
+    virtual void visit(meth_arg& node) = 0;
+    virtual void visit(meth_args& node) = 0;
+    virtual void visit(meth_dec& node) = 0;
+    virtual void visit(meth_decs& node) = 0;
 };
 
 class ASTnode {
@@ -37,11 +51,13 @@ class ProgramASTnode: public ASTnode {
 
     class FieldDecList *fields;
 
+    class meth_decs *methods;
+
     public:
 
     ProgramASTnode(string name) : name(name) {}
-    
-    ProgramASTnode(string name, class FieldDecList *fields ) : name(name), fields(fields) {}
+    ProgramASTnode(string name, class FieldDecList *fields) : name(name), fields(fields) {}
+    ProgramASTnode(string name, class FieldDecList *fields, class meth_decs *methods) : name(name), fields(fields), methods(methods) {}
 
     string getProgramName() {
         return name;
@@ -51,6 +67,9 @@ class ProgramASTnode: public ASTnode {
         return fields;
     }
 
+    class meth_decs * getMeths() {
+        return methods;
+    }    
 
     virtual void accept(ASTvisitor& v)
     {
@@ -217,6 +236,165 @@ class integerLit: public Lit {
       v.visit(*this);
     }
 };
+
+enum stmtType {
+    Return = 1, NonReturn = 2
+};
+
+class Statement: public ASTnode {
+    
+    stmtType stype;
+
+    public:
+
+    Statement() : stype(::NonReturn) {};
+
+    virtual bool hasReturn() {return stype == ::NonReturn;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class Statements: public ASTnode {
+    
+    vector<class Statement *> statements_list;
+
+    public:
+
+    Statements() {};
+
+    vector<class Statement *> getList()
+    {
+        return statements_list;
+    }
+
+    void push_back(class Statement *state)
+    {
+        statements_list.push_back(state);
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+class Block: public Statement {
+    
+    // class variableDeclarations *declarations_list;
+
+    // class Statements *statements_list;
+
+    public:
+
+    Block() {};
+
+    // virtual boolean hasReturn() {return stype == ::NonReturn;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class meth_arg: public ASTnode {
+    
+    string type;
+    string name;
+
+    public:
+
+    meth_arg(string type, string name) : type(type), name(name) {};
+
+    virtual string getType() {return type;};
+    
+    virtual string getName() {return name;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+class meth_args: public ASTnode {
+    
+    vector<class meth_arg *> meth_args_list;
+
+    public:
+
+    meth_args() {};
+
+    vector<class meth_arg *> getList()
+    {
+        return meth_args_list;
+    }
+
+    void push_back(class meth_arg *arg)
+    {
+        meth_args_list.push_back(arg);
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class meth_dec: public ASTnode {
+    
+    string return_type;
+    string name;
+
+    class meth_args *arg_list;
+
+    class Block *body;
+
+    public:
+
+    meth_dec(string return_type, string name, class meth_args *args, class Block* blc ) : return_type(return_type), name(name),arg_list(args), body(blc) {};
+
+    virtual string getType() {return return_type;};
+    
+    virtual string getName() {return name;};
+    
+    virtual class meth_args * getArgs() {return arg_list;};
+    
+    virtual class Block * getBlock() {return body;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class meth_decs: public ASTnode {
+    
+    vector<class meth_dec *> meth_decs_list;
+
+    public:
+
+    meth_decs() {};
+
+    vector<class meth_dec *> getList()
+    {
+        return meth_decs_list;
+    }
+
+    void push_back(class meth_dec *arg)
+    {
+        meth_decs_list.push_back(arg);
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
 
 class ASTContext {
 public:

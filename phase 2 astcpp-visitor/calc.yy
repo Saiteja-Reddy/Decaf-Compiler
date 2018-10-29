@@ -61,6 +61,10 @@
 	Variables*		var_decls;
 	integerLit*   	intliteral;
 	char* value;
+	Block*	block_type;
+	meth_args*	meth_args_type;
+	meth_dec*	meth_dec_type;
+	meth_decs* meth_decs_type;
 }
 
 
@@ -86,7 +90,7 @@
 %token CLASS
 %token PROGRAM
 %token COMMENT
-%token VOID
+%token <value> VOID
 %token L_FLO
 %token R_FLO
 %token L_SQ
@@ -102,7 +106,7 @@
 %token <value> BOOLEAN
 %token <value> INT
 %token <intliteral> INTEGER_LIT
-%token HEX_LIT
+%token <intliteral> HEX_LIT
 %token <value> ADD
 %token <value> SUB
 %token <value> MUL
@@ -140,18 +144,27 @@
 %type <var_decls> decl_list
 %type <var_decl> decl
 %type <intliteral> intlit;
+
+%type <meth_decs_type> method_decl_list;
+%type <meth_dec_type> method_decl;
+%type <meth_args_type> method_args_block;
+%type <meth_args_type> type_id_list;
+%type <block_type> block;
 %type <value> type;
+
 
 
 %%
 
 line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4); driver.ast.root = $$;}
-	|	CLASS PROGRAM L_FLO R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}
+	| CLASS PROGRAM L_FLO field_decl_list method_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4, $5); driver.ast.root = $$;}
+	| 	CLASS PROGRAM L_FLO R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}
+	| 	CLASS PROGRAM L_FLO method_decl_list R_FLO { $$ = new ProgramASTnode("Program", new FieldDecList() , $4); driver.ast.root = $$;}
 
 field_decl_list :  field_decl { $$ = new FieldDecList(); 					$$->push_back($1)}
 		 | field_decl_list field_decl {$$->push_back($2);}
 
-field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);}
+field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);} 
 
 decl_list : decl {$$ = new Variables(); $$->push_back($1);} 
 		  | decl_list  COMMA decl {$$->push_back($3);}
@@ -161,9 +174,23 @@ decl : ID { $$ = new Variable(string($1));}
 
 type : INT | BOOLEAN;
 
-intlit : INTEGER_LIT {$$ = $1;}
+intlit : HEX_LIT {$$ = $1;}  
+		| INTEGER_LIT {$$ = $1;}
 
 
+method_decl_list : method_decl { $$ = new meth_decs(); 					$$->push_back($1)}
+			 |  method_decl_list method_decl {$$->push_back($2);}
+
+method_decl :  type ID method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
+			| VOID ID method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
+
+method_args_block : L_P  type_id_list R_P {$$ = $2}
+			| L_P R_P {$$ = new meth_args();}
+
+type_id_list : type ID {$$ = new meth_args();$$->push_back(new meth_arg(string($1), string($2)));}
+			| type_id_list COMMA type ID {$$->push_back(new meth_arg(string($3), string($4)));}
+
+block : L_FLO  R_FLO {$$ = new Block();}
 
 
 

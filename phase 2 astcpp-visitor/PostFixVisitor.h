@@ -12,12 +12,8 @@ class PostFixVisitor: public ASTvisitor {
         class FieldDecList* fields = node.getFields();
         fields->accept(*this);
 
-        // vector<class FieldDec *> fieldslist = fields->getList(); 
-
-        // for(auto& i: fieldslist)
-        // {
-        //     cout <<  i->getType()   << endl;
-        // }
+        class meth_decs* methods = node.getMeths();
+        methods->accept(*this);
 
     }
 
@@ -77,5 +73,63 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(integerLit& node) 
     {
         cout << "integerLit " << " declared\n";
-    }          
+    }     
+
+    virtual void visit(Block& node) 
+    {
+        cout << "Block " << " declared\n";
+    }
+
+    virtual void visit(meth_arg& node) 
+    {
+        // cout << "meth_arg " << " declared\n";
+        cout << node.getType() << "-" << node.getName() << " ";
+    }            
+
+    virtual void visit(meth_args& node) 
+    {
+        // cout << "meth_args " << " declared\n";
+        vector<class meth_arg *> meth_args_list = node.getList();
+        for(auto& i: meth_args_list)
+        {
+            i->accept(*this);
+        } 
+    }         
+
+    virtual void visit(meth_dec& node) 
+    {
+        // cout << "meth_dec " << " declared\n";
+        cout << "Meth " << node.getName() << " - ";
+        cout << node.getType() << " - ";
+        class meth_args * args = node.getArgs();
+        args->accept(*this);
+        cout << " - ";
+        class Block *body = node.getBlock();
+        body->accept(*this);
+    
+    }      
+
+    virtual void visit(meth_decs& node) 
+    {
+        // cout << "meth_decs " << " declared\n";
+        vector<class meth_dec *> methods = node.getList();
+        for(auto& i: methods)
+        {
+            i->accept(*this);
+        }        
+
+    }     
+
+    virtual void visit(Statement& node) 
+    {
+        cout << "Statement " << " declared\n";
+    }     
+
+    virtual void visit(Statements& node) 
+    {
+        cout << "Statements " << " declared\n";
+    }             
+
+
+
 };

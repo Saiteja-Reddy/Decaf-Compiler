@@ -38,7 +38,7 @@
 #include "calc.tab.hh"
 
 /* User implementation prologue.  */
-#line 71 "calc.yy"
+#line 75 "calc.yy"
 
 
 #include "driver.h"
@@ -406,58 +406,118 @@ namespace decaf
     switch (yyn)
       {
 	  case 2:
-#line 148 "calc.yy"
+#line 159 "calc.yy"
     { (yyval.astnode) = new ProgramASTnode("Program Decl", (yysemantic_stack_[(5) - (4)].fields)); driver.ast.root = (yyval.astnode);;}
     break;
 
   case 3:
-#line 149 "calc.yy"
-    { (yyval.astnode) = new ProgramASTnode("Program"); driver.ast.root = (yyval.astnode);;}
+#line 160 "calc.yy"
+    { (yyval.astnode) = new ProgramASTnode("Program Decl", (yysemantic_stack_[(6) - (4)].fields), (yysemantic_stack_[(6) - (5)].meth_decs_type)); driver.ast.root = (yyval.astnode);;}
     break;
 
   case 4:
-#line 151 "calc.yy"
-    { (yyval.fields) = new FieldDecList(); 					(yyval.fields)->push_back((yysemantic_stack_[(1) - (1)].field));}
+#line 161 "calc.yy"
+    { (yyval.astnode) = new ProgramASTnode("Program"); driver.ast.root = (yyval.astnode);;}
     break;
 
   case 5:
-#line 152 "calc.yy"
-    {(yyval.fields)->push_back((yysemantic_stack_[(2) - (2)].field));;}
+#line 162 "calc.yy"
+    { (yyval.astnode) = new ProgramASTnode("Program", new FieldDecList() , (yysemantic_stack_[(5) - (4)].meth_decs_type)); driver.ast.root = (yyval.astnode);;}
     break;
 
   case 6:
-#line 154 "calc.yy"
-    {(yyval.field) = new FieldDec(std::string((yysemantic_stack_[(3) - (1)].value)), (yysemantic_stack_[(3) - (2)].var_decls));;}
+#line 164 "calc.yy"
+    { (yyval.fields) = new FieldDecList(); 					(yyval.fields)->push_back((yysemantic_stack_[(1) - (1)].field));}
     break;
 
   case 7:
-#line 156 "calc.yy"
-    {(yyval.var_decls) = new Variables(); (yyval.var_decls)->push_back((yysemantic_stack_[(1) - (1)].var_decl));;}
+#line 165 "calc.yy"
+    {(yyval.fields)->push_back((yysemantic_stack_[(2) - (2)].field));;}
     break;
 
   case 8:
-#line 157 "calc.yy"
-    {(yyval.var_decls)->push_back((yysemantic_stack_[(3) - (3)].var_decl));;}
+#line 167 "calc.yy"
+    {(yyval.field) = new FieldDec(std::string((yysemantic_stack_[(3) - (1)].value)), (yysemantic_stack_[(3) - (2)].var_decls));;}
     break;
 
   case 9:
-#line 159 "calc.yy"
-    { (yyval.var_decl) = new Variable(string((yysemantic_stack_[(1) - (1)].value)));;}
+#line 169 "calc.yy"
+    {(yyval.var_decls) = new Variables(); (yyval.var_decls)->push_back((yysemantic_stack_[(1) - (1)].var_decl));;}
     break;
 
   case 10:
-#line 160 "calc.yy"
+#line 170 "calc.yy"
+    {(yyval.var_decls)->push_back((yysemantic_stack_[(3) - (3)].var_decl));;}
+    break;
+
+  case 11:
+#line 172 "calc.yy"
+    { (yyval.var_decl) = new Variable(string((yysemantic_stack_[(1) - (1)].value)));;}
+    break;
+
+  case 12:
+#line 173 "calc.yy"
     {(yyval.var_decl) = new Variable(string((yysemantic_stack_[(4) - (1)].value)),(yysemantic_stack_[(4) - (3)].intliteral)->getValue());;}
     break;
 
-  case 13:
-#line 164 "calc.yy"
+  case 15:
+#line 177 "calc.yy"
     {(yyval.intliteral) = (yysemantic_stack_[(1) - (1)].intliteral);;}
+    break;
+
+  case 16:
+#line 178 "calc.yy"
+    {(yyval.intliteral) = (yysemantic_stack_[(1) - (1)].intliteral);;}
+    break;
+
+  case 17:
+#line 181 "calc.yy"
+    { (yyval.meth_decs_type) = new meth_decs(); 					(yyval.meth_decs_type)->push_back((yysemantic_stack_[(1) - (1)].meth_dec_type));}
+    break;
+
+  case 18:
+#line 182 "calc.yy"
+    {(yyval.meth_decs_type)->push_back((yysemantic_stack_[(2) - (2)].meth_dec_type));;}
+    break;
+
+  case 19:
+#line 184 "calc.yy"
+    {(yyval.meth_dec_type) = new meth_dec(std::string((yysemantic_stack_[(4) - (1)].value)), (yysemantic_stack_[(4) - (2)].value),(yysemantic_stack_[(4) - (3)].meth_args_type), (yysemantic_stack_[(4) - (4)].block_type));;}
+    break;
+
+  case 20:
+#line 185 "calc.yy"
+    {(yyval.meth_dec_type) = new meth_dec(std::string((yysemantic_stack_[(4) - (1)].value)), (yysemantic_stack_[(4) - (2)].value),(yysemantic_stack_[(4) - (3)].meth_args_type), (yysemantic_stack_[(4) - (4)].block_type));;}
+    break;
+
+  case 21:
+#line 187 "calc.yy"
+    {(yyval.meth_args_type) = (yysemantic_stack_[(3) - (2)].meth_args_type);}
+    break;
+
+  case 22:
+#line 188 "calc.yy"
+    {(yyval.meth_args_type) = new meth_args();;}
+    break;
+
+  case 23:
+#line 190 "calc.yy"
+    {(yyval.meth_args_type) = new meth_args();(yyval.meth_args_type)->push_back(new meth_arg(string((yysemantic_stack_[(2) - (1)].value)), string((yysemantic_stack_[(2) - (2)].value))));;}
+    break;
+
+  case 24:
+#line 191 "calc.yy"
+    {(yyval.meth_args_type)->push_back(new meth_arg(string((yysemantic_stack_[(4) - (3)].value)), string((yysemantic_stack_[(4) - (4)].value))));;}
+    break;
+
+  case 25:
+#line 193 "calc.yy"
+    {(yyval.block_type) = new Block();;}
     break;
 
 
     /* Line 675 of lalr1.cc.  */
-#line 461 "calc.tab.cc"
+#line 521 "calc.tab.cc"
 	default: break;
       }
     YY_SYMBOL_PRINT ("-> $$ =", yyr1_[yyn], &yyval, &yyloc);
@@ -664,13 +724,16 @@ namespace decaf
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
-  const signed char Parser::yypact_ninf_ = -15;
+  const signed char Parser::yypact_ninf_ = -14;
   const signed char
   Parser::yypact_[] =
   {
-        -3,     0,     6,    -1,   -15,    -9,   -15,   -15,   -15,    -7,
-     -15,   -11,   -15,   -15,     5,   -14,   -15,   -13,   -11,   -15,
-     -15,     7,   -15,   -15
+        12,    24,     2,    29,   -14,    -6,     3,   -14,   -14,   -14,
+      -3,   -14,    21,     0,   -14,    30,   -14,   -14,     4,    -2,
+      14,   -14,   -14,    22,   -14,     6,    35,   -14,    13,    35,
+      25,   -14,    30,   -14,    26,    17,    37,   -14,   -14,   -14,
+      36,   -14,    38,   -14,   -14,   -14,    18,   -14,   -14,    31,
+     -14
   };
 
   /* YYDEFACT[S] -- default rule to reduce with in state S when YYTABLE
@@ -679,23 +742,28 @@ namespace decaf
   const unsigned char
   Parser::yydefact_[] =
   {
-         0,     0,     0,     0,     1,     0,     3,    12,    11,     0,
-       4,     0,     2,     5,     9,     0,     7,     0,     0,     6,
-      13,     0,     8,    10
+         0,     0,     0,     0,     1,     0,     0,     4,    14,    13,
+       0,     6,     0,     0,    17,     0,     2,     7,     0,    11,
+       0,     9,     5,     0,    18,     0,     0,     3,     0,     0,
+       0,     8,     0,    22,     0,     0,     0,    20,    16,    15,
+       0,    19,    11,    10,    23,    21,     0,    25,    12,     0,
+      24
   };
 
   /* YYPGOTO[NTERM-NUM].  */
   const signed char
   Parser::yypgoto_[] =
   {
-       -15,   -15,   -15,     1,   -15,    -2,   -15,   -15
+       -14,   -14,   -14,    39,   -14,    23,   -13,   -14,    41,    10,
+      40,   -14,    27
   };
 
   /* YYDEFGOTO[NTERM-NUM].  */
   const signed char
   Parser::yydefgoto_[] =
   {
-        -1,     2,     9,    10,    15,    16,    11,    21
+        -1,     2,    10,    11,    20,    21,    12,    40,    13,    14,
+      29,    35,    37
   };
 
   /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -705,16 +773,24 @@ namespace decaf
   const unsigned char
   Parser::yytable_[] =
   {
-         6,     1,    12,    18,    19,     3,     4,     5,    14,    20,
-      13,     7,     8,     7,     8,    17,    22,     0,    23
+        23,     6,     4,     7,     6,    23,    16,     6,    28,    22,
+      25,     6,    34,    27,     8,     9,     1,     8,     9,    33,
+       8,     9,    15,    24,     8,     9,     8,     9,    24,     3,
+      45,    30,    31,    49,    46,    38,    39,     5,     8,     9,
+      19,    32,    25,    36,    42,    44,    47,    48,    28,    17,
+      50,    18,     0,    43,     0,    26,    41
   };
 
   /* YYCHECK.  */
   const signed char
   Parser::yycheck_[] =
   {
-         9,     4,     9,    17,    18,     5,     0,     8,    19,    22,
-       9,    20,    21,    20,    21,    10,    18,    -1,    11
+        13,     7,     0,     9,     7,    18,     9,     7,    10,     9,
+      12,     7,    25,     9,    20,    21,     4,    20,    21,    13,
+      20,    21,    19,    13,    20,    21,    20,    21,    18,     5,
+      13,    17,    18,    46,    17,    22,    23,     8,    20,    21,
+      19,    19,    12,     8,    19,    19,     9,    11,    10,    10,
+      19,    10,    -1,    30,    -1,    15,    29
   };
 
   /* STOS_[STATE-NUM] -- The (internal number of the) accessing
@@ -722,9 +798,12 @@ namespace decaf
   const unsigned char
   Parser::yystos_[] =
   {
-         0,     4,    50,     5,     0,     8,     9,    20,    21,    51,
-      52,    55,     9,    52,    19,    53,    54,    10,    17,    18,
-      22,    56,    54,    11
+         0,     4,    50,     5,     0,     8,     7,     9,    20,    21,
+      51,    52,    55,    57,    58,    19,     9,    52,    57,    19,
+      53,    54,     9,    55,    58,    12,    59,     9,    10,    59,
+      17,    18,    19,    13,    55,    60,     8,    61,    22,    23,
+      56,    61,    19,    54,    19,    13,    17,     9,    11,    55,
+      19
   };
 
 #if YYDEBUG
@@ -745,16 +824,18 @@ namespace decaf
   const unsigned char
   Parser::yyr1_[] =
   {
-         0,    49,    50,    50,    51,    51,    52,    53,    53,    54,
-      54,    55,    55,    56
+         0,    49,    50,    50,    50,    50,    51,    51,    52,    53,
+      53,    54,    54,    55,    55,    56,    56,    57,    57,    58,
+      58,    59,    59,    60,    60,    61
   };
 
   /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
   const unsigned char
   Parser::yyr2_[] =
   {
-         0,     2,     5,     4,     1,     2,     3,     1,     3,     1,
-       4,     1,     1,     1
+         0,     2,     5,     6,     4,     5,     1,     2,     3,     1,
+       3,     1,     4,     1,     1,     1,     1,     1,     2,     4,
+       4,     3,     2,     2,     4,     2
   };
 
 #if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
@@ -769,7 +850,9 @@ namespace decaf
   "SUB", "MUL", "DIV", "MOD", "LT", "GT", "NOT", "CHAR_LIT", "TRUE",
   "FALSE", "NE", "DO", "GE", "DA", "LE", "DE", "CALLOUT", "STRING_LIT",
   "RETURN", "BREAK", "CONTINUE", "IF", "ELSE", "FOR", "$accept", "line",
-  "field_decl_list", "field_decl", "decl_list", "decl", "type", "intlit", 0
+  "field_decl_list", "field_decl", "decl_list", "decl", "type", "intlit",
+  "method_decl_list", "method_decl", "method_args_block", "type_id_list",
+  "block", 0
   };
 #endif
 
@@ -779,10 +862,14 @@ namespace decaf
   Parser::yyrhs_[] =
   {
         50,     0,    -1,     4,     5,     8,    51,     9,    -1,     4,
-       5,     8,     9,    -1,    52,    -1,    51,    52,    -1,    55,
-      53,    18,    -1,    54,    -1,    53,    17,    54,    -1,    19,
-      -1,    19,    10,    56,    11,    -1,    21,    -1,    20,    -1,
-      22,    -1
+       5,     8,    51,    57,     9,    -1,     4,     5,     8,     9,
+      -1,     4,     5,     8,    57,     9,    -1,    52,    -1,    51,
+      52,    -1,    55,    53,    18,    -1,    54,    -1,    53,    17,
+      54,    -1,    19,    -1,    19,    10,    56,    11,    -1,    21,
+      -1,    20,    -1,    23,    -1,    22,    -1,    58,    -1,    57,
+      58,    -1,    55,    19,    59,    61,    -1,     7,    19,    59,
+      61,    -1,    12,    60,    13,    -1,    12,    13,    -1,    55,
+      19,    -1,    60,    17,    55,    19,    -1,     8,     9,    -1
   };
 
   /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
@@ -790,16 +877,18 @@ namespace decaf
   const unsigned char
   Parser::yyprhs_[] =
   {
-         0,     0,     3,     9,    14,    16,    19,    23,    25,    29,
-      31,    36,    38,    40
+         0,     0,     3,     9,    16,    21,    27,    29,    32,    36,
+      38,    42,    44,    49,    51,    53,    55,    57,    59,    62,
+      67,    72,    76,    79,    82,    87
   };
 
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
   const unsigned char
   Parser::yyrline_[] =
   {
-         0,   148,   148,   149,   151,   152,   154,   156,   157,   159,
-     160,   162,   162,   164
+         0,   159,   159,   160,   161,   162,   164,   165,   167,   169,
+     170,   172,   173,   175,   175,   177,   178,   181,   182,   184,
+     185,   187,   188,   190,   191,   193
   };
 
   // Print the state stack on the debug stream.
@@ -878,8 +967,8 @@ namespace decaf
   }
 
   const int Parser::yyeof_ = 0;
-  const int Parser::yylast_ = 18;
-  const int Parser::yynnts_ = 8;
+  const int Parser::yylast_ = 56;
+  const int Parser::yynnts_ = 13;
   const int Parser::yyempty_ = -2;
   const int Parser::yyfinal_ = 4;
   const int Parser::yyterror_ = 1;
@@ -891,7 +980,7 @@ namespace decaf
 
 } // namespace decaf
 
-#line 170 "calc.yy"
+#line 197 "calc.yy"
 
 
 void decaf::Parser::error(const Parser::location_type& l,

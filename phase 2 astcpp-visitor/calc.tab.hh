@@ -120,9 +120,13 @@ namespace decaf
 	Variables*		var_decls;
 	integerLit*   	intliteral;
 	char* value;
+	Block*	block_type;
+	meth_args*	meth_args_type;
+	meth_dec*	meth_dec_type;
+	meth_decs* meth_decs_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 126 "calc.tab.hh"
+#line 130 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;
