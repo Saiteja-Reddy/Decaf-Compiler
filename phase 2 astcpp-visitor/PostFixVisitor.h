@@ -77,7 +77,12 @@ class PostFixVisitor: public ASTvisitor {
 
     virtual void visit(Block& node) 
     {
-        cout << "Block " << " declared\n";
+        // cout << "Block " << " declared\n";
+
+        class var_decs* var_decl = node.get_var_decs();
+        var_decl->accept(*this);
+        cout << endl;
+
     }
 
     virtual void visit(meth_arg& node) 
@@ -128,6 +133,30 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(Statements& node) 
     {
         cout << "Statements " << " declared\n";
+    }             
+
+    virtual void visit(var_decs& node) 
+    {
+        // cout << "var_decs " << " declared\n";
+        vector<class var_dec *> var_decs_list = node.getList();
+        for(auto& i: var_decs_list)
+        {
+            i->accept(*this);
+        }             
+
+    }     
+
+    virtual void visit(var_dec& node) 
+    {
+        // cout << "var_dec " << " declared\n";
+        vector<string> var_list = node.getList();
+        cout << "vardecs - " << node.getType() << " ";
+        for(auto& i: var_list)
+        {
+            cout << i << ", " ;
+        }                  
+        cout << " - ";
+
     }             
 
 

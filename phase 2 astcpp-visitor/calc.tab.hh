@@ -124,9 +124,12 @@ namespace decaf
 	meth_args*	meth_args_type;
 	meth_dec*	meth_dec_type;
 	meth_decs* meth_decs_type;
+	var_dec*	var_dec_type;
+	var_decs*	var_decs_type;
+	string_list* string_list_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 130 "calc.tab.hh"
+#line 133 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;

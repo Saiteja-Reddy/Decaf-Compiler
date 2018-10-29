@@ -13,6 +13,9 @@ class meth_arg;
 class meth_args;
 class meth_dec;
 class meth_decs;
+class var_dec;
+class var_decs;
+class string_list;
 
 using namespace std;
 
@@ -34,6 +37,8 @@ class ASTvisitor {
     virtual void visit(meth_args& node) = 0;
     virtual void visit(meth_dec& node) = 0;
     virtual void visit(meth_decs& node) = 0;
+    virtual void visit(var_dec& node) = 0;
+    virtual void visit(var_decs& node) = 0;
 };
 
 class ASTnode {
@@ -283,21 +288,100 @@ class Statements: public ASTnode {
 
 class Block: public Statement {
     
-    // class variableDeclarations *declarations_list;
+    class var_decs *declarations_list;
 
     // class Statements *statements_list;
 
     public:
 
     Block() {};
+    Block(class var_decs * decs): declarations_list(decs) {};
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
+
+    class var_decs * get_var_decs()
+    {
+        return declarations_list;
+    }
 
     virtual void accept(ASTvisitor& v)
     {
       v.visit(*this);
     }
 };
+
+class string_list {
+    vector<string> list;
+
+    public:
+
+    string_list() {};
+
+    void push_back(string arg)
+    {
+        list.push_back(arg);
+    }    
+    
+    virtual vector<string> getList() {return list;};
+
+};
+
+class var_dec: public ASTnode {
+    string type;
+    vector<string> var_list;
+
+    public:
+
+    var_dec(string type, class string_list* str_list)
+    {
+        type = type;
+        vector<string> list = str_list->getList();
+        for (auto &i : list) 
+        {
+            var_list.push_back(i);
+        }        
+    };
+
+    void push_back(string arg)
+    {
+        var_list.push_back(arg);
+    }    
+
+    virtual string getType() {return type;};
+    
+    virtual vector<string> getList() {return var_list;};
+    
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class var_decs: public ASTnode {
+    
+    vector<class var_dec *> var_decs_list;
+
+    public:
+
+    var_decs() {};
+
+    vector<class var_dec *> getList()
+    {
+        return var_decs_list;
+    }
+
+    void push_back(class var_dec *arg)
+    {
+        var_decs_list.push_back(arg);
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
 
 class meth_arg: public ASTnode {
     

@@ -1,8 +1,3 @@
 add Comments
 
 L_FLO var_dec_list R_FLO |L_FLO statement_list R_FLO |L_FLO var_dec_list statement_list R_FLO
-
-
-	|	CLASS PROGRAM L_FLO field_decl_list method_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4, $5); driver.ast.root = $$;}
-	| CLASS PROGRAM L_FLO method_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", new FieldDecList(), $4); driver.ast.root = $$;}
-	CLASS PROGRAM L_FLO R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}

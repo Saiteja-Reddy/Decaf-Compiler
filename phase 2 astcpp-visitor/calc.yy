@@ -65,6 +65,9 @@
 	meth_args*	meth_args_type;
 	meth_dec*	meth_dec_type;
 	meth_decs* meth_decs_type;
+	var_dec*	var_dec_type;
+	var_decs*	var_decs_type;
+	string_list* string_list_type;
 }
 
 
@@ -152,6 +155,11 @@
 %type <block_type> block;
 %type <value> type;
 
+%type <var_decs_type> var_dec_list;
+%type <var_dec_type> var_dec;
+%type <string_list_type> id_list;
+
+
 
 
 %%
@@ -191,6 +199,15 @@ type_id_list : type ID {$$ = new meth_args();$$->push_back(new meth_arg(string($
 			| type_id_list COMMA type ID {$$->push_back(new meth_arg(string($3), string($4)));}
 
 block : L_FLO  R_FLO {$$ = new Block();}
+	  |	L_FLO var_dec_list R_FLO {$$ = new Block($2);}
+
+var_dec_list : var_dec {$$ = new var_decs(); $$->push_back($1);}
+			| var_dec_list var_dec  {$$->push_back($2);}
+
+var_dec : type id_list SEMI {$$ = new var_dec(string($1), $2);}
+
+id_list : ID {$$ = new string_list(); $$->push_back(string($1));}
+		| id_list COMMA ID {$$->push_back(string($3));}
 
 
 
