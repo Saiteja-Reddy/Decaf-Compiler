@@ -59,7 +59,11 @@
 	FieldDecList* 	fields;
 	Variable*		var_decl;
 	Variables*		var_decls;
+	Lit*   	literal_type;
+	Expr*   	expr_type;
 	integerLit*   	intliteral;
+	charLit*   	charliteral;
+	boolLit*   	boolliteral;
 	char* value;
 	Block*	block_type;
 	meth_args*	meth_args_type;
@@ -68,6 +72,10 @@
 	var_dec*	var_dec_type;
 	var_decs*	var_decs_type;
 	string_list* string_list_type;
+	Parameters* parameters_type;
+	meth_call* meth_call_type;
+	Statements* statements_type;
+	Statement* statement_type;
 }
 
 
@@ -118,9 +126,9 @@
 %token <value> LT
 %token <value> GT
 %token <value> NOT
-%token CHAR_LIT
-%token TRUE
-%token FALSE
+%token <charliteral> CHAR_LIT
+%token <boolliteral> TRUE
+%token <boolliteral> FALSE
 %token <value> NE
 %token <value> DO
 %token <value> GE
@@ -159,7 +167,14 @@
 %type <var_dec_type> var_dec;
 %type <string_list_type> id_list;
 
-
+%type <statements_type> statement_list;
+%type <statement_type> statement;
+%type <meth_call_type> method_call;
+%type <value> method_name;
+%type <parameters_type> expr_list;
+%type <expr_type> expr;
+%type <literal_type> literal;
+%type <boolliteral> bool_lit;
 
 
 %%
@@ -178,7 +193,7 @@ decl_list : decl {$$ = new Variables(); $$->push_back($1);}
 		  | decl_list  COMMA decl {$$->push_back($3);}
 
 decl : ID { $$ = new Variable(string($1));}
-	 | ID L_SQ intlit R_SQ {$$ = new Variable(string($1),$3->getValue());}
+	 | ID L_SQ intlit R_SQ {cout << $3->getValue()  << " array size " << endl;$$ = new Variable(string($1),$3->getValue());}
 
 type : INT | BOOLEAN;
 
@@ -199,7 +214,47 @@ type_id_list : type ID {$$ = new meth_args();$$->push_back(new meth_arg(string($
 			| type_id_list COMMA type ID {$$->push_back(new meth_arg(string($3), string($4)));}
 
 block : L_FLO  R_FLO {$$ = new Block();}
-	  |	L_FLO var_dec_list R_FLO {$$ = new Block($2);}
+	  |	L_FLO var_dec_list R_FLO {$$ = new Block($2, new Statements());}
+	  | L_FLO var_dec_list statement_list R_FLO {$$ = new Block($2,$3);}
+	  | L_FLO statement_list R_FLO {$$ = new Block(new var_decs(),$2);}
+
+
+statement_list : statement {$$ = new Statements(); $$->push_back($1);}
+			 | statement_list statement {$$->push_back($2);}
+
+statement : method_call SEMI {$$ = $1;}
+
+method_call : method_name L_P R_P {$$ = new meth_call(string($1), new Parameters());}
+			| method_name L_P expr_list R_P {$$ = new meth_call(string($1), $3);}
+
+method_name : ID {$$ = $1}
+
+expr_list : expr {$$ = new Parameters(); $$->push_back($1);}
+		 | expr_list COMMA expr  {$$->push_back($3);}
+
+expr : L_P expr R_P {$$ = new EncExpr($2);}
+	| expr ADD expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr SUB expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr MUL expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr DIV expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr MOD expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr LE expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr GE expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr LT expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr GT expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr NE expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr DE expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr DA expr {$$ = new BinExpr($1, $3, string($2));}
+	|  expr DO expr  {$$ = new BinExpr($1, $3, string($2));}
+	| method_call {$$ = $1;}
+	| literal {$$ = $1;}
+
+literal : INTEGER_LIT {$$ = $1;}
+		 | bool_lit {$$ = $1;}
+		 | CHAR_LIT {$$ = $1;}
+
+bool_lit : TRUE {$$=$1;}
+		 | FALSE {$$=$1;}
 
 var_dec_list : var_dec {$$ = new var_decs(); $$->push_back($1);}
 			| var_dec_list var_dec  {$$->push_back($2);}

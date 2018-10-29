@@ -4,6 +4,8 @@ class FieldDecList;
 class Variable;
 class Variables;
 class integerLit;
+class boolLit;
+class charLit;
 class Lit;
 class Expr;
 class Statement;
@@ -16,6 +18,11 @@ class meth_decs;
 class var_dec;
 class var_decs;
 class string_list;
+class meth_call;
+class BinExpr;
+class EncExpr;
+class Parameters;
+
 
 using namespace std;
 
@@ -28,6 +35,8 @@ class ASTvisitor {
     virtual void visit(Variable& node) = 0;
     virtual void visit(Variables& node) = 0;
     virtual void visit(integerLit& node) = 0;
+    virtual void visit(boolLit& node) = 0;
+    virtual void visit(charLit& node) = 0;
     virtual void visit(Lit& node) = 0;
     virtual void visit(Expr& node) = 0;
     virtual void visit(Block& node) = 0;
@@ -39,6 +48,11 @@ class ASTvisitor {
     virtual void visit(meth_decs& node) = 0;
     virtual void visit(var_dec& node) = 0;
     virtual void visit(var_decs& node) = 0;
+    virtual void visit(meth_call& node) = 0;
+    virtual void visit(BinExpr& node) = 0;
+    virtual void visit(EncExpr& node) = 0;
+    virtual void visit(Parameters& node) = 0;
+
 };
 
 class ASTnode {
@@ -203,6 +217,38 @@ class Expr: public ASTnode {
     }
 };
 
+class BinExpr: public Expr {
+    class Expr *lhs;
+    class Expr *rhs;
+    string op;
+    public:
+
+    BinExpr(class Expr *lhs, class Expr *rhs, string op): lhs(lhs), rhs(rhs), op(op)  {};
+
+    class Expr * getLhs() { return lhs; }
+    class Expr * getRhs() { return rhs; }
+    string getOp() { return op; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class EncExpr: public Expr {
+    class Expr *expr;
+    public:
+
+    EncExpr(class Expr *expr): expr(expr) {};
+
+    class Expr * getexpr() { return expr; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
 
 enum literalType {
     Int = 1, Bool = 2, Char = 3, String = 4
@@ -234,6 +280,38 @@ class integerLit: public Lit {
     integerLit(int value) : value(value), Lit(::Int) {};
 
     virtual int getValue() {return value;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class boolLit: public Lit {
+    
+    string value;
+
+    public:
+
+    boolLit(string value) : value(value), Lit(::Bool)  {};
+
+    virtual string getVal() {return value;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class charLit: public Lit {
+    
+    char value;
+
+    public:
+
+    charLit(string value) : value(value[0]), Lit(::Char) {};
+
+    virtual char getVal() {return value;};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -290,12 +368,12 @@ class Block: public Statement {
     
     class var_decs *declarations_list;
 
-    // class Statements *statements_list;
+    class Statements *statements_list;
 
     public:
 
     Block() {};
-    Block(class var_decs * decs): declarations_list(decs) {};
+    Block(class var_decs * decs, class Statements *states): declarations_list(decs), statements_list(states)  {};
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
 
@@ -303,6 +381,11 @@ class Block: public Statement {
     {
         return declarations_list;
     }
+
+    class Statements * get_states()
+    {
+        return statements_list;
+    }    
 
     virtual void accept(ASTvisitor& v)
     {
@@ -477,6 +560,49 @@ class meth_decs: public ASTnode {
       v.visit(*this);
     }
 };
+
+class meth_call: public Statement, public Expr {
+    
+    string name;
+    class Parameters* params;
+
+    public:
+    
+    meth_call(string name,class Parameters* params ) : name(name), params(params) {};
+
+    string getName() {  return name;    }
+
+    class Parameters* getParams() { return params;}
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class Parameters: public ASTnode {
+    vector<class Expr *> params;
+
+    public:
+
+    Parameters() {};
+
+    void push_back(class Expr *E)
+    {
+        params.push_back(E);
+    }
+
+    vector<class Expr *> getParams()
+    {
+        return params;
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
 
 
 class ASTContext {

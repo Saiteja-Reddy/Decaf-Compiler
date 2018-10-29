@@ -118,7 +118,11 @@ namespace decaf
 	FieldDecList* 	fields;
 	Variable*		var_decl;
 	Variables*		var_decls;
+	Lit*   	literal_type;
+	Expr*   	expr_type;
 	integerLit*   	intliteral;
+	charLit*   	charliteral;
+	boolLit*   	boolliteral;
 	char* value;
 	Block*	block_type;
 	meth_args*	meth_args_type;
@@ -127,9 +131,13 @@ namespace decaf
 	var_dec*	var_dec_type;
 	var_decs*	var_decs_type;
 	string_list* string_list_type;
+	Parameters* parameters_type;
+	meth_call* meth_call_type;
+	Statements* statements_type;
+	Statement* statement_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 133 "calc.tab.hh"
+#line 141 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;
@@ -263,7 +271,7 @@ namespace decaf
     typedef unsigned char token_number_type;
     /* Tables.  */
     /// For a state, the index in \a yytable_ of its portion.
-    static const signed char yypact_[];
+    static const short int yypact_[];
     static const signed char yypact_ninf_;
 
     /// For a state, default rule to reduce.
@@ -271,7 +279,7 @@ namespace decaf
     /// Zero means the default is an error.
     static const unsigned char yydefact_[];
 
-    static const signed char yypgoto_[];
+    static const short int yypgoto_[];
     static const signed char yydefgoto_[];
 
     /// What to do in a state.
@@ -310,7 +318,7 @@ namespace decaf
     /// For each rule, the index of the first RHS symbol in \a yyrhs_.
     static const unsigned char yyprhs_[];
     /// For each rule, its source line number.
-    static const unsigned char yyrline_[];
+    static const unsigned short int yyrline_[];
     /// For each scanner token number, its symbol number.
     static const unsigned short int yytoken_number_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.

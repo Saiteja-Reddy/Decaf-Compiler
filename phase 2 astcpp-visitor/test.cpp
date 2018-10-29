@@ -8,10 +8,13 @@ class Program
 	{
 		int a;
 		boolean c;
+		main('s');
 	}	
 
 	boolean helloo(int a, boolean x, int b)
 	{
 		int def, ghi;
+		helloo(1+2, 12, 1*(2+3), main(), true);
+		main(false);
 	}
 }

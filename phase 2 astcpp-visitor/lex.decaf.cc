@@ -906,12 +906,12 @@ YY_RULE_SETUP
 case 7:
 YY_RULE_SETUP
 #line 65 "calc.ll"
-{return token::TRUE;}
+{yylval->boolliteral = new boolLit(yytext);return token::TRUE;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 66 "calc.ll"
-{return token::FALSE;}
+{yylval->boolliteral = new boolLit(yytext);return token::FALSE;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
@@ -1091,7 +1091,7 @@ YY_RULE_SETUP
 case 44:
 YY_RULE_SETUP
 #line 112 "calc.ll"
-{return token::CHAR_LIT;}
+{yylval->charliteral = new charLit(yytext);return token::CHAR_LIT;}
 	YY_BREAK
 /* gobble up white-spaces ( Added \n here ********) */
 case 45:

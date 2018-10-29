@@ -62,8 +62,8 @@ typedef decaf::Parser::token_type token_type;
 "int"           {yylval->value = strdup(yytext); return token::INT;}
 "boolean"           {yylval->value = strdup(yytext); return token::BOOLEAN;}
 "void"           {return token::VOID;}
-"true"          {return token::TRUE;}
-"false"         {return token::FALSE;}
+"true"          {yylval->boolliteral = new boolLit(yytext);return token::TRUE;}
+"false"         {yylval->boolliteral = new boolLit(yytext);return token::FALSE;}
 "callout"         {return token::CALLOUT;}
 "return"         {return token::RETURN;}
 "break"         {return token::BREAK;}
@@ -109,7 +109,7 @@ typedef decaf::Parser::token_type token_type;
 
 
 
-\'.\'       {return token::CHAR_LIT;}
+\'.\'       {yylval->charliteral = new charLit(yytext);return token::CHAR_LIT;}
 
 
 
