@@ -56,7 +56,6 @@ class ProgramASTnode: public ASTnode {
     public:
 
     ProgramASTnode(string name) : name(name) {}
-    ProgramASTnode(string name, class FieldDecList *fields) : name(name), fields(fields) {}
     ProgramASTnode(string name, class FieldDecList *fields, class meth_decs *methods) : name(name), fields(fields), methods(methods) {}
 
     string getProgramName() {

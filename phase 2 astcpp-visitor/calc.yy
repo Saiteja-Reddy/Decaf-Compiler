@@ -156,7 +156,7 @@
 
 %%
 
-line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4); driver.ast.root = $$;}
+line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4, new meth_decs() ); driver.ast.root = $$;}
 	| CLASS PROGRAM L_FLO field_decl_list method_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4, $5); driver.ast.root = $$;}
 	| 	CLASS PROGRAM L_FLO R_FLO { $$ = new ProgramASTnode("Program"); driver.ast.root = $$;}
 	| 	CLASS PROGRAM L_FLO method_decl_list R_FLO { $$ = new ProgramASTnode("Program", new FieldDecList() , $4); driver.ast.root = $$;}

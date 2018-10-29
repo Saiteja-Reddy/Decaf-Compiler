@@ -407,7 +407,7 @@ namespace decaf
       {
 	  case 2:
 #line 159 "calc.yy"
-    { (yyval.astnode) = new ProgramASTnode("Program Decl", (yysemantic_stack_[(5) - (4)].fields)); driver.ast.root = (yyval.astnode);;}
+    { (yyval.astnode) = new ProgramASTnode("Program Decl", (yysemantic_stack_[(5) - (4)].fields), new meth_decs() ); driver.ast.root = (yyval.astnode);;}
     break;
 
   case 3:
