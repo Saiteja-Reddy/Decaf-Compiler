@@ -9,6 +9,7 @@ class Program
 		int a;
 		boolean c;
 		main('s');
+		callout("printf", "Enter the number: ", 12+13);
 	}	
 
 	boolean helloo(int a, boolean x, int b)

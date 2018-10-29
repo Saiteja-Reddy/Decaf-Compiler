@@ -119,7 +119,7 @@ typedef decaf::Parser::token_type token_type;
     yylloc->step();
 }
 
-\".*+\"     {return token::STRING_LIT;}
+\".*+\"     {yylval->stringliteral = new stringLit(yytext);return token::STRING_LIT;}
 
 
  /* pass all other characters up to bison */

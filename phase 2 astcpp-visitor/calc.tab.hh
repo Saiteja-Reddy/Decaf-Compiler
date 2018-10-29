@@ -123,6 +123,7 @@ namespace decaf
 	integerLit*   	intliteral;
 	charLit*   	charliteral;
 	boolLit*   	boolliteral;
+	stringLit*   	stringliteral;
 	char* value;
 	Block*	block_type;
 	meth_args*	meth_args_type;
@@ -135,9 +136,11 @@ namespace decaf
 	meth_call* meth_call_type;
 	Statements* statements_type;
 	Statement* statement_type;
+	calloutArgs* callout_args_type;
+	calloutArg* callout_arg_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 141 "calc.tab.hh"
+#line 144 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;

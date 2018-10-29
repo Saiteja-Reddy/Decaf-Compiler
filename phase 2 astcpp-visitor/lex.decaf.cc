@@ -1105,7 +1105,7 @@ YY_RULE_SETUP
 case 46:
 YY_RULE_SETUP
 #line 122 "calc.ll"
-{return token::STRING_LIT;}
+{yylval->stringliteral = new stringLit(yytext);return token::STRING_LIT;}
 	YY_BREAK
 /* pass all other characters up to bison */
 case 47:

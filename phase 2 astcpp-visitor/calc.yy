@@ -64,6 +64,7 @@
 	integerLit*   	intliteral;
 	charLit*   	charliteral;
 	boolLit*   	boolliteral;
+	stringLit*   	stringliteral;
 	char* value;
 	Block*	block_type;
 	meth_args*	meth_args_type;
@@ -76,6 +77,8 @@
 	meth_call* meth_call_type;
 	Statements* statements_type;
 	Statement* statement_type;
+	calloutArgs* callout_args_type;
+	calloutArg* callout_arg_type;
 }
 
 
@@ -136,7 +139,7 @@
 %token <value> LE
 %token <value> DE
 %token CALLOUT
-%token STRING_LIT
+%token <stringliteral> STRING_LIT
 %token RETURN
 %token BREAK
 %token CONTINUE
@@ -176,6 +179,8 @@
 %type <literal_type> literal;
 %type <boolliteral> bool_lit;
 
+%type <callout_arg_type> callout_arg
+%type <callout_args_type> callout_args
 
 %%
 
@@ -226,6 +231,13 @@ statement : method_call SEMI {$$ = $1;}
 
 method_call : method_name L_P R_P {$$ = new meth_call(string($1), new Parameters());}
 			| method_name L_P expr_list R_P {$$ = new meth_call(string($1), $3);}
+			| CALLOUT L_P callout_args R_P {$$ = new callout_call($3);}
+
+callout_args : callout_args COMMA callout_arg {$$->push_back($3);}
+			 | callout_arg {$$ = new calloutArgs(); $$->push_back($1);}
+
+callout_arg : expr {$$ = new calloutArg($1);}
+			 | STRING_LIT {$$ = new calloutArg($1);}
 
 method_name : ID {$$ = $1}
 

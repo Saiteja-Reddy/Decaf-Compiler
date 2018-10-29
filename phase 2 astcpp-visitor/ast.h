@@ -6,6 +6,7 @@ class Variables;
 class integerLit;
 class boolLit;
 class charLit;
+class stringLit;
 class Lit;
 class Expr;
 class Statement;
@@ -22,6 +23,9 @@ class meth_call;
 class BinExpr;
 class EncExpr;
 class Parameters;
+class calloutArgs;
+class calloutArg;
+class callout_call;
 
 
 using namespace std;
@@ -52,7 +56,10 @@ class ASTvisitor {
     virtual void visit(BinExpr& node) = 0;
     virtual void visit(EncExpr& node) = 0;
     virtual void visit(Parameters& node) = 0;
-
+    virtual void visit(stringLit& node) = 0;
+    virtual void visit(calloutArgs& node) = 0;
+    virtual void visit(calloutArg& node) = 0;
+    virtual void visit(callout_call& node) = 0; 
 };
 
 class ASTnode {
@@ -319,6 +326,22 @@ class charLit: public Lit {
     }
 };
 
+class stringLit: public Lit {
+    
+    string value;
+
+    public:
+
+    stringLit(string value) : value(value), Lit(::String) {};
+
+    virtual string getVal() {return value;};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
 enum stmtType {
     Return = 1, NonReturn = 2
 };
@@ -568,6 +591,7 @@ class meth_call: public Statement, public Expr {
 
     public:
     
+    meth_call(){};
     meth_call(string name,class Parameters* params ) : name(name), params(params) {};
 
     string getName() {  return name;    }
@@ -578,6 +602,68 @@ class meth_call: public Statement, public Expr {
     {
       v.visit(*this);
     }
+};
+
+class calloutArg: public ASTnode{
+
+    class Expr *expr;
+
+    public:
+    
+    calloutArg(class Expr *expr) : expr(expr) {};
+    
+    calloutArg(class stringLit *temp) {
+        expr = temp;
+    };
+
+    class Expr * getExpr()
+    {
+        return expr;
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }  
+};
+
+class calloutArgs: public ASTnode {
+    vector<class calloutArg *> args;
+
+    public:
+
+    calloutArgs() {};
+
+    void push_back(class calloutArg *E)
+    {
+        args.push_back(E);
+    }
+
+    vector<class calloutArg *> getArgs()
+    {
+        return args;
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class callout_call: public meth_call{
+
+    class calloutArgs *args;
+
+    public:
+    
+    callout_call(class calloutArgs *args) : args(args) {};
+
+    class calloutArgs *getArgs() {  return args;    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }  
 };
 
 class Parameters: public ASTnode {

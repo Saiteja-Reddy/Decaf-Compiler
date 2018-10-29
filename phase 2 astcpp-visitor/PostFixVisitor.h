@@ -225,5 +225,38 @@ class PostFixVisitor: public ASTvisitor {
 
     }
 
+    virtual void visit(stringLit& node) 
+    {
+        // cout << "stringLit " << " declared\n";
+        cout << node.getVal();
+    }     
+
+    virtual void visit(calloutArgs& node) 
+    {
+        // cout << "calloutArgs " << " declared\n";
+        vector<class calloutArg *> args = node.getArgs();
+        for(auto& i: args)
+        {
+            i->accept(*this);
+            cout << ",";
+        }       
+    }     
+
+    virtual void visit(calloutArg& node) 
+    {
+        // cout << "calloutArg " << " declared\n";
+        class Expr *expr = node.getExpr();
+        expr->accept(*this);
+    }     
+
+    virtual void visit(callout_call& node) 
+    {
+        // cout << "callout_call " << " declared\n";
+        cout << " callout(";
+        class calloutArgs *args = node.getArgs();
+        args->accept(*this);
+        cout << " ) ";
+    }     
+
 
 };
