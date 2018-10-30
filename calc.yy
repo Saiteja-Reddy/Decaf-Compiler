@@ -79,6 +79,10 @@
 	Statement* statement_type;
 	calloutArgs* callout_args_type;
 	calloutArg* callout_arg_type;
+	breakState* break_type;
+	continueState* continue_type;
+	ifElseState* if_block_type;
+	forState* for_block_type;
 }
 
 
@@ -141,7 +145,7 @@
 %token CALLOUT
 %token <stringliteral> STRING_LIT
 %token RETURN
-%token BREAK
+%token <value> BREAK
 %token CONTINUE
 %token IF
 %token ELSE
@@ -182,6 +186,9 @@
 %type <callout_arg_type> callout_arg
 %type <callout_args_type> callout_args
 
+%type <if_block_type> if_block
+%type <for_block_type> for_block
+
 %%
 
 line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Program Decl", $4, new meth_decs() ); driver.ast.root = $$;}
@@ -218,7 +225,7 @@ method_args_block : L_P  type_id_list R_P {$$ = $2}
 type_id_list : type ID {$$ = new meth_args();$$->push_back(new meth_arg(string($1), string($2)));}
 			| type_id_list COMMA type ID {$$->push_back(new meth_arg(string($3), string($4)));}
 
-block : L_FLO  R_FLO {$$ = new Block();}
+block : L_FLO  R_FLO {$$ = new Block(new var_decs(), new Statements());}
 	  |	L_FLO var_dec_list R_FLO {$$ = new Block($2, new Statements());}
 	  | L_FLO var_dec_list statement_list R_FLO {$$ = new Block($2,$3);}
 	  | L_FLO statement_list R_FLO {$$ = new Block(new var_decs(),$2);}
@@ -228,6 +235,16 @@ statement_list : statement {$$ = new Statements(); $$->push_back($1);}
 			 | statement_list statement {$$->push_back($2);}
 
 statement : method_call SEMI {$$ = $1;}
+			| BREAK SEMI {$$ = new breakState();}
+			| CONTINUE SEMI {$$ = new continueState();}
+			| if_block {$$ = $1;}
+			| for_block {$$ = $1;}
+
+for_block : FOR ID EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
+
+if_block : IF L_P expr R_P block {$$ = new ifElseState($3, $5, new Block());}
+		 |  IF L_P expr R_P block ELSE block {$$ = new ifElseState($3, $5, $7);}
+
 
 method_call : method_name L_P R_P {$$ = new meth_call(string($1), new Parameters());}
 			| method_name L_P expr_list R_P {$$ = new meth_call(string($1), $3);}

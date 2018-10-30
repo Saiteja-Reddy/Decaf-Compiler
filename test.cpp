@@ -10,6 +10,10 @@ class Program
 		boolean c;
 		main('s');
 		callout("printf", "Enter the number: ", 12+13);
+		if(1+2){} else {}
+		if(3){}
+		for a = 1, 2+12 {callout("printf");}
+
 	}	
 
 	boolean helloo(int a, boolean x, int b)
@@ -17,5 +21,6 @@ class Program
 		int def, ghi;
 		helloo(1+2, 12, 1*(2+3), main(), true);
 		main(false);
+		break;
 	}
 }

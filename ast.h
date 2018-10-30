@@ -26,6 +26,10 @@ class Parameters;
 class calloutArgs;
 class calloutArg;
 class callout_call;
+class breakState;
+class continueState;
+class ifElseState;
+class forState;
 
 
 using namespace std;
@@ -60,6 +64,10 @@ class ASTvisitor {
     virtual void visit(calloutArgs& node) = 0;
     virtual void visit(calloutArg& node) = 0;
     virtual void visit(callout_call& node) = 0; 
+    virtual void visit(breakState& node) = 0; 
+    virtual void visit(continueState& node) = 0; 
+    virtual void visit(ifElseState& node) = 0; 
+    virtual void visit(forState& node) = 0; 
 };
 
 class ASTnode {
@@ -690,6 +698,73 @@ class Parameters: public ASTnode {
 };
 
 
+class breakState: public Statement {
+
+    public:
+
+    breakState() {};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class continueState: public Statement {
+
+    public:
+
+    continueState() {};
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
+class ifElseState: public Statement {
+
+    class Expr* cond;
+    class Block* if_block;
+    class Block* else_block;
+
+    public:
+
+    ifElseState(class Expr* cond, class Block* if_block, class Block* else_block): cond(cond), if_block(if_block), else_block(else_block) {};
+
+    class Expr* getCond() { return cond; }
+    class Block* getIf() { return if_block; }
+    class Block* getElse() { return else_block; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class forState: public Statement {
+
+    string var;
+    class Expr * init;
+    class Expr * end_cond;
+    class Block* body;
+
+    public:
+
+    forState(string var,class Expr * init,class Expr * end_cond,class Block* body): var(var), init(init), end_cond(end_cond),body(body)  {};
+
+    string getVar() { return var; }
+    class Expr* getInit() { return init; }
+    class Expr* getEnd() { return end_cond; }
+    class Block* getBody() { return body; }
+
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
 
 class ASTContext {
 public:

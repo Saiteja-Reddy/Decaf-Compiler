@@ -151,9 +151,9 @@ class PostFixVisitor: public ASTvisitor {
         // cout << "Statements " << " declared\n";
         vector<class Statement *> statements_list = node.getList();
         for(auto& i: statements_list)
-        {
+        {            
             i->accept(*this);
-        }           
+        }                   
     }             
 
     virtual void visit(var_decs& node) 
@@ -256,7 +256,49 @@ class PostFixVisitor: public ASTvisitor {
         class calloutArgs *args = node.getArgs();
         args->accept(*this);
         cout << " ) ";
-    }     
+    } 
+
+    virtual void visit(breakState& node) 
+    {
+        cout << " breakState " << " declared ";
+    }       
+
+    virtual void visit(continueState& node) 
+    {
+        cout << " continueState " << " declared ";
+    }    
+
+    virtual void visit(forState& node) 
+    {
+        // cout << " forState " << " declared ";
+        cout << " for " << node.getVar() << ": ";
+        class Expr * init = node.getInit();
+        class Expr * end_cond = node.getEnd();
+        class Block* body = node.getBody();
+        init->accept(*this);
+        cout << " - ";
+        end_cond->accept(*this);
+        cout << "{";
+        body->accept(*this);
+        cout << "} ";
+
+    }    
+
+    virtual void visit(ifElseState& node) 
+    {
+        // cout << " ifElseState " << " declared ";
+        cout << " if(";
+        class Expr* cond = node.getCond();
+        class Block* if_block = node.getIf();
+        class Block* else_block = node.getElse();
+        cond->accept(*this);
+        cout << "){";
+        if_block->accept(*this);
+        cout << "} else {";
+        // else_block->accept(*this);
+        cout << "} ";
+
+    }                     
 
 
 };
