@@ -61,7 +61,7 @@ typedef decaf::Parser::token_type token_type;
 "Program"           {return token::PROGRAM;}
 "int"           {yylval->value = strdup(yytext); return token::INT;}
 "boolean"           {yylval->value = strdup(yytext); return token::BOOLEAN;}
-"void"           {return token::VOID;}
+"void"           {yylval->value = strdup(yytext);return token::VOID;}
 "true"          {yylval->boolliteral = new boolLit(yytext);return token::TRUE;}
 "false"         {yylval->boolliteral = new boolLit(yytext);return token::FALSE;}
 "callout"         {return token::CALLOUT;}

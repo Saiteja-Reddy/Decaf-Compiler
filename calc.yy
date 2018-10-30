@@ -257,7 +257,7 @@ assign_op : EQ {$$ = $1}
 
 for_block : FOR ID EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
 
-if_block : IF L_P expr R_P block {$$ = new ifElseState($3, $5, new Block());}
+if_block : IF L_P expr R_P block {$$ = new ifElseState($3, $5);}
 		 |  IF L_P expr R_P block ELSE block {$$ = new ifElseState($3, $5, $7);}
 
 

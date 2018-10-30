@@ -757,14 +757,17 @@ class ifElseState: public Statement {
     class Expr* cond;
     class Block* if_block;
     class Block* else_block;
+    int else_pre;
 
     public:
 
-    ifElseState(class Expr* cond, class Block* if_block, class Block* else_block): cond(cond), if_block(if_block), else_block(else_block) {};
+    ifElseState(class Expr* cond, class Block* if_block, class Block* else_block): cond(cond), if_block(if_block), else_block(else_block), else_pre(1) {};
+    ifElseState(class Expr* cond, class Block* if_block): cond(cond), if_block(if_block), else_pre(0) {};
 
     class Expr* getCond() { return cond; }
     class Block* getIf() { return if_block; }
     class Block* getElse() { return else_block; }
+    int getElsePre() { return else_pre; }
 
     virtual void accept(ASTvisitor& v)
     {

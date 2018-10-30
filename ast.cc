@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     std::string line;
     std::string code = "";
 
-    fstream f("test.cpp", fstream::in );
+    fstream f("now.cpp", fstream::in );
   getline( f, code, '\0');
     f.close();
     
