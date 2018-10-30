@@ -268,6 +268,19 @@ class PostFixVisitor: public ASTvisitor {
         cout << " continueState " << " declared ";
     }    
 
+    virtual void visit(returnState& node) 
+    {
+        // cout << " returnState " << " declared ";
+        cout << " return ";
+        if(node.hasReturn())
+        {
+            class Expr * ret = node.getRet();
+            ret->accept(*this);
+        }
+        cout << "; ";
+
+    }        
+
     virtual void visit(forState& node) 
     {
         // cout << " forState " << " declared ";

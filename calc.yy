@@ -83,6 +83,7 @@
 	continueState* continue_type;
 	ifElseState* if_block_type;
 	forState* for_block_type;
+	returnState* return_type;
 }
 
 
@@ -239,6 +240,8 @@ statement : method_call SEMI {$$ = $1;}
 			| CONTINUE SEMI {$$ = new continueState();}
 			| if_block {$$ = $1;}
 			| for_block {$$ = $1;}
+			| RETURN L_SQ expr R_SQ SEMI {$$ = new returnState($3);}
+			| RETURN SEMI {$$ = new returnState();}
 
 for_block : FOR ID EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
 

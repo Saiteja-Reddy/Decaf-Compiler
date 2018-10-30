@@ -30,6 +30,7 @@ class breakState;
 class continueState;
 class ifElseState;
 class forState;
+class returnState;
 
 
 using namespace std;
@@ -68,6 +69,7 @@ class ASTvisitor {
     virtual void visit(continueState& node) = 0; 
     virtual void visit(ifElseState& node) = 0; 
     virtual void visit(forState& node) = 0; 
+    virtual void visit(returnState& node) = 0; 
 };
 
 class ASTnode {
@@ -361,8 +363,10 @@ class Statement: public ASTnode {
     public:
 
     Statement() : stype(::NonReturn) {};
+    
+    virtual void setReturn() {stype = ::Return;};
 
-    virtual bool hasReturn() {return stype == ::NonReturn;};
+    virtual bool hasReturn() {return stype == ::Return;};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -759,6 +763,29 @@ class forState: public Statement {
     class Expr* getEnd() { return end_cond; }
     class Block* getBody() { return body; }
 
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class returnState: public Statement {
+
+    class Expr * ret;
+
+    public:
+
+    returnState(class Expr * returned)
+    {
+        Statement();
+        setReturn();
+        ret = returned;
+    };
+    
+    returnState(): Statement() {};
+
+    class Expr* getRet() { return ret; }
 
     virtual void accept(ASTvisitor& v)
     {

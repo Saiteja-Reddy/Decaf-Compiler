@@ -13,6 +13,7 @@ class Program
 		if(1+2){} else {}
 		if(3){}
 		for a = 1, 2+12 {callout("printf");}
+		return [1+(21*43)];
 
 	}	
 
@@ -22,5 +23,6 @@ class Program
 		helloo(1+2, 12, 1*(2+3), main(), true);
 		main(false);
 		break;
+		return ;
 	}
 }

@@ -1,7 +1,7 @@
 add Comments
 
 
-location assign_op expr SEMI | RETURN L_SQ expr R_SQ SEMI | RETURN SEMI | block
+location assign_op expr SEMI | block
 		
 	| location 
 	| unaryexp
