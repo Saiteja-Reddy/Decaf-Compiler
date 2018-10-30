@@ -23,6 +23,8 @@ class Program
 		helloo(1+2, 12, 1*(2+3), main(), true);
 		main(false);
 		break;
+		a= 10;
+		a[3] = 4;
 		return ;
 	}
 }

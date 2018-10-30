@@ -32,6 +32,7 @@ class ifElseState;
 class forState;
 class returnState;
 class Location;
+class Assign;
 
 
 using namespace std;
@@ -72,6 +73,7 @@ class ASTvisitor {
     virtual void visit(forState& node) = 0; 
     virtual void visit(returnState& node) = 0; 
     virtual void visit(Location& node) = 0; 
+    virtual void visit(Assign& node) = 0; 
 };
 
 class ASTnode {
@@ -788,6 +790,26 @@ class returnState: public Statement {
     returnState(): Statement() {};
 
     class Expr* getRet() { return ret; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class Assign: public Statement {
+
+    class Location *loc;
+    class Expr * exp;
+    string op;
+
+    public:
+    
+    Assign(class Location *loc,string op, class Expr * exp): loc(loc), op(op), exp(exp) {};
+
+    class Expr* getRet() { return exp; }
+    class Location* getLoc() {return loc;}
+    string getOp(){ return op; }
 
     virtual void accept(ASTvisitor& v)
     {

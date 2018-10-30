@@ -144,9 +144,10 @@ namespace decaf
 	forState* for_block_type;
 	returnState* return_type;
 	Location*	location_type;
+	Assign*	assign_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 150 "calc.tab.hh"
+#line 151 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;

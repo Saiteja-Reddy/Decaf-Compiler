@@ -85,6 +85,7 @@
 	forState* for_block_type;
 	returnState* return_type;
 	Location*	location_type;
+	Assign*	assign_type;
 }
 
 
@@ -191,6 +192,7 @@
 %type <if_block_type> if_block
 %type <for_block_type> for_block
 %type <location_type> location
+%type <value> assign_op
 
 %%
 
@@ -244,6 +246,11 @@ statement : method_call SEMI {$$ = $1;}
 			| for_block {$$ = $1;}
 			| RETURN L_SQ expr R_SQ SEMI {$$ = new returnState($3);}
 			| RETURN SEMI {$$ = new returnState();}
+			| location assign_op expr SEMI {$$ = new Assign($1, $2, $3)}
+
+assign_op : EQ {$$ = $1}
+		  | PE {$$ = $1}
+		  | ME {$$ = $1}		
 
 for_block : FOR ID EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
 

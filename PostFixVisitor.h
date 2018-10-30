@@ -329,5 +329,15 @@ class PostFixVisitor: public ASTvisitor {
     }    
 
 
+    virtual void visit(Assign& node) 
+    {
+        // cout << " Assign " << " declared ";
+        class Location *loc = node.getLoc();
+        class Expr * exp = node.getRet();
+        loc->accept(*this);
+        cout << node.getOp();
+        exp->accept(*this);
+        cout << " ";   
+    }   
 
 };
