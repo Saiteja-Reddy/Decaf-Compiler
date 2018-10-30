@@ -84,6 +84,7 @@
 	ifElseState* if_block_type;
 	forState* for_block_type;
 	returnState* return_type;
+	Location*	location_type;
 }
 
 
@@ -189,6 +190,7 @@
 
 %type <if_block_type> if_block
 %type <for_block_type> for_block
+%type <location_type> location
 
 %%
 
@@ -280,6 +282,11 @@ expr : L_P expr R_P {$$ = new EncExpr($2);}
 	|  expr DO expr  {$$ = new BinExpr($1, $3, string($2));}
 	| method_call {$$ = $1;}
 	| literal {$$ = $1;}
+	| location {$$ = $1;}
+
+location : ID {$$ = new Location($1);}
+		| ID L_SQ expr R_SQ {$$ = new Location($1, $3);}
+
 
 literal : INTEGER_LIT {$$ = $1;}
 		 | bool_lit {$$ = $1;}

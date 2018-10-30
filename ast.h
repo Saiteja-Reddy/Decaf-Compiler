@@ -31,6 +31,7 @@ class continueState;
 class ifElseState;
 class forState;
 class returnState;
+class Location;
 
 
 using namespace std;
@@ -70,6 +71,7 @@ class ASTvisitor {
     virtual void visit(ifElseState& node) = 0; 
     virtual void visit(forState& node) = 0; 
     virtual void visit(returnState& node) = 0; 
+    virtual void visit(Location& node) = 0; 
 };
 
 class ASTnode {
@@ -786,6 +788,43 @@ class returnState: public Statement {
     returnState(): Statement() {};
 
     class Expr* getRet() { return ret; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+enum locationType {
+    array = 1, variable = 2
+};
+
+class Location: public Expr {
+
+    string var;
+    locationType location_type;
+    class Expr *array_index;
+
+    public:
+    
+    Location(string vars)
+    {
+            var = vars;
+            location_type = ::variable;           
+    };
+
+    Location(string vars, class Expr *array_indexs)
+    {
+            var = vars;
+            location_type = ::array; 
+            array_index = array_indexs;
+    }
+
+    string getName() { return var; }
+
+    bool isArray() { return location_type == ::array;}
+
+    class Expr* getIndex() { return array_index;}
 
     virtual void accept(ASTvisitor& v)
     {

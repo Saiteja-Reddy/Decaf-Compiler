@@ -311,7 +311,23 @@ class PostFixVisitor: public ASTvisitor {
         // else_block->accept(*this);
         cout << "} ";
 
-    }                     
+    } 
+
+
+    virtual void visit(Location& node) 
+    {
+        // cout << " Location " << " declared ";
+        cout << node.getName();
+        if(node.isArray())
+        {
+            class Expr *array_index = node.getIndex();
+            cout << "[";
+            array_index->accept(*this);
+            cout << "]";
+        }
+        cout << " ";
+    }    
+
 
 
 };

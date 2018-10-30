@@ -13,7 +13,7 @@ class Program
 		if(1+2){} else {}
 		if(3){}
 		for a = 1, 2+12 {callout("printf");}
-		return [1+(21*43)];
+		return [hello[1]];
 
 	}	
 
