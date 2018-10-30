@@ -177,6 +177,9 @@ class FieldDec: public ASTnode {
     public:
 
     FieldDec(string dtype, class Variables *variables) : datatype(dtype), var_list(variables->getVarsList()) {}
+    FieldDec() {
+        datatype = "Comment";   
+    }
 
     string getType()
     {

@@ -206,7 +206,7 @@ line :  CLASS PROGRAM L_FLO field_decl_list R_FLO { $$ = new ProgramASTnode("Pro
 field_decl_list :  field_decl { $$ = new FieldDecList(); 					$$->push_back($1)}
 		 | field_decl_list field_decl {$$->push_back($2);}
 
-field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);} 
+field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);} | COMMENT {$$ = new FieldDec();}
 
 decl_list : decl {$$ = new Variables(); $$->push_back($1);} 
 		  | decl_list  COMMA decl {$$->push_back($3);}
