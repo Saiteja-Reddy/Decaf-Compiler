@@ -86,6 +86,7 @@
 	returnState* return_type;
 	Location*	location_type;
 	Assign*	assign_type;
+	UnExpr* unaryexp_type;
 }
 
 
@@ -193,6 +194,7 @@
 %type <for_block_type> for_block
 %type <location_type> location
 %type <value> assign_op
+%type <unaryexp_type> unaryexp
 
 %%
 
@@ -247,6 +249,7 @@ statement : method_call SEMI {$$ = $1;}
 			| RETURN L_SQ expr R_SQ SEMI {$$ = new returnState($3);}
 			| RETURN SEMI {$$ = new returnState();}
 			| location assign_op expr SEMI {$$ = new Assign($1, $2, $3)}
+			| block {$$ = $1}
 
 assign_op : EQ {$$ = $1}
 		  | PE {$$ = $1}
@@ -290,6 +293,10 @@ expr : L_P expr R_P {$$ = new EncExpr($2);}
 	| method_call {$$ = $1;}
 	| literal {$$ = $1;}
 	| location {$$ = $1;}
+	| unaryexp {$$ = $1;} 
+
+unaryexp : SUB expr {$$ = new UnExpr($1, $2);}
+		| NOT expr 	{$$ = new UnExpr($1, $2);}
 
 location : ID {$$ = new Location($1);}
 		| ID L_SQ expr R_SQ {$$ = new Location($1, $3);}

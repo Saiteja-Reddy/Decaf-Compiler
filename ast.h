@@ -21,6 +21,7 @@ class var_decs;
 class string_list;
 class meth_call;
 class BinExpr;
+class UnExpr;
 class EncExpr;
 class Parameters;
 class calloutArgs;
@@ -61,6 +62,7 @@ class ASTvisitor {
     virtual void visit(var_decs& node) = 0;
     virtual void visit(meth_call& node) = 0;
     virtual void visit(BinExpr& node) = 0;
+    virtual void visit(UnExpr& node) = 0;
     virtual void visit(EncExpr& node) = 0;
     virtual void visit(Parameters& node) = 0;
     virtual void visit(stringLit& node) = 0;
@@ -248,6 +250,22 @@ class BinExpr: public Expr {
 
     class Expr * getLhs() { return lhs; }
     class Expr * getRhs() { return rhs; }
+    string getOp() { return op; }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+class UnExpr: public Expr {
+    class Expr *exp;
+    string op;
+    public:
+
+    UnExpr(string op, class Expr *exp): exp(exp), op(op)  {};
+
+    class Expr * getExp() { return exp; }
     string getOp() { return op; }
 
     virtual void accept(ASTvisitor& v)

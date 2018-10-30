@@ -201,7 +201,18 @@ class PostFixVisitor: public ASTvisitor {
         cout << op;
         rhs->accept(*this);
 
-    }             
+    }      
+
+    virtual void visit(UnExpr& node) 
+    {
+        // cout << "UnExpr " << " declared\n";
+        class Expr *expr = node.getExp();
+        string op = node.getOp();
+        
+        cout << op;
+        expr->accept(*this);
+
+    }                 
 
     virtual void visit(EncExpr& node) 
     {
