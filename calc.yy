@@ -276,24 +276,24 @@ method_name : ID {$$ = $1}
 expr_list : expr {$$ = new Parameters(); $$->push_back($1);}
 		 | expr_list COMMA expr  {$$->push_back($3);}
 
-expr : L_P expr R_P {$$ = new EncExpr($2);}
-	| expr ADD expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr SUB expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr MUL expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr DIV expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr MOD expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr LE expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr GE expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr LT expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr GT expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr NE expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr DE expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr DA expr {$$ = new BinExpr($1, $3, string($2));}
-	|  expr DO expr  {$$ = new BinExpr($1, $3, string($2));}
-	| method_call {$$ = $1;}
-	| literal {$$ = $1;}
-	| location {$$ = $1;}
-	| unaryexp {$$ = $1;} 
+expr : L_P expr R_P {$$ = new EncExpr($2); $$->updateEdata($2->getEdata());}
+	| expr ADD expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr SUB expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata()); }
+	|  expr MUL expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr DIV expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr MOD expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr LE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr GE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr LT expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr GT expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr NE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr DE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr DA expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr DO expr  {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	| method_call {$$ = $1; $$->updateEdata(::integer);}
+	| literal {$$ = $1; $$->updateEdata($1->getLitType()); }
+	| location {$$ = $1; $$->updateEdata(::integer);}
+	| unaryexp {$$ = $1; $$->updateEdata(::integer);} 
 
 unaryexp : SUB expr {$$ = new UnExpr($1, $2);}
 		| NOT expr 	{$$ = new UnExpr($1, $2);}
@@ -320,6 +320,8 @@ id_list : ID {$$ = new string_list(); $$->push_back(string($1));}
 
 
 %%
+
+
 
 void decaf::Parser::error(const Parser::location_type& l,
 			    const std::string& m)

@@ -145,9 +145,10 @@ namespace decaf
 	returnState* return_type;
 	Location*	location_type;
 	Assign*	assign_type;
+	UnExpr* unaryexp_type;
 }
 /* Line 303 of lalr1.cc.  */
-#line 151 "calc.tab.hh"
+#line 152 "calc.tab.hh"
 	;
 #else
     typedef YYSTYPE semantic_type;

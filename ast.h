@@ -227,15 +227,83 @@ enum exprType {
     binary = 1, location = 2, literal = 3, enclExpr = 4, unExpr = 5
 };
 
+enum exprData {
+    boolean = 1, integer = 2, mixed = 3, def = 4
+};
+
+enum literalType {
+    Bool = 1, Int = 2, Char = 3, String = 4
+};
+
 class Expr: public ASTnode {
     
     exprType etype;
+    exprData edata;
 
     public:
 
-    Expr() {};
+    Expr() { edata = ::def;};
+    Expr(exprData val) { edata = val;};
 
     exprType getEtype() { return etype; }
+    exprData getEdata() { return edata; }
+    
+    void setEdata(int a)
+    { 
+        switch(a)
+        {
+            case 1: edata = ::boolean;
+                    break;
+            case 2: edata = ::integer;
+                      break;
+            case 3: edata = ::mixed;
+                      break;
+            case 4: edata = ::def;
+        }
+    }
+
+    void updateEdata(exprData val)
+    {
+        if(edata == ::def)
+        {
+            edata = val;
+        }
+        else if(val == ::boolean || val == ::integer)
+        {
+            if(edata != val)
+                edata = ::mixed;
+        }
+    }
+
+    void updateEdata(int val)
+    {
+        if(val == 1)
+        {
+            if(edata == 4)
+            {
+                edata = ::boolean;
+            }
+            else
+            {
+                if(2 == edata)
+                    edata = ::mixed;
+            }
+        } 
+        else if(val == 2)
+        {
+            if(edata == 4)
+            {
+                edata = ::integer;
+            }
+            else
+            {
+                if(1 == edata)
+                    edata = ::mixed;
+            }
+        }         
+        else
+            edata = ::mixed;
+    }
 
     virtual void accept(ASTvisitor& v)
     {
@@ -249,7 +317,57 @@ class BinExpr: public Expr {
     string op;
     public:
 
-    BinExpr(class Expr *lhs, class Expr *rhs, string op): lhs(lhs), rhs(rhs), op(op)  {};
+    BinExpr(class Expr *lhss, class Expr *rhss, string ops)
+    {
+        lhs = lhss;
+        rhs = rhss;
+        op = ops;
+        check_types();
+    }
+
+    void check_types()
+    {
+        int a = lhs->getEdata();
+        int b = rhs->getEdata();
+
+        if(find_init())
+        {
+            if(a != ::integer || b!= ::integer)
+            {
+                cout << "Error" << "" << ": Both sides of " << op << " must be int.\n";
+            }
+        }
+        else if(find_strs())
+        {
+            if(!((a == ::integer && b== ::integer) || (a == ::boolean && b== ::boolean)))
+            {
+                cout << "Error: Both sides of " << op << " must be int or boolean.\n"; 
+            }
+        }
+
+    }
+
+    int find_init()
+    {
+        string init[] = {"+", "-", "*", "/", "%", ">", "<", "<=", ">="};
+        for(int i=0; i<9; i++)
+        {
+            if(op == init[i])
+                return 1;
+        }
+        return 0;
+    }
+
+    int find_strs()
+    {
+        string strs[] = { "==", "!="};
+        for(int i=0; i<2; i++)
+        {
+            if(op == strs[i])
+                return 1;
+        }
+        return 0;        
+    }
 
     class Expr * getLhs() { return lhs; }
     class Expr * getRhs() { return rhs; }
@@ -266,7 +384,22 @@ class UnExpr: public Expr {
     string op;
     public:
 
-    UnExpr(string op, class Expr *exp): exp(exp), op(op)  {};
+    UnExpr(string ops, class Expr *exps)
+    {
+        exp = exps;
+        op = ops;
+        check_types();
+    }
+
+    void check_types()
+    {
+        int a = exp->getEdata();
+        if(a != ::boolean)
+        {
+            cout << "Error: Unary Operator must have only boolean type. \n";
+        }
+    }
+
 
     class Expr * getExp() { return exp; }
     string getOp() { return op; }
@@ -292,10 +425,6 @@ class EncExpr: public Expr {
 };
 
 
-enum literalType {
-    Int = 1, Bool = 2, Char = 3, String = 4
-};
-
 class Lit: public Expr {
     
     literalType ltype;
@@ -305,6 +434,8 @@ class Lit: public Expr {
     Lit(literalType type) : ltype(type) {};
 
     virtual int getValue() {return -1;};
+    
+    int getLitType() {return ltype;};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -761,13 +892,32 @@ class ifElseState: public Statement {
 
     public:
 
-    ifElseState(class Expr* cond, class Block* if_block, class Block* else_block): cond(cond), if_block(if_block), else_block(else_block), else_pre(1) {};
-    ifElseState(class Expr* cond, class Block* if_block): cond(cond), if_block(if_block), else_pre(0) {};
+    ifElseState(class Expr* conds, class Block* if_blocks, class Block* else_blocks)
+    {
+        cond = conds;
+        checkIfCond();
+        if_block = if_blocks;
+        else_block= else_blocks;
+        else_pre = 1; 
+    }
+    ifElseState(class Expr* conds, class Block* if_blocks)
+    {
+        cond = conds;
+        checkIfCond();
+        if_block = if_blocks;
+        else_pre= 0;
+    }
 
     class Expr* getCond() { return cond; }
     class Block* getIf() { return if_block; }
     class Block* getElse() { return else_block; }
     int getElsePre() { return else_pre; }
+
+    void checkIfCond()
+    {
+        // cout << "in if cond check" << endl;
+        // cout << cond->getEdata() << " type " << endl;
+    }
 
     virtual void accept(ASTvisitor& v)
     {
@@ -893,3 +1043,4 @@ public:
         delete root;
     }
 };
+

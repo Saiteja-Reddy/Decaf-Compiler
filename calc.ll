@@ -115,8 +115,12 @@ typedef decaf::Parser::token_type token_type;
 
 
  /* gobble up white-spaces ( Added \n here ********) */
-[ \t\r\n]+ {
+[ \t\r]+ {
     yylloc->step();
+}
+[\n]+ {
+    yylloc->step();
+
 }
 
 \".*+\"     {yylval->stringliteral = new stringLit(yytext);return token::STRING_LIT;}
