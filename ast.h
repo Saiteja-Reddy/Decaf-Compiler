@@ -35,8 +35,11 @@ class returnState;
 class Location;
 class Assign;
 
+#include <map>
+#include <list>
 
 using namespace std;
+
 
 
 class ASTvisitor {
@@ -98,7 +101,12 @@ class ProgramASTnode: public ASTnode {
     public:
 
     ProgramASTnode(string name) : name(name) {}
-    ProgramASTnode(string name, class FieldDecList *fields, class meth_decs *methods) : name(name), fields(fields), methods(methods) {}
+    ProgramASTnode(string name1, class FieldDecList *fields1, class meth_decs *methods1)
+    {
+        name = name1;
+        fields = fields1;
+        methods = methods1;
+    }
 
     string getProgramName() {
         return name;
@@ -194,6 +202,18 @@ class FieldDec: public ASTnode {
         return datatype;
     }
 
+    vector <string> getVarNames()
+    {
+        vector <string> vars;
+
+        for(auto& i: var_list)
+        {
+            vars.push_back(i->getName());
+        }
+
+        return vars;
+    }
+
     vector<class Variable *> getVarsList()
     {
         return var_list;
@@ -209,10 +229,27 @@ class FieldDec: public ASTnode {
 class FieldDecList: public ASTnode {
     
     vector<class FieldDec *> declaration_list;
+    map <string, int> mymap;
 
     public:
 
-    FieldDecList() {};
+    FieldDecList() {
+    };
+
+    void getMap()
+    {
+        for(auto& i: declaration_list)
+        {
+            vector <string> now_list = i->getVarNames();
+            for(auto& j: now_list)
+            {
+                cout << i->getType() << " - " << j << endl;
+                if(mymap.count(j))
+                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
+                mymap[j] = 1;
+            }
+        }
+    }
 
     vector<class FieldDec *> getList()
     {
@@ -226,7 +263,8 @@ class FieldDecList: public ASTnode {
 
     virtual void accept(ASTvisitor& v)
     {
-      v.visit(*this);
+        getMap();
+        v.visit(*this);
     }
 };
 
@@ -521,12 +559,23 @@ enum stmtType {
 };
 
 class Statement: public ASTnode {
-    
-    stmtType stype;
-
     public:
 
-    Statement() : stype(::NonReturn) {};
+    stmtType stype;
+    int check_control;
+
+
+    Statement()
+    {
+        stype = ::NonReturn;
+        check_control = 0;
+    }
+
+    Statement(int check_control1)
+    {
+        stype = ::NonReturn;
+        check_control = check_control1;
+    }
     
     virtual void setReturn() {stype = ::Return;};
 
@@ -540,11 +589,15 @@ class Statement: public ASTnode {
 
 class Statements: public ASTnode {
     
-    vector<class Statement *> statements_list;
-
     public:
 
-    Statements() {};
+    vector<class Statement *> statements_list;
+    int has_control;
+
+
+    Statements() {
+        has_control = 0;
+    };
 
     vector<class Statement *> getList()
     {
@@ -553,7 +606,23 @@ class Statements: public ASTnode {
 
     void push_back(class Statement *state)
     {
+        if(state->check_control)
+        {
+            has_control = 1;
+            // cout << "statement has control \n";
+        }
         statements_list.push_back(state);
+    }
+
+    int get_has_control()
+    {
+        // cout << "hello there \n"; 
+        return has_control;
+    }
+
+    string heeee()
+    {
+        return "adasd";
     }
 
     virtual void accept(ASTvisitor& v)
@@ -564,12 +633,12 @@ class Statements: public ASTnode {
 
 
 class Block: public Statement {
+    public:
     
     class var_decs *declarations_list;
 
     class Statements *statements_list;
 
-    public:
 
     Block() {};
     Block(class var_decs * decs, class Statements *states): declarations_list(decs), statements_list(states)  {};
@@ -584,7 +653,7 @@ class Block: public Statement {
     class Statements * get_states()
     {
         return statements_list;
-    }    
+    }   
 
     virtual void accept(ASTvisitor& v)
     {
@@ -614,9 +683,9 @@ class var_dec: public ASTnode {
 
     public:
 
-    var_dec(string type, class string_list* str_list)
+    var_dec(string type1, class string_list* str_list)
     {
-        type = type;
+        type = type1;
         vector<string> list = str_list->getList();
         for (auto &i : list) 
         {
@@ -628,6 +697,19 @@ class var_dec: public ASTnode {
     {
         var_list.push_back(arg);
     }    
+
+    vector <string> getVarNames()
+    {
+        vector <string> vars;
+
+        for(auto& i: var_list)
+        {
+            vars.push_back(i);
+        }
+
+        return vars;
+    }
+
 
     virtual string getType() {return type;};
     
@@ -642,6 +724,7 @@ class var_dec: public ASTnode {
 class var_decs: public ASTnode {
     
     vector<class var_dec *> var_decs_list;
+    map <string, int> mymap;
 
     public:
 
@@ -657,8 +740,25 @@ class var_decs: public ASTnode {
         var_decs_list.push_back(arg);
     }
 
+    void getMap()
+    {
+        for(auto& i: var_decs_list)
+        {
+            vector <string> now_list = i->getVarNames();
+            for(auto& j: now_list)
+            {
+                cout << i->getType() << " vardec - " << j << endl;
+                if(mymap.count(j))
+                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
+                mymap[j] = 1;
+            }
+        }
+
+    }    
+
     virtual void accept(ASTvisitor& v)
     {
+      getMap();
       v.visit(*this);
     }
 };
@@ -870,7 +970,7 @@ class breakState: public Statement {
 
     public:
 
-    breakState() {};
+    breakState(): Statement(1) {};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -882,7 +982,7 @@ class continueState: public Statement {
 
     public:
 
-    continueState() {};
+    continueState(): Statement(1) {};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -913,6 +1013,7 @@ class ifElseState: public Statement {
         cond = conds;
         checkIfCond();
         if_block = if_blocks;
+        // else_block = NULL;
         else_pre= 0;
     }
 
@@ -923,7 +1024,8 @@ class ifElseState: public Statement {
 
     void checkIfCond()
     {
-        // cout << "in if cond check" << endl;
+        // if(if_block->statements_list)
+            // cout << "ERROR: in if cond check" << endl;
         // cout << cond->getEdata() << " type " << endl;
     }
 
