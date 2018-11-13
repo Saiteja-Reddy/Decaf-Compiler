@@ -126,18 +126,26 @@ class Variable: public ASTnode {
     
     variableType declType;
     string name;
-    unsigned int length;
+    int length;
 
     public:
 
-    Variable(string name, unsigned int length) : name(name), length(length), declType(::Array) {}
+    Variable(string name1, int length1) 
+    {
+        name =name1;
+        length = length1;
+        declType = ::Array;
+        if(length1 <= 0)
+            cout << "Error" << ": Array Size during declaration must be greater than zero.\n";
+
+    }
     Variable(string name) : name(name), declType(::Normal) {}
 
     bool isArray() { return (declType == ::Array); }
 
     string getName() { return name; };
 
-    unsigned int getLength() { return length; }
+    int getLength() { return length; }
 
     virtual void accept(ASTvisitor& v)
     {
@@ -334,7 +342,7 @@ class BinExpr: public Expr {
         {
             if(a != ::integer || b!= ::integer)
             {
-                cout << "Error" << "" << ": Both sides of " << op << " must be int.\n";
+                cout << "Error" << ": Both sides of " << op << " must be int.\n";
             }
         }
         else if(find_strs())
@@ -934,7 +942,26 @@ class forState: public Statement {
 
     public:
 
-    forState(string var,class Expr * init,class Expr * end_cond,class Block* body): var(var), init(init), end_cond(end_cond),body(body)  {};
+    forState(string var1,class Expr * init1,class Expr * end_cond1,class Block* body1)
+    {
+        var = var1;
+        init = init1;
+        end_cond = end_cond1;
+        body= body1;
+        check_for();
+    }
+
+    void check_for()
+    {
+        int a = init->getEdata();
+        int b = end_cond->getEdata();
+
+        if(a != ::integer || b!= ::integer)
+        {
+            cout << "Error" << ":  initial and the ending EXPRS of FOR must have type int.\n";
+        }
+    }
+
 
     string getVar() { return var; }
     class Expr* getInit() { return init; }
@@ -979,7 +1006,12 @@ class Assign: public Statement {
 
     public:
     
-    Assign(class Location *loc,string op, class Expr * exp): loc(loc), op(op), exp(exp) {};
+    Assign(class Location *loc1,string op1, class Expr * exp1)
+    {
+     loc = loc1;
+     op = op1;
+     exp = exp1;
+    }
 
     class Expr* getRet() { return exp; }
     class Location* getLoc() {return loc;}
@@ -1014,6 +1046,16 @@ class Location: public Expr {
             var = vars;
             location_type = ::array; 
             array_index = array_indexs;
+            check_array_index();
+    }
+
+    void check_array_index()
+    {
+        int a = array_index->getEdata();
+        if(a != ::integer)
+        {
+                cout << "Error" << ": Array Index must be of type int.\n";
+        }
     }
 
     string getName() { return var; }

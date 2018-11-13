@@ -7,6 +7,7 @@
 
 #include "scanner.h"
 
+
 /* import the parser's token type into a local typedef */
 typedef decaf::Parser::token token;
 typedef decaf::Parser::token_type token_type;
@@ -76,7 +77,7 @@ typedef decaf::Parser::token_type token_type;
 
 0[xX][0-9a-fA-F]+ {yylval->intliteral = new integerLit(atoi(yytext)); return token::HEX_LIT;}
 
-[0-9]+      {yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
+-?[0-9]+      {yylval->intliteral = new integerLit(atoi(yytext)); return token::INTEGER_LIT;}
 
 "+="                {yylval->value = strdup(yytext);return token::PE;}
 "-="                {yylval->value = strdup(yytext);return token::ME;}
@@ -120,7 +121,6 @@ typedef decaf::Parser::token_type token_type;
 }
 [\n]+ {
     yylloc->step();
-
 }
 
 \".*+\"     {yylval->stringliteral = new stringLit(yytext);return token::STRING_LIT;}
