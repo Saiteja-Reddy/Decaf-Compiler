@@ -46,7 +46,7 @@ class Assign;
 class ASTvisitor {
   public:
     virtual void visit(ProgramASTnode& node) = 0;
-    virtual void visit(FieldDec& node) = 0;
+    virtual void visit(FieldDec& gnode) = 0;
     virtual void visit(FieldDecList& node) = 0;
     virtual void visit(Variable& node) = 0;
     virtual void visit(Variables& node) = 0;
@@ -107,6 +107,23 @@ class ProgramASTnode: public ASTnode {
         name = name1;
         fields = fields1;
         methods = methods1;
+        checkMain();
+    }
+
+    void checkMain()
+    {
+        if(methods_decs_map.count("main"))
+        {
+            if(methods_decs_map["main"] > 0)
+            {
+                cout << "ERROR: There must be a main method with no parameters\n"; 
+            }
+        }
+        else
+        {
+            cout << "ERROR: There must be a main method with no parameters\n";
+        }
+
     }
 
     string getProgramName() {
@@ -235,6 +252,7 @@ class FieldDecList: public ASTnode {
     public:
 
     FieldDecList() {
+        // cout << " Field Dec Lis\n";
     };
 
     void getMap()
@@ -246,11 +264,12 @@ class FieldDecList: public ASTnode {
             for(auto& j: now_list)
             {
                 // cout << i->getType() << " - " << j << endl;
-                if(mymap.count(j))
-                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
+                if(mymap.count(j) || methods_decs_map.count(j))
+                    cout << "ERROR : Already defined the variable - Globally '" << j << "'" << endl; 
                 mymap[j] = 1;
                 global_map[j] = 1;
-                // cout << "added global map" << endl;
+
+                // cout << "added global map - " << j << endl;
             }
         }
     }
@@ -613,20 +632,13 @@ class Statements: public ASTnode {
         if(state->check_control)
         {
             has_control = 1;
-            // cout << "statement has control \n";
         }
         statements_list.push_back(state);
     }
 
     int get_has_control()
     {
-        // cout << "hello there \n"; 
         return has_control;
-    }
-
-    string heeee()
-    {
-        return "adasd";
     }
 
     virtual void accept(ASTvisitor& v)
@@ -643,11 +655,21 @@ class Block: public Statement {
 
     class Statements *statements_list;
 
+    map <string, int> mymap;
+
 
     Block() {
         statements_list = NULL;
     };
-    Block(class var_decs * decs, class Statements *states): declarations_list(decs), statements_list(states)  {};
+
+    void init_mymap(class var_decs * decs); // in ast.cc
+
+    Block(class var_decs * decs, class Statements *states)
+    {
+        declarations_list = decs;
+        statements_list = states;
+        init_mymap(decs);
+    }
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
 
@@ -740,10 +762,10 @@ class var_dec: public ASTnode {
 
 class var_decs: public ASTnode {
     
+    public:
+
     vector<class var_dec *> var_decs_list;
     map <string, int> mymap;
-
-    public:
 
     var_decs() {};
 
@@ -766,7 +788,7 @@ class var_decs: public ASTnode {
             {
                 // cout << i->getType() << " vardec - " << j << endl;
                 if(global_map.count(j))
-                    cout << "ERROR : Already defined the variable Globally'" << j << "'" << endl; 
+                    cout << "ERROR : Already defined the variable Globally - '" << j << "'" << endl; 
                 if(mymap.count(j))
                     cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
                 mymap[j] = 1;
@@ -806,9 +828,11 @@ class meth_arg: public ASTnode {
 
 class meth_args: public ASTnode {
     
-    vector<class meth_arg *> meth_args_list;
-
     public:
+
+    vector<class meth_arg *> meth_args_list;
+    vector <pair<string,string> > arg_list;
+
 
     meth_args() {};
 
@@ -819,6 +843,7 @@ class meth_args: public ASTnode {
 
     void push_back(class meth_arg *arg)
     {
+        arg_list.push_back(make_pair(arg->getName(), arg->getType()));
         meth_args_list.push_back(arg);
     }
 
@@ -843,8 +868,21 @@ class meth_dec: public ASTnode {
     {
      return_type = return_type1;
      name = name1;
+     // cout << " MEth decHere" << name << " - " << global_map.count(name) << "\n";
+     if(methods_decs_map.count(name) || global_map.count(name))
+     {
+        cout << "ERROR: Method/Variable " << name << " is redefined.\n";
+     }
+
+     // methods_decs_map[name] = args1->arg_list;
+     methods_decs_map[name] = args1->arg_list.size();
+     for(auto& i: args1->arg_list)
+     {
+        cout << i.first << " " << i.second << endl;
+     }
+
      arg_list = args1;
-    if(blc->check_control())
+     if(blc->check_control())
         cout << "ERROR: BREAK/CONTINUE in method declaration is invalid" << endl;     
      body = blc;
     }

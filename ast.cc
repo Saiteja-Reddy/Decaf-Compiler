@@ -10,6 +10,10 @@
 
 using namespace std;
 
+void Block::init_mymap(class var_decs * decs)
+{
+    mymap = decs->mymap;
+}
 
 int main(int argc, char *argv[])
 {

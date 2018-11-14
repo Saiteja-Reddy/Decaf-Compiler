@@ -1,13 +1,11 @@
 class Program
 {
 // max size of array 100
-	int a[100], b, c;
 	boolean hello;
-	int hello;
+	boolean a;
 
 	void main()
 	{
-		boolean a;
 		if(1)
 		{
 			a = b;
@@ -16,6 +14,11 @@ class Program
 		{
 			d = 1;
 		}
+	}
+
+	int ab(int b, int c)
+	{
+		return [0];
 	}
 
 }
