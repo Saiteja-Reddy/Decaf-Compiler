@@ -114,7 +114,7 @@ class ProgramASTnode: public ASTnode {
     {
         if(methods_decs_map.count("main"))
         {
-            if(methods_decs_map["main"] > 0)
+            if(methods_decs_map["main"].size() > 0)
             {
                 cout << "ERROR: There must be a main method with no parameters\n"; 
             }
@@ -831,7 +831,7 @@ class meth_args: public ASTnode {
     public:
 
     vector<class meth_arg *> meth_args_list;
-    vector <pair<string,string> > arg_list;
+    vector <string> arg_list_types;
 
 
     meth_args() {};
@@ -843,7 +843,7 @@ class meth_args: public ASTnode {
 
     void push_back(class meth_arg *arg)
     {
-        arg_list.push_back(make_pair(arg->getName(), arg->getType()));
+        arg_list_types.push_back(arg->getType());
         meth_args_list.push_back(arg);
     }
 
@@ -874,12 +874,7 @@ class meth_dec: public ASTnode {
         cout << "ERROR: Method/Variable " << name << " is redefined.\n";
      }
 
-     // methods_decs_map[name] = args1->arg_list;
-     methods_decs_map[name] = args1->arg_list.size();
-     for(auto& i: args1->arg_list)
-     {
-        cout << i.first << " " << i.second << endl;
-     }
+     methods_decs_map[name] = args1->arg_list_types;
 
      arg_list = args1;
      if(blc->check_control())
