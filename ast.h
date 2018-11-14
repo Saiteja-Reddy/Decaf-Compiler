@@ -1,3 +1,10 @@
+#include <map>
+#include <list>
+
+using namespace std;
+
+#include "common.h"
+
 class ProgramASTnode;
 class FieldDec;
 class FieldDecList;
@@ -34,12 +41,6 @@ class forState;
 class returnState;
 class Location;
 class Assign;
-
-#include <map>
-#include <list>
-
-using namespace std;
-
 
 
 class ASTvisitor {
@@ -238,6 +239,7 @@ class FieldDecList: public ASTnode {
 
     void getMap()
     {
+        // cout << test_var << endl;
         for(auto& i: declaration_list)
         {
             vector <string> now_list = i->getVarNames();
@@ -247,6 +249,8 @@ class FieldDecList: public ASTnode {
                 if(mymap.count(j))
                     cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
                 mymap[j] = 1;
+                global_map[j] = 1;
+                // cout << "added global map" << endl;
             }
         }
     }
@@ -748,6 +752,8 @@ class var_decs: public ASTnode {
             for(auto& j: now_list)
             {
                 cout << i->getType() << " vardec - " << j << endl;
+                if(global_map.count(j))
+                    cout << "ERROR : Already defined the variable Globally'" << j << "'" << endl; 
                 if(mymap.count(j))
                     cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
                 mymap[j] = 1;
