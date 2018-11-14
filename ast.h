@@ -845,7 +845,7 @@ class meth_dec: public ASTnode {
      name = name1;
      arg_list = args1;
     if(blc->check_control())
-        cout << "ERROR: BREAK in method declaration is invalid" << endl;     
+        cout << "ERROR: BREAK/CONTINUE in method declaration is invalid" << endl;     
      body = blc;
     }
 
@@ -1031,9 +1031,9 @@ class ifElseState: public Statement {
     {
         cond = conds;
         if(if_blocks->check_control())
-            cout << "ERROR: BREAK in if block invalid" << endl; 
+            cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl; 
         if(else_blocks->check_control())
-            cout << "ERROR: BREAK in else block invalid" << endl;                     
+            cout << "ERROR: BREAK/CONTINUE in else block invalid" << endl;                     
 
         if_block = if_blocks;
         else_block= else_blocks;
@@ -1043,7 +1043,7 @@ class ifElseState: public Statement {
     {
         cond = conds;
         if(if_blocks->check_control())
-            cout << "ERROR: BREAK in if block invalid" << endl;        
+            cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl;        
 
         if_block = if_blocks;
         else_block = NULL;
