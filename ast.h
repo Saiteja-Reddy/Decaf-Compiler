@@ -245,7 +245,7 @@ class FieldDecList: public ASTnode {
             vector <string> now_list = i->getVarNames();
             for(auto& j: now_list)
             {
-                cout << i->getType() << " - " << j << endl;
+                // cout << i->getType() << " - " << j << endl;
                 if(mymap.count(j))
                     cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
                 mymap[j] = 1;
@@ -644,7 +644,9 @@ class Block: public Statement {
     class Statements *statements_list;
 
 
-    Block() {};
+    Block() {
+        statements_list = NULL;
+    };
     Block(class var_decs * decs, class Statements *states): declarations_list(decs), statements_list(states)  {};
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
@@ -658,6 +660,17 @@ class Block: public Statement {
     {
         return statements_list;
     }   
+
+    int check_control()
+    {
+        if(statements_list != NULL)
+        {
+            // cout << "Here \n";
+            return statements_list->has_control;
+        }
+        else
+            return 0;
+    }
 
     virtual void accept(ASTvisitor& v)
     {
@@ -751,7 +764,7 @@ class var_decs: public ASTnode {
             vector <string> now_list = i->getVarNames();
             for(auto& j: now_list)
             {
-                cout << i->getType() << " vardec - " << j << endl;
+                // cout << i->getType() << " vardec - " << j << endl;
                 if(global_map.count(j))
                     cout << "ERROR : Already defined the variable Globally'" << j << "'" << endl; 
                 if(mymap.count(j))
@@ -760,7 +773,7 @@ class var_decs: public ASTnode {
             }
         }
 
-    }    
+    }   
 
     virtual void accept(ASTvisitor& v)
     {
@@ -826,7 +839,15 @@ class meth_dec: public ASTnode {
 
     public:
 
-    meth_dec(string return_type, string name, class meth_args *args, class Block* blc ) : return_type(return_type), name(name),arg_list(args), body(blc) {};
+    meth_dec(string return_type1, string name1, class meth_args *args1, class Block* blc )
+    {
+     return_type = return_type1;
+     name = name1;
+     arg_list = args1;
+    if(blc->check_control())
+        cout << "ERROR: BREAK in method declaration is invalid" << endl;     
+     body = blc;
+    }
 
     virtual string getType() {return return_type;};
     
@@ -1009,7 +1030,11 @@ class ifElseState: public Statement {
     ifElseState(class Expr* conds, class Block* if_blocks, class Block* else_blocks)
     {
         cond = conds;
-        checkIfCond();
+        if(if_blocks->check_control())
+            cout << "ERROR: BREAK in if block invalid" << endl; 
+        if(else_blocks->check_control())
+            cout << "ERROR: BREAK in else block invalid" << endl;                     
+
         if_block = if_blocks;
         else_block= else_blocks;
         else_pre = 1; 
@@ -1017,9 +1042,11 @@ class ifElseState: public Statement {
     ifElseState(class Expr* conds, class Block* if_blocks)
     {
         cond = conds;
-        checkIfCond();
+        if(if_blocks->check_control())
+            cout << "ERROR: BREAK in if block invalid" << endl;        
+
         if_block = if_blocks;
-        // else_block = NULL;
+        else_block = NULL;
         else_pre= 0;
     }
 
@@ -1030,7 +1057,8 @@ class ifElseState: public Statement {
 
     void checkIfCond()
     {
-        // if(if_block->statements_list)
+        // cout << "Here incond\n";
+        // if(if_block->check_control())
             // cout << "ERROR: in if cond check" << endl;
         // cout << cond->getEdata() << " type " << endl;
     }

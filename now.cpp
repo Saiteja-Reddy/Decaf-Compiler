@@ -11,7 +11,10 @@ class Program
 		if(1)
 		{
 			a = b;
-			break;
+		}
+		else
+		{
+			d = 1;
 		}
 	}
 
