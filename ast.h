@@ -316,6 +316,17 @@ class Expr: public ASTnode {
 
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
+
+    string getExpData()
+    {
+        switch(edata)
+        {
+            case ::boolean: return "boolean" ;
+            case ::integer: return "int" ;
+            case ::mixed: return "mixed" ;
+            case ::def : return "def";
+        }
+    }
     
     void setEdata(int a)
     { 
@@ -875,6 +886,7 @@ class meth_dec: public ASTnode {
      }
 
      methods_decs_map[name] = args1->arg_list_types;
+     methods_decs_return[name] = return_type;
 
      arg_list = args1;
      if(blc->check_control())
@@ -920,6 +932,33 @@ class meth_decs: public ASTnode {
     }
 };
 
+class Parameters: public ASTnode {
+
+    public:
+    
+    vector<class Expr *> params;
+    vector<string> data_types;
+
+    Parameters() {};
+
+    void push_back(class Expr *E)
+    {
+        data_types.push_back(E->getExpData());
+        params.push_back(E);
+    }
+
+    vector<class Expr *> getParams()
+    {
+        return params;
+    }
+
+    virtual void accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
+};
+
+
 class meth_call: public Statement, public Expr {
     
     string name;
@@ -928,7 +967,35 @@ class meth_call: public Statement, public Expr {
     public:
     
     meth_call(){};
-    meth_call(string name,class Parameters* params ) : name(name), params(params) {};
+    meth_call(string name1,class Parameters* params1 )
+    {
+        name = name1;
+        params = params1;
+        if(methods_decs_map.count(name))
+        {
+            vector <string> meth_data_types = methods_decs_map[name];
+            vector <string> data_types = params1->data_types;
+            if(meth_data_types.size() != data_types.size())
+            {
+                cout << "ERROR : Method " << name << " needs " <<  meth_data_types.size() << " arguments\n";
+            }
+            else
+            {
+                for (int i = 0; i < data_types.size(); ++i)
+                {
+                    // cout << meth_data_types[i] << "  fasasfad " << data_types[i] << endl;
+                   if(meth_data_types[i] != data_types[i])
+                   {
+                     cout << "ERROR : Usage of Method " << name << "'s Parameters is wrong in method call.\n";
+                     break;
+                   }
+                }
+            }
+
+        }
+        else
+            cout << "ERROR: Method " << name << " is not defined before use.\n";
+    }
 
     string getName() {  return name;    }
 
@@ -1000,29 +1067,6 @@ class callout_call: public meth_call{
     {
       v.visit(*this);
     }  
-};
-
-class Parameters: public ASTnode {
-    vector<class Expr *> params;
-
-    public:
-
-    Parameters() {};
-
-    void push_back(class Expr *E)
-    {
-        params.push_back(E);
-    }
-
-    vector<class Expr *> getParams()
-    {
-        return params;
-    }
-
-    virtual void accept(ASTvisitor& v)
-    {
-      v.visit(*this);
-    }
 };
 
 

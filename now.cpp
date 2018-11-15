@@ -4,6 +4,11 @@ class Program
 	boolean hello;
 	boolean a;
 
+	int ab(int b, boolean c)
+	{
+		return [0];
+	}
+
 	void main()
 	{
 		if(1)
@@ -12,13 +17,8 @@ class Program
 		}
 		else
 		{
-			d = 1;
+			d = ab(a, b);
 		}
-	}
-
-	int ab(int b, int c)
-	{
-		return [0];
 	}
 
 }
