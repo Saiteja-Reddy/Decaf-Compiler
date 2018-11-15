@@ -306,16 +306,30 @@ enum literalType {
 
 class Expr: public ASTnode {
     
+    public:
+    
     exprType etype;
     exprData edata;
-
-    public:
+    map <string, int> expr_map;
 
     Expr() { edata = ::def;};
     Expr(exprData val) { edata = val;};
 
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
+
+    void add_to_expr_map(string name, int type)
+    {
+        expr_map[name] = type;
+    }
+
+    void print_expr_map()
+    {
+        for(auto& i: expr_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+    }
 
     string getExpData()
     {
@@ -403,6 +417,18 @@ class BinExpr: public Expr {
         rhs = rhss;
         op = ops;
         check_types();
+
+        map <string, int> now_map = lhss->expr_map;
+        for(auto& i: now_map)
+        {
+            add_to_expr_map(i.first, i.second);
+        }
+        now_map = rhss->expr_map;
+        for(auto& i: now_map)
+        {
+            add_to_expr_map(i.first, i.second);
+        }
+
     }
 
     void check_types()
@@ -469,6 +495,12 @@ class UnExpr: public Expr {
         exp = exps;
         op = ops;
         check_types();
+
+        map <string, int> now_map = exps->expr_map;
+        for(auto& i: now_map)
+        {
+            add_to_expr_map(i.first, i.second);
+        }        
     }
 
     void check_types()
@@ -494,7 +526,15 @@ class EncExpr: public Expr {
     class Expr *expr;
     public:
 
-    EncExpr(class Expr *expr): expr(expr) {};
+    EncExpr(class Expr *expr1)
+    {
+        expr = expr1;
+        map <string, int> now_map = expr1->expr_map;
+        for(auto& i: now_map)
+        {
+            add_to_expr_map(i.first, i.second);
+        }
+    }
 
     class Expr * getexpr() { return expr; }
 
@@ -597,7 +637,7 @@ class Statement: public ASTnode {
 
     stmtType stype;
     int check_control;
-
+    map <string, int> var_map;
 
     Statement()
     {
@@ -609,6 +649,11 @@ class Statement: public ASTnode {
     {
         stype = ::NonReturn;
         check_control = check_control1;
+    }
+
+    void add_to_var_map(string name, int type)
+    {
+        var_map[name] = type;
     }
     
     virtual void setReturn() {stype = ::Return;};
@@ -938,12 +983,20 @@ class Parameters: public ASTnode {
     
     vector<class Expr *> params;
     vector<string> data_types;
+    map <string, int> expr_map;
 
     Parameters() {};
 
     void push_back(class Expr *E)
     {
         data_types.push_back(E->getExpData());
+        
+        map <string, int> now_map = E->expr_map;
+        for(auto& i: now_map)
+        {
+            expr_map[i.first] = i.second;
+        }
+
         params.push_back(E);
     }
 
@@ -991,6 +1044,14 @@ class meth_call: public Statement, public Expr {
                    }
                 }
             }
+
+            map <string, int> now_map = params1->expr_map;
+            for(auto& i: now_map)
+            {
+                add_to_expr_map(i.first, i.second);
+            }
+
+            print_expr_map();  
 
         }
         else
@@ -1251,7 +1312,8 @@ class Location: public Expr {
     Location(string vars)
     {
             var = vars;
-            location_type = ::variable;           
+            location_type = ::variable; 
+            add_to_expr_map(vars, 0);
     };
 
     Location(string vars, class Expr *array_indexs)
@@ -1260,6 +1322,12 @@ class Location: public Expr {
             location_type = ::array; 
             array_index = array_indexs;
             check_array_index();
+            add_to_expr_map(vars, 1);
+            map <string, int> now_map = array_indexs->expr_map;
+            for(auto& i: now_map)
+            {
+                add_to_expr_map(i.first, i.second);
+            }
     }
 
     void check_array_index()
