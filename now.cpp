@@ -17,10 +17,11 @@ class Program
 	void main()
 	{
 		int hhhh;
+		int b;
 		if(1)
 		{
 			int aaaa;
-			a = b;
+			a = are+1;
 		}
 		else
 		{

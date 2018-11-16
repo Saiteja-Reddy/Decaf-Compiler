@@ -360,10 +360,25 @@ class PostFixVisitor: public ASTvisitor {
         // cout << " Assign " << " declared ";
         class Location *loc = node.getLoc();
         class Expr * exp = node.getRet();
+        map <string, int> exp_map = exp->expr_map;
         loc->accept(*this);
         cout << node.getOp();
         exp->accept(*this);
         cout << " ";   
+        for(auto& i: exp_map)
+        {
+            string type = "int";
+            if(i.second == 1)
+            {
+                type = "boolean";
+            }
+
+            if(!(node.scope_map.count(i.first)))
+            {
+                cout << "\nERROR : Variable '" << i.first << "' used before declared. \n";
+            }
+
+        }
     }   
 
 };
