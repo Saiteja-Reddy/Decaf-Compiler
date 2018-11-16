@@ -204,9 +204,17 @@ class PostFixVisitor: public ASTvisitor {
         class Expr *rhs = node.getRhs();
         string op = node.getOp();
 
-        lhs->accept(*this);
+        if(lhs->check_meth_call)
+            lhs->check_accept(*this);
+        else
+            lhs->accept(*this);
+
         cout << op;
-        rhs->accept(*this);
+
+        if(rhs->check_meth_call)
+            rhs->check_accept(*this);
+        else
+            rhs->accept(*this);
 
     }      
 
@@ -217,7 +225,11 @@ class PostFixVisitor: public ASTvisitor {
         string op = node.getOp();
         
         cout << op;
-        expr->accept(*this);
+
+        if(expr->check_meth_call)
+            expr->check_accept(*this);
+        else
+            expr->accept(*this);
 
     }                 
 
@@ -226,7 +238,10 @@ class PostFixVisitor: public ASTvisitor {
         // cout << "EncExpr " << " declared\n";
         class Expr *expr = node.getexpr();
         cout << "(";
-        expr->accept(*this);
+        if(expr->check_meth_call)
+            expr->check_accept(*this);
+        else
+            expr->accept(*this);        
         cout << ")";
     }             
 
@@ -312,6 +327,7 @@ class PostFixVisitor: public ASTvisitor {
         cout << " - ";
         end_cond->accept(*this);
         cout << "{";
+        body->add_to_mymap(node.scope_map);
         body->accept(*this);
         // cout << "Here";
         cout << "} ";
@@ -328,11 +344,14 @@ class PostFixVisitor: public ASTvisitor {
         class Block* else_block = node.getElse();
         cond->accept(*this);
         cout << "){";
+        
+        if_block->add_to_mymap(node.scope_map);
         if_block->accept(*this);
         cout << "} ";
         if(node.getElsePre())
         {
             cout <<"else {";
+            else_block->add_to_mymap(node.scope_map);
             else_block->accept(*this);
             cout << "} ";
         }
@@ -373,7 +392,7 @@ class PostFixVisitor: public ASTvisitor {
                 type = "boolean";
             }
 
-            if(!(node.scope_map.count(i.first)))
+            if(!(node.scope_map.count(i.first)) && !(global_map.count(i.first))  )
             {
                 cout << "\nERROR : Variable '" << i.first << "' used before declared. \n";
             }

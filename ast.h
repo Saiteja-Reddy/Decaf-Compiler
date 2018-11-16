@@ -312,9 +312,10 @@ class Expr: public ASTnode {
     exprType etype;
     exprData edata;
     map <string, int> expr_map;
+    int check_meth_call;
 
-    Expr() { edata = ::def;};
-    Expr(exprData val) { edata = val;};
+    Expr() { edata = ::def; check_meth_call = 0;};
+    Expr(exprData val) { edata = val; check_meth_call = 0;};
 
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
@@ -404,6 +405,11 @@ class Expr: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual void check_accept(ASTvisitor& v)
+    {
+      v.visit(*this);
+    }
 };
 
 class BinExpr: public Expr {
@@ -418,7 +424,6 @@ class BinExpr: public Expr {
         rhs = rhss;
         op = ops;
         check_types();
-
         map <string, int> now_map = lhss->expr_map;
         for(auto& i: now_map)
         {
@@ -1077,9 +1082,10 @@ class meth_call: public Statement, public Expr {
 
     public:
     
-    meth_call(){};
+    meth_call(){check_meth_call = 1;};
     meth_call(string name1,class Parameters* params1 )
     {
+        check_meth_call = 1; 
         name = name1;
         params = params1;
         if(methods_decs_map.count(name))
@@ -1124,6 +1130,17 @@ class meth_call: public Statement, public Expr {
     {
       v.visit(*this);
     }
+
+    virtual void check_accept(ASTvisitor& v)
+    {
+      if(methods_decs_return[name] == "void")
+      {
+        cout << "\nERROR: Method Call " << name << " must return a value for expr.\n";
+      }
+      v.visit(*this);
+    }
+
+
 };
 
 class calloutArg: public ASTnode{

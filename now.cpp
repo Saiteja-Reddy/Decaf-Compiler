@@ -25,7 +25,7 @@ class Program
 		}
 		else
 		{
-			d = ab(a, b);
+			d = ab(a, b) + 1;
 		}
 	}
 
