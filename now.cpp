@@ -11,7 +11,7 @@ class Program
 		{
 
 		}
-		return [1];
+		return [1+aaa];
 	}
 
 	void main()
@@ -21,10 +21,11 @@ class Program
 		if(1)
 		{
 			int aaaa;
-			a = b+1;
+			aaaa = b+1;
 		}
 		else
 		{
+			int d;
 			d = ab(a, b) + 1;
 		}
 	}

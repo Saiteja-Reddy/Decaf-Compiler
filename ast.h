@@ -94,6 +94,8 @@ class ASTnode {
 
 };
 
+map <string, string> check_in_scope(string name, map <string, string> mymap);
+
 class ProgramASTnode: public ASTnode {
     string name;
 
@@ -315,6 +317,8 @@ class Expr: public ASTnode {
     exprType etype;
     exprData edata;
     map <string, int> expr_map;
+    map <string, string> scope_map;
+    map <string, string> meth_call_scope_map;
     int check_meth_call;
 
     Expr() { edata = ::def; check_meth_call = 0;};
@@ -322,7 +326,57 @@ class Expr: public ASTnode {
 
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
-    
+
+    void set_scope_map(map <string, string> in_map)
+    {
+        if(check_meth_call)
+        {
+            for(auto& i: in_map)
+            {
+                meth_call_scope_map[i.first] = i.second;
+            }
+        }
+
+        for(auto& i: in_map)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }
+
+    void print_meth_call_scope_map()
+    {
+        cout << "\n\nState Map in Expr\n";
+        for(auto& i: meth_call_scope_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "State Map done\n\n";
+    }
+
+
+    void print_scope_map()
+    {
+        cout << "\n\nState Map in Expr\n";
+        for(auto& i: scope_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "State Map done\n\n";
+    }
+
+    void add_scope_map(string name, string type)
+    {
+        scope_map[name] = type;
+    }    
+
+    void add_scope_map(map <string, string> now)
+    {
+        for(auto& i: now)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }        
+
     void setEdata(exprData now) 
     {
         edata = now;
@@ -421,17 +475,17 @@ class Expr: public ASTnode {
 };
 
 class BinExpr: public Expr {
+    public:
+
     class Expr *lhs;
     class Expr *rhs;
     string op;
-    public:
 
     BinExpr(class Expr *lhss, class Expr *rhss, string ops)
     {
         lhs = lhss;
         rhs = rhss;
         op = ops;
-        check_types();
         map <string, int> now_map = lhss->expr_map;
         for(auto& i: now_map)
         {
@@ -443,50 +497,6 @@ class BinExpr: public Expr {
             add_to_expr_map(i.first, i.second);
         }
 
-    }
-
-    void check_types()
-    {
-        int a = lhs->getEdata();
-        int b = rhs->getEdata();
-
-        if(find_init())
-        {
-            if(a != ::integer || b!= ::integer)
-            {
-                cout << "Error" << ": Both sides of " << op << " must be int.\n";
-            }
-        }
-        else if(find_strs())
-        {
-            if(!((a == ::integer && b== ::integer) || (a == ::boolean && b== ::boolean)))
-            {
-                cout << "Error: Both sides of " << op << " must be int or boolean.\n"; 
-            }
-        }
-
-    }
-
-    int find_init()
-    {
-        string init[] = {"+", "-", "*", "/", "%", ">", "<", "<=", ">="};
-        for(int i=0; i<9; i++)
-        {
-            if(op == init[i])
-                return 1;
-        }
-        return 0;
-    }
-
-    int find_strs()
-    {
-        string strs[] = { "==", "!="};
-        for(int i=0; i<2; i++)
-        {
-            if(op == strs[i])
-                return 1;
-        }
-        return 0;        
     }
 
     class Expr * getLhs() { return lhs; }
@@ -508,7 +518,6 @@ class UnExpr: public Expr {
     {
         exp = exps;
         op = ops;
-        check_types();
 
         map <string, int> now_map = exps->expr_map;
         for(auto& i: now_map)
@@ -516,16 +525,6 @@ class UnExpr: public Expr {
             add_to_expr_map(i.first, i.second);
         }        
     }
-
-    void check_types()
-    {
-        int a = exp->getEdata();
-        if(a != ::boolean)
-        {
-            cout << "Error: Unary Operator must have only boolean type. \n";
-        }
-    }
-
 
     class Expr * getExp() { return exp; }
     string getOp() { return op; }
@@ -671,7 +670,10 @@ class Statement: public ASTnode {
 
     void set_scope_map(map <string, string> in_map)
     {
-        scope_map = in_map;
+        for(auto& i: in_map)
+        {
+            scope_map[i.first] = i.second;
+        }
     }
 
     void print_scope_map()
@@ -688,6 +690,14 @@ class Statement: public ASTnode {
     {
         scope_map[name] = type;
     }
+
+    void add_scope_map(map <string, string> now)
+    {
+        for(auto& i: now)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }      
 
     void set_var_map(map <string, int> in_map)
     {
@@ -788,6 +798,8 @@ class Block: public Statement {
 
     map <string, string> mymap;
 
+    map <string, string> scope_map;
+
 
     Block() {
         statements_list = NULL;
@@ -811,6 +823,38 @@ class Block: public Statement {
         declarations_list = decs;
         statements_list = states;
     }
+
+
+    void set_scope_map(map <string, string> in_map)
+    {
+        for(auto& i: in_map)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }
+
+    void add_scope_map(map <string, string> now)
+    {
+        for(auto& i: now)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }  
+
+    void print_scope_map()
+    {
+        cout << "\n\nState Map\n";
+        for(auto& i: scope_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "State Map done\n\n";
+    }
+
+    void add_scope_map(string name, string type)
+    {
+        scope_map[name] = type;
+    }    
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
 
@@ -1096,6 +1140,14 @@ class Parameters: public ASTnode {
         params.push_back(E);
     }
 
+    void set_scope_map(map <string, string> in_map)
+    {
+        for(auto& i: params)
+        {
+            i->set_scope_map(in_map);
+        }
+    }        
+
     vector<class Expr *> getParams()
     {
         return params;
@@ -1109,11 +1161,12 @@ class Parameters: public ASTnode {
 
 
 class meth_call: public Statement, public Expr {
+    public:
     
     string name;
     class Parameters* params;
+    map <string, string> scope_map;
 
-    public:
     
     meth_call(){check_meth_call = 1;};
     meth_call(string name1,class Parameters* params1 )
@@ -1148,7 +1201,7 @@ class meth_call: public Statement, public Expr {
                 setEdata(::integer);
             else if(methods_decs_return[name] == "boolean")
             {
-                cout << "HHSGAFASADADAD\n";
+                // cout << "HHSGAFASADADAD\n";
                 setEdata(::boolean);            
             }
 
@@ -1164,6 +1217,24 @@ class meth_call: public Statement, public Expr {
         }
         else
             cout << "ERROR: Method " << name << " is not defined before use.\n";
+    }
+
+    void set_scope_map(map <string, string> in_map)
+    {
+        for(auto& i: in_map)
+        {
+            scope_map[i.first] = i.second;
+        }
+    }
+
+    void print_scope_map()
+    {
+        cout << "\n\nState Map\n";
+        for(auto& i: scope_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "State Map done\n\n";
     }
 
     string getName() {  return name;    }
@@ -1420,9 +1491,9 @@ class Assign: public Statement {
     
     Assign(class Location *loc1,string op1, class Expr * exp1)
     {
-     loc = loc1;
-     op = op1;
-     exp = exp1;
+        loc = loc1;
+        op = op1;
+        exp = exp1;
     }
 
     class Expr* getRet() { return exp; }
@@ -1473,7 +1544,7 @@ class Location: public Expr {
         int a = array_index->getEdata();
         if(a != ::integer)
         {
-                cout << "Error" << ": Array Index must be of type int.\n";
+                cout << "ERROR: Array Index must be of type int.\n";
         }
     }
 
@@ -1485,6 +1556,23 @@ class Location: public Expr {
 
     virtual void accept(ASTvisitor& v)
     {
+
+        map <string, string> out = check_in_scope(var,scope_map);
+        if(out["name"] != "")
+        {
+            if(out["type"] == "int")
+                setEdata(::integer);
+            else if(out["type"] == "boolean")
+                setEdata(::boolean);
+            else
+                setEdata(::mixed);
+        }
+        else
+        {
+            setEdata(::mixed);
+            cout << "ERROR: Variable " << var << " not defined.\n";
+        }
+
       v.visit(*this);
     }
 };

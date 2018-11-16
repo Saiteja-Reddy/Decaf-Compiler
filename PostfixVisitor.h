@@ -1,5 +1,8 @@
 #include "ast.h"
 
+int find_init(string op);
+int find_strs(string op);
+
 class PostFixVisitor: public ASTvisitor {
     public:
 
@@ -61,7 +64,7 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(Expr& node) 
     {
         cout << "Expr " << " declared\n";
-    }            
+    }    
 
     virtual void visit(Lit& node) 
     {
@@ -94,12 +97,12 @@ class PostFixVisitor: public ASTvisitor {
         var_decl->accept(*this);
         
         node.init_mymap(var_decl);
-        // node.print_mymap();
+        // cout << "\n inside block declared vars\n ";
+        // node.print_scope_map();
 
-        // cout << "vars decs ";
         
         class Statements *statements_list = node.get_states();
-        statements_list->set_scope_map(node.mymap);
+        statements_list->set_scope_map(node.scope_map);
         statements_list->accept(*this, type, meth_name);  
         
         // cout << "statement decs ";
@@ -116,11 +119,12 @@ class PostFixVisitor: public ASTvisitor {
         
         node.init_mymap(var_decl);
         // node.print_mymap();
+        // node.print_scope_map();
 
         // cout << "vars decs ";
         
         class Statements *statements_list = node.get_states();
-        statements_list->set_scope_map(node.mymap);
+        statements_list->set_scope_map(node.scope_map);
         statements_list->accept(*this);  
         
         // cout << "statement decs ";
@@ -202,6 +206,8 @@ class PostFixVisitor: public ASTvisitor {
         vector<class Statement *> statements_list = node.getList();
         for(auto& i: statements_list)
         {
+                // cout << " Working 1223\n";
+                // i->print_scope_map();
                 i->accept(*this);
         }                   
     }                 
@@ -233,11 +239,12 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(meth_call& node) 
     {
         // cout << "meth_call " << " declared\n";
+        // node.print_meth_call_scope_map();
         cout << node.getName() << "(";
         class Parameters* params = node.getParams();
+        params->set_scope_map(node.meth_call_scope_map);
         params->accept(*this);
         cout << ")";
-
     }     
 
     virtual void visit(BinExpr& node) 
@@ -246,6 +253,27 @@ class PostFixVisitor: public ASTvisitor {
         class Expr *lhs = node.getLhs();
         class Expr *rhs = node.getRhs();
         string op = node.getOp();
+
+        lhs->set_scope_map(node.scope_map);
+        rhs->set_scope_map(node.scope_map);
+
+        int a = lhs->getEdata();
+        int b = rhs->getEdata();
+
+        if(find_init(op))
+        {
+            if(a != ::integer || b!= ::integer)
+            {
+                cout << "Error" << ": Both sides of " << op << " must be int.\n";
+            }
+        }
+        else if(find_strs(op))
+        {
+            if(!((a == ::integer && b== ::integer) || (a == ::boolean && b== ::boolean)))
+            {
+                cout << "Error: Both sides of " << op << " must be int or boolean.\n"; 
+            }
+        }
 
         if(lhs->check_meth_call)
             lhs->check_accept(*this);
@@ -266,7 +294,15 @@ class PostFixVisitor: public ASTvisitor {
         // cout << "UnExpr " << " declared\n";
         class Expr *expr = node.getExp();
         string op = node.getOp();
+
+        int a = expr->getEdata();
+        if(a != ::boolean)
+        {
+            cout << "ERROR: Unary Operator must have only boolean type. \n";
+        }        
         
+        expr->set_scope_map(node.scope_map);
+
         cout << op;
 
         if(expr->check_meth_call)
@@ -280,6 +316,7 @@ class PostFixVisitor: public ASTvisitor {
     {
         // cout << "EncExpr " << " declared\n";
         class Expr *expr = node.getexpr();
+        expr->set_scope_map(node.scope_map);        
         cout << "(";
         if(expr->check_meth_call)
             expr->check_accept(*this);
@@ -295,6 +332,7 @@ class PostFixVisitor: public ASTvisitor {
         // cout << params.size() ;
         for(auto& i: params)
         {
+            // i->set_scope_map(node.scope_map);
             i->accept(*this);
             cout << ",";
         }                  
@@ -351,6 +389,8 @@ class PostFixVisitor: public ASTvisitor {
         if(node.hasReturn())
         {
             class Expr * ret = node.getRet();
+            ret->set_scope_map(node.scope_map);
+            // ret->print_scope_map();
             ret->accept(*this);
         }
         cout << "; ";
@@ -364,8 +404,14 @@ class PostFixVisitor: public ASTvisitor {
         // node.print_scope_map();
         cout << " for " << node.getVar() << ": ";
         class Expr * init = node.getInit();
+        init->set_scope_map(node.scope_map);
+
         class Expr * end_cond = node.getEnd();
+        end_cond->set_scope_map(node.scope_map);
+
         class Block* body = node.getBody();
+        body->set_scope_map(node.scope_map);
+
         init->accept(*this);
         cout << " - ";
         end_cond->accept(*this);
@@ -389,13 +435,22 @@ class PostFixVisitor: public ASTvisitor {
         cout << "){";
         
         if_block->add_to_mymap(node.scope_map);
+        if_block->add_scope_map(node.scope_map);
+        // if_block->print_scope_map();
+
+        // cout << "\n if block accepted\n";
         if_block->accept(*this);
+
         cout << "} ";
         if(node.getElsePre())
         {
             cout <<"else {";
+            else_block->add_scope_map(node.scope_map);
             else_block->add_to_mymap(node.scope_map);
+            // else_block->print_scope_map();
+
             else_block->accept(*this);
+
             cout << "} ";
         }
 
@@ -423,9 +478,15 @@ class PostFixVisitor: public ASTvisitor {
         class Location *loc = node.getLoc();
         class Expr * exp = node.getRet();
         map <string, int> exp_map = exp->expr_map;
+        loc->set_scope_map(node.scope_map);
         loc->accept(*this);
         cout << node.getOp();
+        exp->set_scope_map(node.scope_map);
+        // cout << "working 123\n";
+        // exp->print_scope_map();
+
         exp->accept(*this);
+
         cout << " ";   
         for(auto& i: exp_map)
         {
@@ -441,6 +502,37 @@ class PostFixVisitor: public ASTvisitor {
             }
 
         }
+
+        exprData type_lhs = loc->getEdata();
+        exprData type_rhs = exp->getEdata();
+
+        if(type_lhs != type_rhs)
+            cout << "ERROR: both sides of Assign operator must have same type!";
+
+        
     }   
 
 };
+
+
+int find_init(string op)
+{
+    string init[] = {"+", "-", "*", "/", "%", ">", "<", "<=", ">="};
+    for(int i=0; i<9; i++)
+    {
+        if(op == init[i])
+            return 1;
+    }
+    return 0;
+}
+
+int find_strs(string op)
+{
+    string strs[] = { "==", "!="};
+    for(int i=0; i<2; i++)
+    {
+        if(op == strs[i])
+            return 1;
+    }
+    return 0;        
+}
