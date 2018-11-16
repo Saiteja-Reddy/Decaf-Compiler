@@ -7,7 +7,7 @@ using namespace std;
 
 string test_var = "Hello \n";
 
-map <string, int> global_map = map <string, int>();
+map <string, string> global_map = map <string, string>();
 
 map <string, vector<string> > methods_decs_map = map <string, vector<string> >();
 

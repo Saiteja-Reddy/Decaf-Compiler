@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 
-
 using namespace std;
 
 #include "common.h"
@@ -41,7 +40,6 @@ class forState;
 class returnState;
 class Location;
 class Assign;
-class PostFixVisitor;
 
 
 class ASTvisitor {
@@ -205,11 +203,12 @@ class Variables: public ASTnode {
 
 
 class FieldDec: public ASTnode {
+    public:
+   
     string datatype;
 
     vector<class Variable *> var_list;
 
-    public:
 
     FieldDec(string dtype, class Variables *variables) : datatype(dtype), var_list(variables->getVarsList()) {}
     FieldDec() {
@@ -248,7 +247,7 @@ class FieldDec: public ASTnode {
 class FieldDecList: public ASTnode {
     
     vector<class FieldDec *> declaration_list;
-    map <string, int> mymap;
+    map <string, string> mymap;
 
     public:
 
@@ -264,11 +263,12 @@ class FieldDecList: public ASTnode {
             vector <string> now_list = i->getVarNames();
             for(auto& j: now_list)
             {
+                string type = i->datatype;
                 // cout << i->getType() << " - " << j << endl;
                 if(mymap.count(j) || methods_decs_map.count(j))
-                    cout << "ERROR : Already defined the variable - Globally '" << j << "'" << endl; 
-                mymap[j] = 1;
-                global_map[j] = 1;
+                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
+                mymap[j] = type;
+                global_map[j] = type;
 
                 // cout << "added global map - " << j << endl;
             }
@@ -638,6 +638,7 @@ class Statement: public ASTnode {
 
     stmtType stype;
     int check_control;
+    map <string, string> scope_map;
     map <string, int> var_map;
 
     Statement()
@@ -650,6 +651,31 @@ class Statement: public ASTnode {
     {
         stype = ::NonReturn;
         check_control = check_control1;
+    }
+
+    void set_scope_map(map <string, string> in_map)
+    {
+        scope_map = in_map;
+    }
+
+    void print_scope_map()
+    {
+        cout << "\n\nState Map\n";
+        for(auto& i: scope_map)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "State Map done\n\n";
+    }
+
+    void add_scope_map(string name, string type)
+    {
+        scope_map[name] = type;
+    }
+
+    void set_var_map(map <string, int> in_map)
+    {
+        var_map = in_map;
     }
 
     void add_to_var_map(string name, int type)
@@ -684,6 +710,23 @@ class Statements: public ASTnode {
         return statements_list;
     }
 
+
+    void set_var_map(map <string, int> in_map)
+    {
+        for(auto& i: statements_list)
+        {
+            i->set_var_map(in_map);
+        }
+    }
+
+    void set_scope_map(map <string, string> in_map)
+    {
+        for(auto& i: statements_list)
+        {
+            i->set_scope_map(in_map);
+        }
+    }    
+
     void push_back(class Statement *state)
     {
         if(state->check_control)
@@ -712,20 +755,30 @@ class Block: public Statement {
 
     class Statements *statements_list;
 
-    map <string, int> mymap;
+    map <string, string> mymap;
 
 
     Block() {
         statements_list = NULL;
     };
 
-    void init_mymap(class var_decs * decs); // in ast.cc
+    void init_mymap(class var_decs * decs); // in ast.cpp
+    void add_to_mymap(map <string, string> in_map);
+
+    void print_mymap()
+    {
+        cout << "\n\nBlock Map\n";
+        for(auto& i: mymap)
+        {
+            cout << i.first <<  "  ---- " << i.second << endl;
+        }
+        cout << "Block Map done\n\n";
+    }
 
     Block(class var_decs * decs, class Statements *states)
     {
         declarations_list = decs;
         statements_list = states;
-        init_mymap(decs);
     }
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
@@ -774,10 +827,10 @@ class string_list {
 };
 
 class var_dec: public ASTnode {
+    public:
+    
     string type;
     vector<string> var_list;
-
-    public:
 
     var_dec(string type1, class string_list* str_list)
     {
@@ -822,7 +875,7 @@ class var_decs: public ASTnode {
     public:
 
     vector<class var_dec *> var_decs_list;
-    map <string, int> mymap;
+    map <string, string> mymap;
 
     var_decs() {};
 
@@ -840,6 +893,7 @@ class var_decs: public ASTnode {
     {
         for(auto& i: var_decs_list)
         {
+            string type = i->type;
             vector <string> now_list = i->getVarNames();
             for(auto& j: now_list)
             {
@@ -848,7 +902,7 @@ class var_decs: public ASTnode {
                     cout << "ERROR : Already defined the variable Globally - '" << j << "'" << endl; 
                 if(mymap.count(j))
                     cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
-                mymap[j] = 1;
+                mymap[j] = type;
             }
         }
 
@@ -889,6 +943,8 @@ class meth_args: public ASTnode {
 
     vector<class meth_arg *> meth_args_list;
     vector <string> arg_list_types;
+    
+    map <string, string> arg_list;
 
 
     meth_args() {};
@@ -900,6 +956,7 @@ class meth_args: public ASTnode {
 
     void push_back(class meth_arg *arg)
     {
+        arg_list[arg->getName()] = arg->getType();
         arg_list_types.push_back(arg->getType());
         meth_args_list.push_back(arg);
     }
@@ -1052,7 +1109,7 @@ class meth_call: public Statement, public Expr {
                 add_to_expr_map(i.first, i.second);
             }
 
-            print_expr_map();  
+            // print_expr_map();  
 
         }
         else
@@ -1209,13 +1266,12 @@ class ifElseState: public Statement {
 };
 
 class forState: public Statement {
+    public:
 
     string var;
     class Expr * init;
     class Expr * end_cond;
     class Block* body;
-
-    public:
 
     forState(string var1,class Expr * init1,class Expr * end_cond1,class Block* body1)
     {
@@ -1366,366 +1422,4 @@ public:
     {
         delete root;
     }
-};
-
-
-
-
-class PostFixVisitor: public ASTvisitor {
-    public:
-
-    virtual void visit(ProgramASTnode& node) 
-    {
-        cout << "Class " << node.getProgramName() << " declared\n";
-
-        class FieldDecList* fields = node.getFields();
-        fields->accept(*this);
-
-        class meth_decs* methods = node.getMeths();
-        methods->accept(*this);
-
-    }
-
-    virtual void visit(FieldDecList& node) 
-    {
-        // cout << "FieldDecList " << " declared\n";
-
-        vector<class FieldDec *> fieldslist = node.getList();
-
-        for(auto& i: fieldslist)
-        {
-            i->accept(*this);
-        }
-
-    }
-
-    virtual void visit(FieldDec& node) 
-    {
-        // cout << "FieldDec " << " declared\n";
-
-        cout << node.getType() << " - ";
-
-        vector<class Variable *> var_list = node.getVarsList();
-
-        for(auto& i: var_list)
-        {
-            if(i->isArray())
-                cout << i->getName() << "[" << i->getLength() << "]" << " ";
-            else
-                cout << i->getName() << " ";
-        }
-        
-        cout << endl;
-
-    }
-
-    virtual void visit(Variable& node) 
-    {
-        cout << "Variable " << " declared\n";
-    }
-
-    virtual void visit(Variables& node) 
-    {
-        cout << "Variables " << " declared\n";
-    }
-
-    virtual void visit(Expr& node) 
-    {
-        cout << "Expr " << " declared\n";
-    }            
-
-    virtual void visit(Lit& node) 
-    {
-        cout << "Lit " << " declared\n";
-    }      
-
-    virtual void visit(integerLit& node) 
-    {
-        // cout << "integerLit " << " declared\n";
-        cout << node.getValue();
-    }     
-
-    virtual void visit(boolLit& node) 
-    {
-        // cout << "boolLit " << " declared\n";
-        cout << node.getVal();
-    }     
-
-    virtual void visit(charLit& node) 
-    {
-        // cout << "charLit " << " declared\n";
-        cout << node.getVal();
-    }             
-
-    virtual void visit(Block& node) 
-    {
-        // cout << "Block " << " declared ";
-
-        class var_decs* var_decl = node.get_var_decs();
-        var_decl->accept(*this);
-
-        // cout << "vars decs ";
-        
-        class Statements *statements_list = node.get_states();
-        statements_list->accept(*this);   
-        // cout << "statement decs ";
-        cout << endl; 
-
-    }
-
-    virtual void visit(meth_arg& node) 
-    {
-        // cout << "meth_arg " << " declared\n";
-        cout << node.getType() << "-" << node.getName() << " ";
-    }            
-
-    virtual void visit(meth_args& node) 
-    {
-        // cout << "meth_args " << " declared\n";
-        vector<class meth_arg *> meth_args_list = node.getList();
-        for(auto& i: meth_args_list)
-        {
-            i->accept(*this);
-        } 
-    }         
-
-    virtual void visit(meth_dec& node) 
-    {
-        // cout << "meth_dec " << " declared\n";
-        cout << "Meth " << node.getName() << " - ";
-        cout << node.getType() << " - ";
-        class meth_args * args = node.getArgs();
-        args->accept(*this);
-        cout << " - ";
-        class Block *body = node.getBlock();
-        body->accept(*this);
-    
-    }      
-
-    virtual void visit(meth_decs& node) 
-    {
-        // cout << "meth_decs " << " declared\n";
-        vector<class meth_dec *> methods = node.getList();
-        for(auto& i: methods)
-        {
-            i->accept(*this);
-        }        
-
-    }     
-
-    virtual void visit(Statement& node) 
-    {
-        cout << "Statement " << " declared\n";
-    }     
-
-    virtual void visit(Statements& node) 
-    {
-        // cout << "Statements " << " declared\n";
-        vector<class Statement *> statements_list = node.getList();
-        for(auto& i: statements_list)
-        {            
-            i->accept(*this);
-        }                   
-    }             
-
-    virtual void visit(var_decs& node) 
-    {
-        // cout << "var_decs " << " declared\n";
-        vector<class var_dec *> var_decs_list = node.getList();
-        for(auto& i: var_decs_list)
-        {
-            i->accept(*this);
-        }             
-
-    }     
-
-    virtual void visit(var_dec& node) 
-    {
-        // cout << "var_dec " << " declared\n";
-        vector<string> var_list = node.getList();
-        cout << "vardecs - " << node.getType() << " ";
-        for(auto& i: var_list)
-        {
-            cout << i << ", " ;
-        }                  
-        cout << " - ";
-
-    }  
-
-    virtual void visit(meth_call& node) 
-    {
-        // cout << "meth_call " << " declared\n";
-        cout << node.getName() << "(";
-        class Parameters* params = node.getParams();
-        params->accept(*this);
-        cout << ")";
-
-    }     
-
-    virtual void visit(BinExpr& node) 
-    {
-        // cout << "BinExpr " << " declared\n";
-        class Expr *lhs = node.getLhs();
-        class Expr *rhs = node.getRhs();
-        string op = node.getOp();
-
-        lhs->accept(*this);
-        cout << op;
-        rhs->accept(*this);
-
-    }      
-
-    virtual void visit(UnExpr& node) 
-    {
-        // cout << "UnExpr " << " declared\n";
-        class Expr *expr = node.getExp();
-        string op = node.getOp();
-        
-        cout << op;
-        expr->accept(*this);
-
-    }                 
-
-    virtual void visit(EncExpr& node) 
-    {
-        // cout << "EncExpr " << " declared\n";
-        class Expr *expr = node.getexpr();
-        cout << "(";
-        expr->accept(*this);
-        cout << ")";
-    }             
-
-    virtual void visit(Parameters& node)
-    {
-        // cout << "Parameters " << " declared\n";
-        vector<class Expr *> params = node.getParams();
-        // cout << params.size() ;
-        for(auto& i: params)
-        {
-            i->accept(*this);
-            cout << ",";
-        }                  
-
-    }
-
-    virtual void visit(stringLit& node) 
-    {
-        // cout << "stringLit " << " declared\n";
-        cout << node.getVal();
-    }     
-
-    virtual void visit(calloutArgs& node) 
-    {
-        // cout << "calloutArgs " << " declared\n";
-        vector<class calloutArg *> args = node.getArgs();
-        for(auto& i: args)
-        {
-            i->accept(*this);
-            cout << ",";
-        }       
-    }     
-
-    virtual void visit(calloutArg& node) 
-    {
-        // cout << "calloutArg " << " declared\n";
-        class Expr *expr = node.getExpr();
-        expr->accept(*this);
-    }     
-
-    virtual void visit(callout_call& node) 
-    {
-        // cout << "callout_call " << " declared\n";
-        cout << " callout(";
-        class calloutArgs *args = node.getArgs();
-        args->accept(*this);
-        cout << " ) ";
-    } 
-
-    virtual void visit(breakState& node) 
-    {
-        cout << " breakState " << " declared ";
-    }       
-
-    virtual void visit(continueState& node) 
-    {
-        cout << " continueState " << " declared ";
-    }    
-
-    virtual void visit(returnState& node) 
-    {
-        // cout << " returnState " << " declared ";
-        cout << " return ";
-        if(node.hasReturn())
-        {
-            class Expr * ret = node.getRet();
-            ret->accept(*this);
-        }
-        cout << "; ";
-
-    }        
-
-    virtual void visit(forState& node) 
-    {
-        // cout << " forState " << " declared ";
-        cout << " for " << node.getVar() << ": ";
-        class Expr * init = node.getInit();
-        class Expr * end_cond = node.getEnd();
-        class Block* body = node.getBody();
-        init->accept(*this);
-        cout << " - ";
-        end_cond->accept(*this);
-        cout << "{";
-        body->accept(*this);
-        // cout << "Here";
-        cout << "} ";
-
-    }    
-
-    virtual void visit(ifElseState& node) 
-    {
-        // cout << " ifElseState " << " declared ";
-        cout << " if(";
-        class Expr* cond = node.getCond();
-        class Block* if_block = node.getIf();
-        class Block* else_block = node.getElse();
-        cond->accept(*this);
-        cout << "){";
-        if_block->accept(*this);
-        cout << "} ";
-        if(node.getElsePre())
-        {
-            cout <<"else {";
-            else_block->accept(*this);
-            cout << "} ";
-        }
-
-    } 
-
-
-    virtual void visit(Location& node) 
-    {
-        // cout << " Location " << " declared ";
-        cout << node.getName();
-        if(node.isArray())
-        {
-            class Expr *array_index = node.getIndex();
-            cout << "[";
-            array_index->accept(*this);
-            cout << "]";
-        }
-        cout << " ";
-    }    
-
-
-    virtual void visit(Assign& node) 
-    {
-        // cout << " Assign " << " declared ";
-        class Location *loc = node.getLoc();
-        class Expr * exp = node.getRet();
-        loc->accept(*this);
-        cout << node.getOp();
-        exp->accept(*this);
-        cout << " ";   
-    }   
-
 };

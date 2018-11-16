@@ -1,6 +1,6 @@
 %{
 	#include <bits/stdc++.h>
-	#include "ast.h"
+	#include "PostfixVisitor.h"
 	extern FILE *yyin;
 	extern char* yytext;
 	extern "C" int yylex();
@@ -277,7 +277,6 @@ main(int argc, char **argv)
 		fprintf(stderr, "Passing more arguments than necessary.\n");
 		fprintf(stderr, "Correct usage: parser filename\n");
 	}
-	printf("About to start\n");
 	yyin = fopen(argv[1], "r");
 	yyparse();
 	PostFixVisitor* dfs;
@@ -290,3 +289,4 @@ void yyerror(const char *s)
 {
 	fprintf(stderr, "error: %s\n", s);
 }
+
