@@ -319,6 +319,11 @@ class Expr: public ASTnode {
 
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
+    
+    void setEdata(exprData now) 
+    {
+        edata = now;
+    }
 
     void add_to_expr_map(string name, int type)
     {
@@ -1108,6 +1113,17 @@ class meth_call: public Statement, public Expr {
                    }
                 }
             }
+
+            if(methods_decs_return[name] == "void")
+                setEdata(::mixed);
+            else if(methods_decs_return[name] == "int")
+                setEdata(::integer);
+            else if(methods_decs_return[name] == "boolean")
+            {
+                cout << "HHSGAFASADADAD\n";
+                setEdata(::boolean);            
+            }
+
 
             map <string, int> now_map = params1->expr_map;
             for(auto& i: now_map)
