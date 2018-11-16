@@ -84,7 +84,28 @@ class PostFixVisitor: public ASTvisitor {
     {
         // cout << "charLit " << " declared\n";
         cout << node.getVal();
-    }             
+    }  
+
+    virtual void visit(Block& node, string type, string meth_name) 
+    {
+        // cout << "Block " << " declared ";
+
+        class var_decs* var_decl = node.get_var_decs();
+        var_decl->accept(*this);
+        
+        node.init_mymap(var_decl);
+        // node.print_mymap();
+
+        // cout << "vars decs ";
+        
+        class Statements *statements_list = node.get_states();
+        statements_list->set_scope_map(node.mymap);
+        statements_list->accept(*this, type, meth_name);  
+        
+        // cout << "statement decs ";
+        cout << endl; 
+
+    }
 
     virtual void visit(Block& node) 
     {
@@ -133,7 +154,7 @@ class PostFixVisitor: public ASTvisitor {
         cout << " - ";
         class Block *body = node.getBlock();
         body->add_to_mymap(args->arg_list);
-        body->accept(*this);
+        body->accept(*this, node.getType(), node.getName());
     
     }      
 
@@ -153,15 +174,37 @@ class PostFixVisitor: public ASTvisitor {
         cout << "Statement " << " declared\n";
     }     
 
+    virtual void visit(Statements& node, string type, string meth_name) 
+    {
+        // cout << "Statements " << " declared\n";
+        vector<class Statement *> statements_list = node.getList();
+        int checked = 0;
+        for(auto& i: statements_list)
+        {
+            if(i->check_return == 1)
+            {
+                i->accept(*this, type, meth_name);
+                checked = 1;
+            }
+            else
+                i->accept(*this);
+        }
+        if(checked == 1 and type == "void")
+            cout << "ERROR: Method " << meth_name << " must not return a value\n";
+        else if(checked == 0 and type != "void")
+            cout << "ERROR: Method " << meth_name << " must return a value of type " << type << "\n";
+
+    }    
+
     virtual void visit(Statements& node) 
     {
         // cout << "Statements " << " declared\n";
         vector<class Statement *> statements_list = node.getList();
         for(auto& i: statements_list)
-        {            
-            i->accept(*this);
+        {
+                i->accept(*this);
         }                   
-    }             
+    }                 
 
     virtual void visit(var_decs& node) 
     {

@@ -2209,11 +2209,12 @@ main(int argc, char **argv)
 		fprintf(stderr, "Correct usage: parser filename\n");
 	}
 	yyin = fopen(argv[1], "r");
+	printf("\n");
 	yyparse();
 	PostFixVisitor* dfs;
 	dfs=new PostFixVisitor();
 	start->accept(*dfs);
-	printf("Parsing Over\n");
+	printf("\nParsing Over\n");
 }
 
 void yyerror(const char *s)

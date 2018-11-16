@@ -79,6 +79,9 @@ class ASTvisitor {
     virtual void visit(returnState& node) = 0; 
     virtual void visit(Location& node) = 0; 
     virtual void visit(Assign& node) = 0; 
+    virtual void visit(Statements& node, string type, string meth_name) = 0;
+    virtual void visit(Block& node, string type, string meth_name) = 0;
+
 };
 
 class ASTnode {
@@ -648,6 +651,7 @@ class Statement: public ASTnode {
 
     stmtType stype;
     int check_control;
+    int check_return;
     map <string, string> scope_map;
     map <string, int> var_map;
 
@@ -655,11 +659,13 @@ class Statement: public ASTnode {
     {
         stype = ::NonReturn;
         check_control = 0;
+        check_return = 0;
     }
 
     Statement(int check_control1)
     {
         stype = ::NonReturn;
+        check_return = 0;
         check_control = check_control1;
     }
 
@@ -693,7 +699,11 @@ class Statement: public ASTnode {
         var_map[name] = type;
     }
     
-    virtual void setReturn() {stype = ::Return;};
+    virtual void setReturn() 
+    {
+        stype = ::Return;
+        check_return = 1;
+    }
 
     virtual bool hasReturn() {return stype == ::Return;};
 
@@ -701,6 +711,12 @@ class Statement: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual void accept(ASTvisitor& v, string name, string meth_type)
+    {
+      v.visit(*this);
+    }
+
 };
 
 class Statements: public ASTnode {
@@ -754,6 +770,11 @@ class Statements: public ASTnode {
     virtual void accept(ASTvisitor& v)
     {
       v.visit(*this);
+    }
+
+    virtual void accept(ASTvisitor& v, string type, string meth_name)
+    {
+      v.visit(*this, type, meth_name);
     }
 };
 
@@ -818,6 +839,12 @@ class Block: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual void accept(ASTvisitor& v, string type, string meth_name)
+    {
+      v.visit(*this, type, meth_name);
+    }    
+
 };
 
 class string_list {
@@ -1019,6 +1046,7 @@ class meth_dec: public ASTnode {
     {
       v.visit(*this);
     }
+
 };
 
 class meth_decs: public ASTnode {
@@ -1342,6 +1370,7 @@ class forState: public Statement {
 class returnState: public Statement {
 
     class Expr * ret;
+    string return_type;
 
     public:
 
@@ -1350,9 +1379,20 @@ class returnState: public Statement {
         Statement();
         setReturn();
         ret = returned;
+        if(ret->getEdata() == ::integer)
+            return_type = "int";
+        else if(ret->getEdata() == ::boolean)
+            return_type = "boolean";
+        else
+            return_type = "mixed";
     };
     
-    returnState(): Statement() {};
+    returnState()
+    {
+        Statement();
+        setReturn();
+        return_type = "none";
+    }
 
     class Expr* getRet() { return ret; }
 
@@ -1360,6 +1400,14 @@ class returnState: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual void accept(ASTvisitor& v, string type, string meth_name)
+    {
+      if(type != return_type)
+        cout << "ERROR: expected method " << meth_name << " to return of type " << type << endl;
+      v.visit(*this);
+    }
+
 };
 
 class Assign: public Statement {
