@@ -1,7 +1,7 @@
-calc: calc.yy calc.ll common.h common.cpp driver.cc ast.cc ast.h driver.h scanner.h PostFixVisitor.h
-		bison -d calc.yy
-		flex calc.ll
-		g++ -Wno-c++11-extensions -g -o calc common.cpp driver.cc ast.cc calc.tab.cc lex.decaf.cc -ll
+parser: common.h common.cpp parser.ypp scanner.l ast.h ast.cpp
+		bison -d parser.ypp
+		flex scanner.l
+		g++ -std=c++11 -o  parser common.cpp parser.tab.cpp lex.yy.c ast.cpp -ll
 
-clean: 
-		rm calc.tab.cc calc.tab.hh lex.decaf.cc location.hh  position.hh stack.hh
+clean:
+	rm lex.yy.c parser parser.tab.cpp parser.tab.hpp
