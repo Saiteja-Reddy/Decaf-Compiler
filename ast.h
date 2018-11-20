@@ -20,15 +20,43 @@
 using namespace std;
 using namespace llvm;
 
+class loopInfo {
+    BasicBlock *afterBB, *checkBB;
+    Value *condition;
+    string loopVariable;
+    PHINode *phiVariable;
+public:
+    loopInfo(BasicBlock *afterBlock, BasicBlock *checkBlock, Value *cond, std::string var, PHINode *phiVar) {
+        afterBB = afterBlock;
+        checkBB = checkBlock;
+        condition = cond;
+        loopVariable = var;
+        phiVariable = phiVar;
+    }
+
+    BasicBlock *getAfterBlock() { return afterBB; }
+
+    BasicBlock *getCheckBlock() { return checkBB; }
+
+    Value *getCondition() { return condition; }
+
+    PHINode *getPHINode() { return phiVariable; }
+
+    string getLoopVariable() { return loopVariable; }
+};
 
 static LLVMContext Context;
-static Module *Module_Ob; // Contains all functions and variables
+static Module *TheModule; // Contains all functions and variables
 static IRBuilder<> Builder(Context); // helps to generate LLVM IR with helper functions
-static map <string, Value*>Named_Values; // keeps track of all the values defined in the current scope like a symbol table
-
+static map <string, AllocaInst*>NamedValues; // keeps track of all the values defined in the current scope like a symbol table
+static stack<loopInfo *> *loops = new stack<loopInfo*>();
 
 #include "common.h"
 
+AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type);
+
+class meth_dec;
+class meth_decs;
 class ProgramASTnode;
 class FieldDec;
 class FieldDecList;
@@ -45,8 +73,6 @@ class Statements;
 class Block;
 class meth_arg;
 class meth_args;
-class meth_dec;
-class meth_decs;
 class var_dec;
 class var_decs;
 class string_list;
@@ -116,8 +142,7 @@ class ASTnode {
      }
 
      virtual void accept(ASTvisitor& V) = 0;
-     virtual Value* Codegen() = 0;
-
+     virtual Value* Codegen();
 };
 
 map <string, string> check_in_scope(string name, map <string, string> mymap);
@@ -173,10 +198,14 @@ class ProgramASTnode: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
+    virtual Value* Codegen();
+
+    void generateCodeDump()
     {
-        return 0;
+        cerr << "Generating LLVM IR Code\n";
+        TheModule->print(llvm::outs(), nullptr);
     }
+
 };
 
 enum variableType {
@@ -213,10 +242,7 @@ class Variable: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();  
 };
 
 class Variables: public ASTnode {
@@ -241,10 +267,7 @@ class Variables: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -289,10 +312,7 @@ class FieldDec: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -344,10 +364,7 @@ class FieldDecList: public ASTnode {
         v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -527,11 +544,7 @@ class Expr: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
-
+    virtual Value* Codegen();
 };
 
 class BinExpr: public Expr {
@@ -568,11 +581,7 @@ class BinExpr: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
-
+    virtual Value* Codegen();
 };
 
 class UnExpr: public Expr {
@@ -600,10 +609,7 @@ class UnExpr: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -628,11 +634,7 @@ class EncExpr: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
-
+    virtual Value* Codegen();
 };
 
 
@@ -653,10 +655,7 @@ class Lit: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -676,10 +675,8 @@ class integerLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 class boolLit: public Lit {
@@ -697,10 +694,7 @@ class boolLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();   
 };
 
 class charLit: public Lit {
@@ -718,18 +712,14 @@ class charLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
-
+    virtual Value* Codegen();
 };
 
 class stringLit: public Lit {
+    public:
     
     string value;
 
-    public:
 
     stringLit(string value) : value(value), Lit(::String) {};
 
@@ -740,10 +730,7 @@ class stringLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -833,10 +820,7 @@ class Statement: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 
 };
 
@@ -898,10 +882,7 @@ class Statements: public ASTnode {
       v.visit(*this, type, meth_name);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 };
 
 
@@ -1005,10 +986,7 @@ class Block: public Statement {
       v.visit(*this, type, meth_name);
     } 
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }       
+    virtual Value* Codegen();
 
 };
 
@@ -1026,10 +1004,7 @@ class string_list {
     
     virtual vector<string> getList() {return list;};
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 
 };
 
@@ -1076,10 +1051,9 @@ class var_dec: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    Value *Codegen(map<string, AllocaInst *> &oldValues);
+
+
 };
 
 class var_decs: public ASTnode {
@@ -1126,10 +1100,9 @@ class var_decs: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    Value *Codegen(map<string, AllocaInst *> &oldValues);
+
+
 };
 
 
@@ -1151,11 +1124,6 @@ class meth_arg: public ASTnode {
     {
       v.visit(*this);
     }
-
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
 };
 
 
@@ -1187,11 +1155,6 @@ class meth_args: public ASTnode {
     {
       v.visit(*this);
     }
-
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
 };
 
 class meth_dec: public ASTnode {
@@ -1237,10 +1200,7 @@ class meth_dec: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 
 };
 
@@ -1267,10 +1227,8 @@ class meth_decs: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 class Parameters: public ASTnode {
@@ -1314,10 +1272,8 @@ class Parameters: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 
@@ -1416,10 +1372,8 @@ class meth_call: public Statement, public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
+
 };
 
 class calloutArg: public ASTnode{
@@ -1444,10 +1398,8 @@ class calloutArg: public ASTnode{
       v.visit(*this);
     }  
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 class calloutArgs: public ASTnode {
@@ -1471,10 +1423,8 @@ class calloutArgs: public ASTnode {
     {
       v.visit(*this);
     }
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 class callout_call: public meth_call{
@@ -1483,7 +1433,11 @@ class callout_call: public meth_call{
 
     public:
     
-    callout_call(class calloutArgs *args) : args(args) {};
+    callout_call(string name1, class calloutArgs *args1)
+    {
+        name = name1;
+        args = args1;
+    }
 
     class calloutArgs *getArgs() {  return args;    }
 
@@ -1492,10 +1446,7 @@ class callout_call: public meth_call{
       v.visit(*this);
     } 
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
 
 };
 
@@ -1511,10 +1462,8 @@ class breakState: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }
+    virtual Value* Codegen();
+
 };
 
 class continueState: public Statement {
@@ -1528,10 +1477,8 @@ class continueState: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 
@@ -1585,10 +1532,7 @@ class ifElseState: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 };
 
 class forState: public Statement {
@@ -1631,10 +1575,8 @@ class forState: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
 };
 
 class returnState: public Statement {
@@ -1676,10 +1618,7 @@ class returnState: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 
 };
 
@@ -1707,10 +1646,7 @@ class Assign: public Statement {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
 };
 
 enum locationType {
@@ -1718,12 +1654,11 @@ enum locationType {
 };
 
 class Location: public Expr {
+    public:
 
     string var;
     locationType location_type;
     class Expr *array_index;
-
-    public:
     
     Location(string vars)
     {
@@ -1783,10 +1718,9 @@ class Location: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return 0;
-    }    
+    virtual Value* Codegen();
+
+    Value *invalidArrayIndex();
 };
 
 class ASTContext {

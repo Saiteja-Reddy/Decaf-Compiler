@@ -208,13 +208,12 @@ if_block : IF L_P expr R_P block {$$ = new ifElseState($3, $5);}
 
 method_call : method_name L_P R_P {$$ = new meth_call(string($1), new Parameters());}
 			| method_name L_P expr_list R_P {$$ = new meth_call(string($1), $3);}
-			| CALLOUT L_P callout_args R_P {$$ = new callout_call($3);}
+			| CALLOUT L_P STRING_LIT callout_args R_P {$$ = new callout_call($3->value,$4);}
 
 callout_args : callout_args COMMA callout_arg {$$->push_back($3);}
 			 | callout_arg {$$ = new calloutArgs(); $$->push_back($1);}
 
 callout_arg : expr {$$ = new calloutArg($1);}
-			 | STRING_LIT {$$ = new calloutArg($1);}
 
 method_name : IDEN {$$ = $1;}
 
