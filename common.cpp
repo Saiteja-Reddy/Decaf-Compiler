@@ -8,8 +8,6 @@ using namespace std;
 
 string test_var = "Hello \n";
 
-int errors = 0;
-
 map <string, string> global_map = map <string, string>();
 
 map <string, vector<string> > methods_decs_map = map <string, vector<string> >();

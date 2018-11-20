@@ -53,6 +53,8 @@ static stack<loopInfo *> *loops = new stack<loopInfo*>();
 
 #include "common.h"
 
+static int errors_IR = 0;
+
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type);
 
 class meth_dec;
@@ -241,8 +243,13 @@ class Variable: public ASTnode {
     {
       v.visit(*this);
     }
+    
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
 
-    virtual Value* Codegen();  
+    // virtual Value* Codegen();  
 };
 
 class Variables: public ASTnode {
@@ -267,7 +274,12 @@ class Variables: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
+
+    // virtual Value* Codegen();
 
 };
 
@@ -544,7 +556,7 @@ class Expr: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    // virtual Value* Codegen();
 };
 
 class BinExpr: public Expr {
@@ -655,7 +667,7 @@ class Lit: public Expr {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    // virtual Value* Codegen();
 
 };
 
@@ -712,7 +724,10 @@ class charLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }
 };
 
 class stringLit: public Lit {
@@ -820,7 +835,7 @@ class Statement: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    // virtual Value* Codegen();
 
 };
 
@@ -1004,7 +1019,7 @@ class string_list {
     
     virtual vector<string> getList() {return list;};
 
-    virtual Value* Codegen();
+    // virtual Value* Codegen();
 
 };
 
@@ -1050,6 +1065,11 @@ class var_dec: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
 
     Value *Codegen(map<string, AllocaInst *> &oldValues);
 
@@ -1102,6 +1122,10 @@ class var_decs: public ASTnode {
 
     Value *Codegen(map<string, AllocaInst *> &oldValues);
 
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }
 
 };
 
@@ -1124,6 +1148,11 @@ class meth_arg: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
 };
 
 
@@ -1155,6 +1184,11 @@ class meth_args: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
 };
 
 class meth_dec: public ASTnode {
@@ -1272,7 +1306,10 @@ class Parameters: public ASTnode {
       v.visit(*this);
     }
 
-    virtual Value* Codegen();
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }
 
 };
 
@@ -1423,7 +1460,12 @@ class calloutArgs: public ASTnode {
     {
       v.visit(*this);
     }
-    virtual Value* Codegen();
+    // virtual Value* Codegen();
+
+    virtual Value* Codegen()
+    {
+        return nullptr;
+    }    
 
 };
 

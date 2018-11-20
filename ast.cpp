@@ -13,6 +13,11 @@ AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string
     return alloca_instruction;
 }
 
+Value* ASTnode::Codegen()
+{
+    return nullptr;
+}
+
 Value* ProgramASTnode::Codegen()
 {
     Value *V;
@@ -61,7 +66,7 @@ Value* meth_dec::Codegen()
         } else if (arg_type == "boolean") {
             arguments.push_back(Type::getInt1Ty(Context));
         } else {
-            errors++;
+            errors_IR++;
             // reportError("Arguments can only be int or boolean");
             return nullptr;
         }
@@ -77,7 +82,7 @@ Value* meth_dec::Codegen()
     } else if (return_type == "void") {
         returnType = Type::getVoidTy(Context);
     } else {
-        errors++;
+        errors_IR++;
         // reportError("Invalid Return Type for " + name + ". Return Type can only be int or boolean or bool");
         return nullptr;
     } 
@@ -149,14 +154,14 @@ Value* meth_call::Codegen()
 
     Function *calle = TheModule->getFunction(name);
     if (calle == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Unknown Function name" + name);
     }
     /* Check if required number of parameters are passed */
     vector<class Expr *> args_list = params->getParams();
     if (calle->arg_size() != args_list.size()) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Incorrect Number of Parameters Passed");
     }
@@ -168,7 +173,7 @@ Value* meth_call::Codegen()
             argVal = Builder.CreateLoad(argVal);
         }
         if (argVal == nullptr) {
-            errors++;
+            errors_IR++;
             // reportError("Argument is not valid");
             return nullptr;
         }
@@ -192,11 +197,11 @@ Value *BinExpr::Codegen() {
         right = Builder.CreateLoad(right);
     }
     if (left == 0) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Error in left operand of " + op);
     } else if (right == 0) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Error in right operand of " + op);
     }
@@ -270,7 +275,7 @@ Value *returnState::Codegen() {
 
 Value *calloutArg::Codegen() {
     if (expr == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportEcrror("Invalid Callout Arg");
     }
@@ -357,7 +362,7 @@ Value *forState::Codegen() {
     /* Store the old value */
     Value *cond = end_cond->Codegen();
     if (cond == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Invalid Condition");
     }
@@ -397,7 +402,7 @@ Value *ifElseState::Codegen() {
 
     Value *cond = this->cond->Codegen();
     if (cond == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Invalid Expression in the IF");
     }
@@ -460,7 +465,7 @@ Value *ifElseState::Codegen() {
 }
 
 Value *Location::invalidArrayIndex() {
-    errors++;
+    errors_IR++;
     return nullptr;
     // return reportError("Invalid array index");
 }
@@ -472,7 +477,7 @@ Value *Location::Codegen() {
         V = TheModule->getNamedGlobal(var);
     }
     if (V == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Unknown Variable name " + var);
     }
@@ -510,7 +515,7 @@ Value *Assign::Codegen() {
         cur = TheModule->getGlobalVariable(loc->getName());
     }
     if (cur == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Unknown Variable Name " + loc->getVar());
     }
@@ -524,7 +529,7 @@ Value *Assign::Codegen() {
     cur = Builder.CreateLoad(lhs);
 
     if (val == nullptr) {
-        errors++;
+        errors_IR++;
         return nullptr;
         // return reportError("Error in right hand side of the Assignment");
     }
