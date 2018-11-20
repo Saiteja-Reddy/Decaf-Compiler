@@ -1477,7 +1477,8 @@ class callout_call: public meth_call{
     
     callout_call(string name1, class calloutArgs *args1)
     {
-        name = name1;
+        name = name1.substr(1, name1.length() - 2);;
+        // cout << " here in callout name << " << name << endl;
         args = args1;
     }
 

@@ -51,7 +51,7 @@ int lineno = 0;
 "]"                 {return R_SQ;}
 "("                 {return L_P;}
 ")"                 {return R_P;}
-","                 {return COMMA;}
+","                 {;return COMMA;}
 ";"                 {return SEMI;}
 
 "!="                 {yylval.value = strdup(yytext);return NE; }
@@ -64,7 +64,7 @@ int lineno = 0;
 \'.\'       {yylval.charliteral = new charLit(yytext);return CHAR_LIT;}
 [ \t\r]+ 	{}
 [\n]+ 		{++lineno;}
-\".*+\"     {yylval.stringliteral = new stringLit(yytext);return STRING_LIT;}
+\"[^\"]*+\"     {yylval.stringliteral = new stringLit(yytext);return STRING_LIT;}
 
 
 %%
