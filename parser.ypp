@@ -265,7 +265,7 @@ id_list : ID {$$ = new string_list(); $$->push_back(string($1));}
 
 %%
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	if(argc == 1)
     {
