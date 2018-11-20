@@ -26,7 +26,7 @@ int lineno = 0;
 "else"         {return ELSE;}
 "for"         {return FOR;}
 
-[a-zA-Z_][a-zA-Z0-9]*   {yylval.value = strdup(yytext);return ID;}
+[a-zA-Z_][a-zA-Z0-9]*   {yylval.value = strdup(yytext);return IDEN;}
 
 0[xX][0-9a-fA-F]+ {yylval.intliteral = new integerLit(atoi(yytext)); return HEX_LIT;}
 
@@ -41,7 +41,7 @@ int lineno = 0;
 "*"                 {yylval.value = strdup(yytext);return MUL;}
 "/"                 {yylval.value = strdup(yytext);return DIV;}
 "%"                 {yylval.value = strdup(yytext);return MOD;}
-"<"                 {yylval.value = strdup(yytext);return LT;}
+"<"                 {yylval.value = strdup(yytext);return LTHAN;}
 ">"                 {yylval.value = strdup(yytext);return GT;}
 "!"                 {yylval.value = strdup(yytext);return NOT;}
 
@@ -58,7 +58,7 @@ int lineno = 0;
 "||"                 {yylval.value = strdup(yytext);return DO; }
 ">="                 {yylval.value = strdup(yytext);return GE; }
 "&&"                 {yylval.value = strdup(yytext);return DA; }
-"<="                 {yylval.value = strdup(yytext);return LE; }
+"<="                 {yylval.value = strdup(yytext);return LEQ; }
 "=="                 {yylval.value = strdup(yytext);return DE; }
 
 \'.\'       {yylval.charliteral = new charLit(yytext);return CHAR_LIT;}

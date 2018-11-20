@@ -67,7 +67,7 @@
 %token <value> ME
 %token COMMA
 %token SEMI
-%token <value> ID
+%token <value> IDEN
 %token <value> BOOLEAN
 %token <value> INT
 %token <intliteral> INTEGER_LIT
@@ -77,7 +77,7 @@
 %token <value> MUL
 %token <value> DIV
 %token <value> MOD
-%token <value> LT
+%token <value> LTHAN
 %token <value> GT
 %token <value> NOT
 %token <charliteral> CHAR_LIT
@@ -87,7 +87,7 @@
 %token <value> DO
 %token <value> GE
 %token <value> DA
-%token <value> LE
+%token <value> LEQ
 %token <value> DE
 %token CALLOUT
 %token <stringliteral> STRING_LIT
@@ -100,7 +100,7 @@
 
 %left ADD SUB
 %left MUL DIV MOD
-%left LE GE LT GT DE NE DA DO
+%left LEQ GE LTHAN GT DE NE DA DO
 %right NOT
 
 %type <astnode>	line  
@@ -156,8 +156,8 @@ field_decl : type decl_list SEMI {$$ = new FieldDec(std::string($1), $2);} | COM
 decl_list : decl {$$ = new Variables(); $$->push_back($1);} 
 		  | decl_list  COMMA decl {$$->push_back($3);}
 
-decl : ID { $$ = new Variable(string($1));}
-	 | ID L_SQ intlit R_SQ {$$ = new Variable(string($1),$3->getValue());}
+decl : IDEN { $$ = new Variable(string($1));}
+	 | IDEN L_SQ intlit R_SQ {$$ = new Variable(string($1),$3->getValue());}
 
 type : INT | BOOLEAN;
 
@@ -168,14 +168,14 @@ intlit : HEX_LIT {$$ = $1;}
 method_decl_list : method_decl { $$ = new meth_decs(); 					$$->push_back($1);}
 			 |  method_decl_list method_decl {$$->push_back($2);}
 
-method_decl :  type ID method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
-			| VOID ID method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
+method_decl :  type IDEN method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
+			| VOID IDEN method_args_block block {$$ = new meth_dec(std::string($1), $2,$3, $4);}
 
 method_args_block : L_P  type_id_list R_P {$$ = $2;}
 			| L_P R_P {$$ = new meth_args();}
 
-type_id_list : type ID {$$ = new meth_args();$$->push_back(new meth_arg(string($1), string($2)));}
-			| type_id_list COMMA type ID {$$->push_back(new meth_arg(string($3), string($4)));}
+type_id_list : type IDEN {$$ = new meth_args();$$->push_back(new meth_arg(string($1), string($2)));}
+			| type_id_list COMMA type IDEN {$$->push_back(new meth_arg(string($3), string($4)));}
 
 block : L_FLO  R_FLO {$$ = new Block(new var_decs(), new Statements());}
 	  |	L_FLO var_dec_list R_FLO {$$ = new Block($2, new Statements());}
@@ -200,7 +200,7 @@ assign_op : EQ {$$ = $1;}
 		  | PE {$$ = $1;}
 		  | ME {$$ = $1;}		
 
-for_block : FOR ID EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
+for_block : FOR IDEN EQ expr COMMA expr block {$$ = new forState($2, $4, $6, $7); }			
 
 if_block : IF L_P expr R_P block {$$ = new ifElseState($3, $5);}
 		 |  IF L_P expr R_P block ELSE block {$$ = new ifElseState($3, $5, $7);}
@@ -216,7 +216,7 @@ callout_args : callout_args COMMA callout_arg {$$->push_back($3);}
 callout_arg : expr {$$ = new calloutArg($1);}
 			 | STRING_LIT {$$ = new calloutArg($1);}
 
-method_name : ID {$$ = $1;}
+method_name : IDEN {$$ = $1;}
 
 expr_list : expr {$$ = new Parameters(); $$->push_back($1);}
 		 | expr_list COMMA expr  {$$->push_back($3);}
@@ -227,9 +227,9 @@ expr : L_P expr R_P {$$ = new EncExpr($2); $$->updateEdata($2->getEdata());}
 	|  expr MUL expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
 	|  expr DIV expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
 	|  expr MOD expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
-	|  expr LE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
+	|  expr LEQ expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
 	|  expr GE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->updateEdata($3->getEdata());}
-	|  expr LT expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
+	|  expr LTHAN expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
 	|  expr GT expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
 	|  expr NE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
 	|  expr DE expr {$$ = new BinExpr($1, $3, string($2)); $$->updateEdata($1->getEdata()); $$->setEdata(1);}
@@ -243,8 +243,8 @@ expr : L_P expr R_P {$$ = new EncExpr($2); $$->updateEdata($2->getEdata());}
 unaryexp : SUB expr {$$ = new UnExpr($1, $2);}
 		| NOT expr 	{$$ = new UnExpr($1, $2);}
 
-location : ID {$$ = new Location($1);}
-		| ID L_SQ expr R_SQ {$$ = new Location($1, $3);}
+location : IDEN {$$ = new Location($1);}
+		| IDEN L_SQ expr R_SQ {$$ = new Location($1, $3);}
 
 
 literal : INTEGER_LIT {$$ = $1;}
@@ -259,8 +259,8 @@ var_dec_list : var_dec {$$ = new var_decs(); $$->push_back($1);}
 
 var_dec : type id_list SEMI {$$ = new var_dec(string($1), $2);}
 
-id_list : ID {$$ = new string_list(); $$->push_back(string($1));}
-		| id_list COMMA ID {$$->push_back(string($3));}
+id_list : IDEN {$$ = new string_list(); $$->push_back(string($1));}
+		| id_list COMMA IDEN {$$->push_back(string($3));}
 
 
 %%

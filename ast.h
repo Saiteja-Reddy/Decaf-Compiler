@@ -1,6 +1,31 @@
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/IR/PassManager.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/CallingConv.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/ExecutionEngine/GenericValue.h>
+// #include <llvm/ExecutionEngine/MCJIT.h>
+#include <llvm/Support/raw_ostream.h>
+
+
 #include <bits/stdc++.h>
 
 using namespace std;
+using namespace llvm;
+
+
+static LLVMContext Context;
+static Module *Module_Ob; // Contains all functions and variables
+static IRBuilder<> Builder(Context); // helps to generate LLVM IR with helper functions
+static map <string, Value*>Named_Values; // keeps track of all the values defined in the current scope like a symbol table
+
 
 #include "common.h"
 
@@ -91,6 +116,7 @@ class ASTnode {
      }
 
      virtual void accept(ASTvisitor& V) = 0;
+     virtual Value* Codegen() = 0;
 
 };
 
@@ -146,6 +172,11 @@ class ProgramASTnode: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
 };
 
 enum variableType {
@@ -181,6 +212,11 @@ class Variable: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class Variables: public ASTnode {
@@ -204,6 +240,12 @@ class Variables: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -246,6 +288,12 @@ class FieldDec: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -295,6 +343,12 @@ class FieldDecList: public ASTnode {
         getMap();
         v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -472,6 +526,12 @@ class Expr: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 class BinExpr: public Expr {
@@ -507,6 +567,12 @@ class BinExpr: public Expr {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 class UnExpr: public Expr {
@@ -533,6 +599,12 @@ class UnExpr: public Expr {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 class EncExpr: public Expr {
@@ -555,6 +627,12 @@ class EncExpr: public Expr {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -574,6 +652,12 @@ class Lit: public Expr {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -591,6 +675,11 @@ class integerLit: public Lit {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class boolLit: public Lit {
@@ -607,6 +696,11 @@ class boolLit: public Lit {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class charLit: public Lit {
@@ -623,6 +717,12 @@ class charLit: public Lit {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 class stringLit: public Lit {
@@ -639,6 +739,12 @@ class stringLit: public Lit {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 enum stmtType {
@@ -727,6 +833,11 @@ class Statement: public ASTnode {
       v.visit(*this);
     }
 
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
+
 };
 
 class Statements: public ASTnode {
@@ -786,6 +897,11 @@ class Statements: public ASTnode {
     {
       v.visit(*this, type, meth_name);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 
@@ -887,7 +1003,12 @@ class Block: public Statement {
     virtual void accept(ASTvisitor& v, string type, string meth_name)
     {
       v.visit(*this, type, meth_name);
-    }    
+    } 
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }       
 
 };
 
@@ -904,6 +1025,11 @@ class string_list {
     }    
     
     virtual vector<string> getList() {return list;};
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 
 };
 
@@ -949,6 +1075,11 @@ class var_dec: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class var_decs: public ASTnode {
@@ -994,6 +1125,11 @@ class var_decs: public ASTnode {
       getMap();
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 
@@ -1015,6 +1151,11 @@ class meth_arg: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 
@@ -1046,6 +1187,11 @@ class meth_args: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class meth_dec: public ASTnode {
@@ -1091,6 +1237,11 @@ class meth_dec: public ASTnode {
       v.visit(*this);
     }
 
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
+
 };
 
 class meth_decs: public ASTnode {
@@ -1115,6 +1266,11 @@ class meth_decs: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class Parameters: public ASTnode {
@@ -1157,6 +1313,11 @@ class Parameters: public ASTnode {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 
@@ -1255,7 +1416,10 @@ class meth_call: public Statement, public Expr {
       v.visit(*this);
     }
 
-
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
 };
 
 class calloutArg: public ASTnode{
@@ -1279,6 +1443,11 @@ class calloutArg: public ASTnode{
     {
       v.visit(*this);
     }  
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class calloutArgs: public ASTnode {
@@ -1302,6 +1471,10 @@ class calloutArgs: public ASTnode {
     {
       v.visit(*this);
     }
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class callout_call: public meth_call{
@@ -1317,7 +1490,13 @@ class callout_call: public meth_call{
     virtual void accept(ASTvisitor& v)
     {
       v.visit(*this);
-    }  
+    } 
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
+
 };
 
 
@@ -1331,6 +1510,11 @@ class breakState: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }
 };
 
 class continueState: public Statement {
@@ -1343,6 +1527,11 @@ class continueState: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 
@@ -1395,6 +1584,11 @@ class ifElseState: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class forState: public Statement {
@@ -1436,6 +1630,11 @@ class forState: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class returnState: public Statement {
@@ -1445,9 +1644,8 @@ class returnState: public Statement {
 
     public:
 
-    returnState(class Expr * returned)
+    returnState(class Expr * returned): Statement()
     {
-        Statement();
         setReturn();
         ret = returned;
         if(ret->getEdata() == ::integer)
@@ -1458,9 +1656,8 @@ class returnState: public Statement {
             return_type = "mixed";
     };
     
-    returnState()
+    returnState(): Statement()
     {
-        Statement();
         setReturn();
         return_type = "none";
     }
@@ -1478,6 +1675,11 @@ class returnState: public Statement {
         cout << "ERROR: expected method " << meth_name << " to return of type " << type << endl;
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 
 };
 
@@ -1504,6 +1706,11 @@ class Assign: public Statement {
     {
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 enum locationType {
@@ -1575,6 +1782,11 @@ class Location: public Expr {
 
       v.visit(*this);
     }
+
+    virtual Value* Codegen()
+    {
+        return 0;
+    }    
 };
 
 class ASTContext {
