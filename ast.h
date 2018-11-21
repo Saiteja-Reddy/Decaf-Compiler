@@ -22,8 +22,8 @@ using namespace llvm;
 
 class loopInfo {
     BasicBlock *afterBB, *checkBB;
-    Value *condition;
-    string loopVariable;
+    llvm::Value *condition;
+    std::string loopVariable;
     PHINode *phiVariable;
 public:
     loopInfo(BasicBlock *afterBlock, BasicBlock *checkBlock, Value *cond, std::string var, PHINode *phiVar) {
@@ -38,12 +38,13 @@ public:
 
     BasicBlock *getCheckBlock() { return checkBB; }
 
-    Value *getCondition() { return condition; }
+    llvm::Value *getCondition() { return condition; }
 
     PHINode *getPHINode() { return phiVariable; }
 
-    string getLoopVariable() { return loopVariable; }
+    std::string getLoopVariable() { return loopVariable; }
 };
+
 
 
 
@@ -58,6 +59,7 @@ static stack<loopInfo *> *loops = new stack<loopInfo*>();
 static int errors_IR = 0;
 
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type);
+Value *reportError(string error_str);
 
 class meth_dec;
 class meth_decs;
@@ -822,7 +824,11 @@ class Statement: public ASTnode {
         check_return = 1;
     }
 
-    virtual bool hasReturn() {return stype == ::Return;};
+    virtual bool has_return() {return false;};
+    
+    virtual bool has_break() {return false;};
+    
+    virtual bool has_continue() {return false;};
 
     virtual void accept(ASTvisitor& v)
     {
@@ -833,8 +839,6 @@ class Statement: public ASTnode {
     {
       v.visit(*this);
     }
-
-    // virtual Value* Codegen();
 
 };
 
@@ -855,6 +859,9 @@ class Statements: public ASTnode {
         return statements_list;
     }
 
+    bool has_return();
+    bool has_break();
+    bool has_continue();
 
     void set_var_map(map <string, int> in_map)
     {
@@ -989,6 +996,10 @@ class Block: public Statement {
         else
             return 0;
     }
+
+    bool has_return();
+    bool has_break();
+    bool has_continue();
 
     virtual void accept(ASTvisitor& v)
     {
@@ -1504,6 +1515,9 @@ class breakState: public Statement {
       v.visit(*this);
     }
 
+    bool has_break() { return true; }
+    bool has_continue() { return false; }
+
     virtual Value* Codegen();
 
 };
@@ -1518,6 +1532,9 @@ class continueState: public Statement {
     {
       v.visit(*this);
     }
+
+    bool has_break() { return false; }
+    bool has_continue() { return true; }
 
     virtual Value* Codegen();
 
@@ -1574,6 +1591,10 @@ class ifElseState: public Statement {
       v.visit(*this);
     }
 
+    bool has_return();
+    bool has_break();
+    bool has_continue();
+
     virtual Value* Codegen();
 };
 
@@ -1617,6 +1638,12 @@ class forState: public Statement {
       v.visit(*this);
     }
 
+    bool has_return() { return this->body->has_return(); }
+    
+    bool has_break() { return false; }
+    
+    bool has_continue() { return false; }
+
     virtual Value* Codegen();
 
 };
@@ -1645,6 +1672,10 @@ class returnState: public Statement {
         setReturn();
         return_type = "none";
     }
+
+    bool has_return() { return true; }
+    bool has_break() { return false; }
+    bool has_continue() { return false; }
 
     class Expr* getRet() { return ret; }
 

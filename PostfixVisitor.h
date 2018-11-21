@@ -386,7 +386,7 @@ class PostFixVisitor: public ASTvisitor {
     {
         // cout << " returnState " << " declared ";
         cout << " return ";
-        if(node.hasReturn())
+        if(node.has_return())
         {
             class Expr * ret = node.getRet();
             ret->set_scope_map(node.scope_map);

@@ -1,6 +1,11 @@
 #include "ast.h"
 using namespace std;
 
+Value *reportError(string error_str) {
+    cerr << error_str << endl;
+    return nullptr;
+}
+
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type) {
     /* Get the builder for current context */
     IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
@@ -23,9 +28,6 @@ void ProgramASTnode::generateCodeDump()
     ofstream out("output.txt");
     out << Str;
     out.close();
-    // TheModule->print(errs(), nullptr);
-    // cout << NamedValues.size() << " -- adasd \n";
-    // TheModule->print(llvm::outs(), nullptr);
 }
 
 Value* ASTnode::Codegen()
@@ -40,19 +42,15 @@ Value* ProgramASTnode::Codegen()
     V = fields->Codegen();
     if (V == nullptr)
     {
-        cout << "Invalid field Declarations\n";
-        // reportError("Invalid field Declarations");
+        reportError("Invalid field Declarations");
         return nullptr;
     }
-    cout << "Done field Declarations\n";
     V = methods->Codegen();
     if (V == nullptr)
     {
-        cout << "Invalid method Declarations\n";
-        // reportError("Invalid method Declarations");
+        reportError("Invalid method Declarations");
         return nullptr;
     }       
-    cout << "Done method Declarations\n"; 
     return V;
 }
 
@@ -86,8 +84,7 @@ Value* meth_dec::Codegen()
         } else if (arg_type == "boolean") {
             arguments.push_back(Type::getInt1Ty(Context));
         } else {
-            errors_IR++;
-            // reportError("Arguments can only be int or boolean");
+            reportError("Arguments can only be int or boolean");
             return nullptr;
         }
         argTypes.emplace_back(arg_type);
@@ -103,7 +100,7 @@ Value* meth_dec::Codegen()
         returnType = Type::getVoidTy(Context);
     } else {
         errors_IR++;
-        // reportError("Invalid Return Type for " + name + ". Return Type can only be int or boolean or bool");
+        reportError("Invalid Return Type for " + name + ". Return Type can only be int or boolean or bool");
         return nullptr;
     } 
 
@@ -175,15 +172,15 @@ Value* meth_call::Codegen()
     Function *calle = TheModule->getFunction(name);
     if (calle == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Unknown Function name" + name);
+        // return nullptr;
+        return reportError("Unknown Function name" + name);
     }
     /* Check if required number of parameters are passed */
     vector<class Expr *> args_list = params->getParams();
     if (calle->arg_size() != args_list.size()) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Incorrect Number of Parameters Passed");
+        // return nullptr;
+        return reportError("Incorrect Number of Parameters Passed");
     }
     /// Generate the code for the arguments
     vector<Value *> Args;
@@ -194,8 +191,8 @@ Value* meth_call::Codegen()
         }
         if (argVal == nullptr) {
             errors_IR++;
-            // reportError("Argument is not valid");
-            return nullptr;
+            reportError("Argument is not valid");
+            // return nullptr;
         }
         Args.push_back(argVal);
     }
@@ -218,12 +215,12 @@ Value *BinExpr::Codegen() {
     }
     if (left == 0) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Error in left operand of " + op);
+        // return nullptr;
+        return reportError("Error in left operand of " + op);
     } else if (right == 0) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Error in right operand of " + op);
+        // return nullptr;
+        return reportError("Error in right operand of " + op);
     }
     Value *v = nullptr;
     if (op == "+") {
@@ -291,13 +288,10 @@ Value *returnState::Codegen() {
 }
 
 
-
-
 Value *calloutArg::Codegen() {
     if (expr == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportEcrror("Invalid Callout Arg");
+        return reportError("Invalid Callout Arg");
     }
     Value *v = expr->Codegen();
     if (expr->getEtype() == ::location) {
@@ -320,7 +314,6 @@ Value *callout_call::Codegen() {
             return nullptr;
         }
         Args.push_back(tmp);
-        // cout << tmp->getType() << " type\n" ;
         argTypes.push_back(tmp->getType());
     }
     /* Generate the code for the function execution */
@@ -328,13 +321,10 @@ Value *callout_call::Codegen() {
     ArrayRef<Value *> funcargs(Args);
     FunctionType *FType = FunctionType::get(Type::getInt32Ty(Context), argsRef, false);
     Constant *func = TheModule->getOrInsertFunction(name, FType);
-    // TheModule->print(llvm::outs(), nullptr);
 
     if (!func) {
-        return nullptr;
-        // return reportError("Error in inbuilt function. Unknown Function name " + method_name);
+        return reportError("Error in inbuilt function. Unknown Function name " + name);
     }
-    // cout << "Success\n";
     Value *v = Builder.CreateCall(func, funcargs);
     return v;
 }
@@ -371,7 +361,7 @@ Value *forState::Codegen() {
     /* Get the parent method of this for loop */
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
     /* Create memory for the loop variable */
-    AllocaInst *Alloca = CreateEntryBlockAlloca(TheFunction, var, string("int"));
+    llvm::AllocaInst *Alloca = CreateEntryBlockAlloca(TheFunction, var, string("int"));
     Builder.CreateStore(start, Alloca);
 
     Value *step_val = ConstantInt::get(Context, APInt(32, 1));
@@ -387,8 +377,7 @@ Value *forState::Codegen() {
     Value *cond = end_cond->Codegen();
     if (cond == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Invalid Condition");
+        return reportError("Invalid Condition");
     }
 
     // Check if condition is a location
@@ -396,7 +385,7 @@ Value *forState::Codegen() {
         cond = Builder.CreateLoad(cond);
     }
     loops->push(new loopInfo(afterBB, loop_body, cond, var, Variable));
-    AllocaInst *OldVal = NamedValues[var];
+    llvm::AllocaInst *OldVal = NamedValues[var];
     NamedValues[var] = Alloca;
     /* Generate the code for the body */
     if (body->Codegen() == nullptr) {
@@ -417,9 +406,10 @@ Value *forState::Codegen() {
     } else {
         NamedValues.erase(var);
     }
-    Value *V = ConstantInt::get(Context, APInt(32, 1));
+    llvm::Value *V = ConstantInt::get(Context, APInt(32, 1));
     return V;
-}
+
+}  
 
 Value *ifElseState::Codegen() {
     /* Generate code for the condition */
@@ -427,8 +417,7 @@ Value *ifElseState::Codegen() {
     Value *cond = this->cond->Codegen();
     if (cond == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Invalid Expression in the IF");
+        return reportError("Invalid Expression in the IF");
     }
 
     /* Create blocks for if, else and next part of the code */
@@ -437,7 +426,9 @@ Value *ifElseState::Codegen() {
     BasicBlock *elseBlock = BasicBlock::Create(Context, "else");
     BasicBlock *nextBlock = BasicBlock::Create(Context, "ifcont");
     BasicBlock *otherBlock = elseBlock;
-    // bool ret_if = if_block->has_return(), ret_else = false;
+    bool ret_if = if_block->has_return(), ret_else = false;
+    bool break_if = if_block->has_break(), break_else = false;
+    bool continue_if = if_block->has_continue(), continue_else = false;
     /// Create a conditional break and an insert point
     if (else_block == nullptr) {
         otherBlock = nextBlock;
@@ -451,9 +442,9 @@ Value *ifElseState::Codegen() {
     }
     /// Create a break for next part of the code after else block
 
-    // if (!ret_if) {
+    if (!ret_if && !break_if && !continue_if) {
         Builder.CreateBr(nextBlock);
-    // }
+    }
 
     ifBlock = Builder.GetInsertBlock();
     /// Create insert point for else block
@@ -468,47 +459,46 @@ Value *ifElseState::Codegen() {
         if (else_val == nullptr) {
             return nullptr;
         }
-        // ret_else = else_block->has_return();
-        // if (!ret_else)
+        ret_else = else_block->has_return();
+        break_else = else_block->has_break();
+        continue_else = else_block->has_continue();
+
+        if (!ret_else && !break_else && !continue_else)
             Builder.CreateBr(nextBlock);
     }
     // Create a break for the next part of the code
     TheFunction->getBasicBlockList().push_back(nextBlock);
     Builder.SetInsertPoint(nextBlock);
-    // if (ret_else && ret_if) {
-    //     // if both if and else block have a return statement create a dummy instruction to hold a next block
-    //     Type *retType = Builder.GetInsertBlock()->getParent()->getReturnType();
-    //     if (retType == Type::getVoidTy(Context))
-    //         Builder.CreateRetVoid();
-    //     else {
-    //         Builder.CreateRet(ConstantInt::get(Context, APInt(32, 0)));
-    //     }
-    // }
+    if (ret_else && ret_if) {
+        // if both if and else block have a return statement create a dummy instruction to hold a next block
+        Type *retType = Builder.GetInsertBlock()->getParent()->getReturnType();
+        if (retType == Type::getVoidTy(Context))
+            Builder.CreateRetVoid();
+        else {
+            Builder.CreateRet(ConstantInt::get(Context, APInt(32, 0)));
+        }
+    }
     Value *V = ConstantInt::get(Context, APInt(32, 0));
-    return V;
+    return V;    
 }
 
 Value *Location::invalidArrayIndex() {
     errors_IR++;
-    return nullptr;
-    // return reportError("Invalid array index");
+    return reportError("Invalid array index");
 }
 
 Value *Location::Codegen() {
     /* Try to get the value of the variable */
     Value *V = NamedValues[var];
     if (V == nullptr) {
-        // cout << " Herere Global -- " << var << "\n";
         V = TheModule->getNamedGlobal(var);
     }
     if (V == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Unknown Variable name " + var);
+        return reportError("Unknown Variable name " + var);
     }
     /* If location is variable return the code generated */
     if (this->location_type == ::variable) {
-        // cout << " Herere Global -- " << var << "\n";
         return V;
     }
     /* Check if we have an index for array */
@@ -542,12 +532,10 @@ Value *Assign::Codegen() {
     }
     if (cur == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Unknown Variable Name " + loc->getVar());
+        return reportError("Unknown Variable Name " + loc->getName());
     }
 
     Value *val = exp->Codegen();
-    // cout << " Value -- " << val  <<  " " << loc->getName() << endl;
     if (exp->getEtype() == ::location) {
         val = Builder.CreateLoad(val);
     }
@@ -557,15 +545,13 @@ Value *Assign::Codegen() {
 
     if (val == nullptr) {
         errors_IR++;
-        return nullptr;
-        // return reportError("Error in right hand side of the Assignment");
+        return reportError("Error in right hand side of the Assignment");
     }
     if (op == "+=") {
         val = Builder.CreateAdd(cur, val, "addEqualToTmp");
     } else if (op == "-=") {
         val = Builder.CreateSub(cur, val, "subEqualToTmp");
     }
-    // cout << "Here\n" ;
     return Builder.CreateStore(val, lhs);
 }
 
@@ -592,8 +578,6 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
         llvm::AllocaInst *Alloca = nullptr;
         if (type == "int") {
 
-            // cout << var << " namedvalues\n";
-
             initval = ConstantInt::get(Context, APInt(32, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "int");
         } else if (type == "boolean") {
@@ -604,7 +588,6 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
         /* Store the old value to old_vals and new value to named values */
         Old_vals[var] = NamedValues[var];
         NamedValues[var] = Alloca;
-        // cout << NamedValues.size() << " -- adasd \n";
 
     }
     Value *v = ConstantInt::get(Context, APInt(32, 1));
@@ -613,7 +596,6 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
 
 Value* integerLit::Codegen()
 {
-    // cout << "Value -- " << value << endl;
     Value *v = ConstantInt::get(Context, APInt(32, static_cast<uint64_t>(value)));
     return v;
 }  
@@ -635,9 +617,7 @@ Value* boolLit::Codegen()
 Value* FieldDecList::Codegen()
 {
     for (auto &i : declaration_list) {
-        // cout << i->getType() << endl;
         i->Codegen();
-        // cout << "Dones" << endl;
     }
 
     Value *v = ConstantInt::get(Context, APInt(32, 1));
@@ -653,7 +633,6 @@ Value* FieldDec::Codegen()
         ty = Type::getInt1Ty(Context);
 
     for (auto var : var_list) {
-        // cout << "Field Dec = " << var->getName() << endl;
         if (var->isArray())
         {
             ArrayType *arrType = ArrayType::get(ty, var->getLength());
@@ -663,7 +642,6 @@ Value* FieldDec::Codegen()
         else
         {
             GlobalVariable *gv = new GlobalVariable(*(TheModule), ty, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
-            // cout << ty << "\n";
             gv->setInitializer(Constant::getNullValue(ty));
         }
     }
@@ -713,3 +691,79 @@ void Block::add_to_mymap(map <string, string> in_map)
 	}     
 }
 
+
+bool Statements::has_return() {
+    for (int i = 0; i < statements_list.size(); i++) {
+        if (statements_list[i]->has_return()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ifElseState::has_return() {
+    bool status = false;
+    if (if_block != nullptr) {
+        status = status | if_block->has_return();
+    }
+    if (else_block != nullptr) {
+        status = status | if_block->has_return();
+    }
+    return status;
+}
+
+
+bool Block::has_return() {
+    return statements_list->has_return();
+}
+
+
+bool Statements::has_break() {
+    for (int i = 0; i < statements_list.size(); i++) {
+        if (statements_list[i]->has_break()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ifElseState::has_break() {
+    bool status = false;
+    if (if_block != nullptr) {
+        status = status | if_block->has_break();
+    }
+    if (else_block != nullptr) {
+        status = status | if_block->has_break();
+    }
+    return status;
+}
+
+
+bool Block::has_break() {
+    return statements_list->has_break();
+}
+
+bool Statements::has_continue() {
+    for (int i = 0; i < statements_list.size(); i++) {
+        if (statements_list[i]->has_continue()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ifElseState::has_continue() {
+    bool status = false;
+    if (if_block != nullptr) {
+        status = status | if_block->has_continue();
+    }
+    if (else_block != nullptr) {
+        status = status | if_block->has_continue();
+    }
+    return status;
+}
+
+
+bool Block::has_continue() {
+    return statements_list->has_continue();
+}

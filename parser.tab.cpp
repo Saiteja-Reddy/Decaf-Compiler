@@ -2303,7 +2303,7 @@ int main(int argc, char **argv)
 	yyparse();
 	PostFixVisitor* dfs;
 	dfs=new PostFixVisitor();
-	start->accept(*dfs);
+	// start->accept(*dfs);
 	start->Codegen();
 	cout << "Errors during IR Generation: " << errors_IR << endl;
 	if(!errors_IR)

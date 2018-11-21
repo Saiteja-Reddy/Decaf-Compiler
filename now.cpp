@@ -1,26 +1,25 @@
 class Program
 {
 // max size of array 100
-	boolean hello;
 	int a;
 
 	void main()
 	{
-		int b;
-		b = 122;
-		a = -991;
-		for i=0 ,2
+		for i=0 ,4
 		{
-			a = a + 1000;
+			if(i == 1)
+			{
+				break;
+			}
+			else
+			{
+				continue;
+			}
+			b = 10;
+			a = a + 1;
 		}
-		if(a > 1)
-		{
-			callout("printf", "%d %d-- Hererere\n", b, a);
-		}
-		else
-		{
-			callout("printf", "negative Hererere\n", b, a);
-		}
+
+		callout("printf", "Done - %d ", a);		
 	}
 
 }
