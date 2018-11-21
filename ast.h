@@ -1706,6 +1706,7 @@ class Location: public Expr {
     {
             var = vars;
             location_type = ::variable; 
+            etype = ::location;
             add_to_expr_map(vars, 0);
     };
 
@@ -1714,6 +1715,7 @@ class Location: public Expr {
             var = vars;
             location_type = ::array; 
             array_index = array_indexs;
+            etype = ::location;
             check_array_index();
             add_to_expr_map(vars, 1);
             map <string, int> now_map = array_indexs->expr_map;
