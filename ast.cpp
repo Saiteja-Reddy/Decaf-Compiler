@@ -54,16 +54,18 @@ Value* ASTnode::Codegen()
 Value* ProgramASTnode::Codegen()
 {
     Value *V;
-    cout << "Now generating code\n";
+    cout << "\n\n\nNow generating code\n";
     V = fields->Codegen();
     if (V == nullptr)
     {
+        errors_IR++;
         reportError("Invalid field Declarations");
         return nullptr;
     }
     V = methods->Codegen();
     if (V == nullptr)
     {
+        errors_IR++;
         reportError("Invalid method Declarations");
         return nullptr;
     }       
@@ -100,6 +102,7 @@ Value* meth_dec::Codegen()
         } else if (arg_type == "boolean") {
             arguments.push_back(Type::getInt1Ty(Context));
         } else {
+            errors_IR++;
             reportError("Arguments can only be int or boolean");
             return nullptr;
         }
@@ -188,14 +191,12 @@ Value* meth_call::Codegen()
     Function *calle = TheModule->getFunction(name);
     if (calle == nullptr) {
         errors_IR++;
-        // return nullptr;
         return reportError("Unknown Function name" + name);
     }
     /* Check if required number of parameters are passed */
     vector<class Expr *> args_list = params->getParams();
     if (calle->arg_size() != args_list.size()) {
         errors_IR++;
-        // return nullptr;
         return reportError("Incorrect Number of Parameters Passed");
     }
     /// Generate the code for the arguments
@@ -208,7 +209,6 @@ Value* meth_call::Codegen()
         if (argVal == nullptr) {
             errors_IR++;
             reportError("Argument is not valid");
-            // return nullptr;
         }
         Args.push_back(argVal);
     }
@@ -231,11 +231,9 @@ Value *BinExpr::Codegen() {
     }
     if (left == 0) {
         errors_IR++;
-        // return nullptr;
         return reportError("Error in left operand of " + op);
     } else if (right == 0) {
         errors_IR++;
-        // return nullptr;
         return reportError("Error in right operand of " + op);
     }
     Value *v = nullptr;
@@ -262,6 +260,12 @@ Value *BinExpr::Codegen() {
     } else if (op == "!=") {
         v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
     }
+    // else if (op == "||") {
+    //     v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
+    // } 
+    // else if (op == "&&") {
+    //     v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
+    // }     
     return v;
 }
 
@@ -339,6 +343,7 @@ Value *callout_call::Codegen() {
     Constant *func = TheModule->getOrInsertFunction(name, FType);
 
     if (!func) {
+        errors_IR++;
         return reportError("Error in inbuilt function. Unknown Function name " + name);
     }
     Value *v = Builder.CreateCall(func, funcargs);
@@ -588,15 +593,26 @@ Value *var_decs::Codegen(map<string, AllocaInst *> &oldValues) {
 Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
 {
     /* Get the function to which this declaration belongs */
+    Value *V_test;
+
     llvm::Function *TheFunction = Builder.GetInsertBlock()->getParent();
     for (const auto &var : var_list) {
         llvm::Value *initval = nullptr;
         llvm::AllocaInst *Alloca = nullptr;
         if (type == "int") {
 
+            // V_test = NamedValues[var];
+            // if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var);}
+            // if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var + " already declared"); }
+
             initval = ConstantInt::get(Context, APInt(32, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "int");
         } else if (type == "boolean") {
+
+            // V_test = NamedValues[var];
+            // if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var);}
+            // if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var + " already declared"); }
+
             initval = ConstantInt::get(Context, APInt(1, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "boolean");
         }
@@ -615,6 +631,13 @@ Value* integerLit::Codegen()
     Value *v = ConstantInt::get(Context, APInt(32, static_cast<uint64_t>(value)));
     return v;
 }  
+
+Value* charLit::Codegen()
+{
+    Value *v = ConstantInt::get(Context, APInt(32, static_cast<uint64_t>(value)));
+    return v;
+}  
+
 
 Value *stringLit::Codegen() {
     return Builder.CreateGlobalStringPtr(value);
@@ -643,6 +666,7 @@ Value* FieldDecList::Codegen()
 Value* FieldDec::Codegen()
 {
     Type *ty = nullptr;
+    Value* V_test;
     if (datatype == "int")
         ty = Type::getInt32Ty(Context);
     else if (datatype == "boolean")
@@ -651,12 +675,21 @@ Value* FieldDec::Codegen()
     for (auto var : var_list) {
         if (var->isArray())
         {
+
+            V_test = NamedValues[var->getName()];
+            if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var->getName());}
+            if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var->getName() + " already declared"); }
+
             ArrayType *arrType = ArrayType::get(ty, var->getLength());
             GlobalVariable *gv = new GlobalVariable(*(TheModule), arrType, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
             gv->setInitializer(ConstantAggregateZero::get(arrType));
         } 
         else
         {
+            V_test = NamedValues[var->getName()];
+            if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var->getName());}
+            if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var->getName() + " already declared"); }
+
             GlobalVariable *gv = new GlobalVariable(*(TheModule), ty, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
             gv->setInitializer(Constant::getNullValue(ty));
         }

@@ -2,7 +2,7 @@ class Program{
 
 	int fib(int n)
 	{
-		if(n <= 1)
+		if(n<=1)
 		{
 			return [1];
 		}
@@ -12,10 +12,13 @@ class Program{
 	void main()
 	{
 		int result;
+		int hell;
+		hell = 'A';
 		for i=1, 5
 		{		
-			result = fib(i);
-			callout("printf","%dth fibonacci number is %d\n",i,result);
+			result += fib(i);
+			callout("printf","%d\n", -hell);
+			callout("printf","%d th fibonacci number is %d\n",i,result);
 		}
 	}
 

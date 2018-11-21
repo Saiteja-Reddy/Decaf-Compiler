@@ -56,7 +56,6 @@ static stack<loopInfo *> *loops = new stack<loopInfo*>();
 
 #include "common.h"
 
-static int errors_IR = 0;
 
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type);
 Value *reportError(string error_str);
@@ -178,11 +177,13 @@ class ProgramASTnode: public ASTnode {
         {
             if(methods_decs_map["main"].size() > 0)
             {
+                errors_IR++;
                 cout << "ERROR: There must be a main method with no parameters\n"; 
             }
         }
         else
         {
+            errors_IR++;
             cout << "ERROR: There must be a main method with no parameters\n";
         }
 
@@ -230,7 +231,10 @@ class Variable: public ASTnode {
         length = length1;
         declType = ::Array;
         if(length1 <= 0)
+        {
+            errors_IR++;
             cout << "Error" << ": Array Size during declaration must be greater than zero.\n";
+        }
 
     }
     Variable(string name) : name(name), declType(::Normal) {}
@@ -726,10 +730,8 @@ class charLit: public Lit {
       v.visit(*this);
     }
 
-    virtual Value* Codegen()
-    {
-        return nullptr;
-    }
+    virtual Value* Codegen();
+    
 };
 
 class stringLit: public Lit {
@@ -1421,7 +1423,8 @@ class meth_call: public Statement, public Expr {
     {
       if(methods_decs_return[name] == "void")
       {
-        cout << "\nERROR: Method Call " << name << " must return a value for expr.\n";
+        // errors_IR++;
+        cout << "\nERROR: Method Call " << name << " must not return a value for expr.\n";
       }
       v.visit(*this);
     }
@@ -1694,7 +1697,10 @@ class returnState: public Statement {
     virtual void accept(ASTvisitor& v, string type, string meth_name)
     {
       if(type != return_type)
+      {
+        errors_IR++;
         cout << "ERROR: expected method " << meth_name << " to return of type " << type << endl;
+      }
       v.visit(*this);
     }
 

@@ -1,3 +1,5 @@
+extern int errors_IR;
+
 extern string test_var;
 
 extern map <string, string> global_map;

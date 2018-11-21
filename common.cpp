@@ -6,6 +6,8 @@
 
 using namespace std;
 
+int errors_IR = 0;
+
 string test_var = "Hello \n";
 
 map <string, string> global_map = map <string, string>();
