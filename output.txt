@@ -1,63 +1,56 @@
 ; ModuleID = 'Decaf compiler'
 source_filename = "Decaf compiler"
 
-@0 = private unnamed_addr constant [14 x i8] c"\22gcd is %d\5Cn\22\00"
+@0 = private unnamed_addr constant [29 x i8] c"%dth fibonacci number is %d\0A\00"
 
-define i32 @gcd(i32 %x, i32 %y) {
+define i32 @fib(i32 %n) {
 entry:
-  %y2 = alloca i32
-  %x1 = alloca i32
-  store i32 %x, i32* %x1
-  store i32 %y, i32* %y2
-  %0 = load i32, i32* %x1
-  %1 = load i32, i32* %y2
-  %equalcomparetmp = icmp eq i32 %0, %1
-  br i1 %equalcomparetmp, label %if, label %else
+  %n1 = alloca i32
+  store i32 %n, i32* %n1
+  %0 = load i32, i32* %n1
+  %lecomparetmp = icmp sle i32 %0, 1
+  br i1 %lecomparetmp, label %if, label %ifcont
 
 if:                                               ; preds = %entry
-  %2 = load i32, i32* %x1
-  ret i32 %2
+  ret i32 1
 
-else:                                             ; preds = %entry
-  %3 = load i32, i32* %x1
-  %4 = load i32, i32* %y2
-  %ltcomparetmp = icmp slt i32 %3, %4
-  br i1 %ltcomparetmp, label %if3, label %else4
-
-if3:                                              ; preds = %else
-  %5 = load i32, i32* %x1
-  %6 = load i32, i32* %y2
-  %7 = load i32, i32* %x1
-  %subtmp = sub i32 %6, %7
-  %8 = call i32 @gcd(i32 %subtmp, i32 %5)
-  ret i32 %8
-
-else4:                                            ; preds = %else
-  %9 = load i32, i32* %x1
-  %10 = load i32, i32* %y2
-  %subtmp5 = sub i32 %9, %10
-  %11 = load i32, i32* %y2
-  %12 = call i32 @gcd(i32 %11, i32 %subtmp5)
-  ret i32 %12
-
-ifcont:                                           ; No predecessors!
-  ret i32 0
-
-ifcont6:                                          ; No predecessors!
-  ret i32 0
-  ret i32 0
+ifcont:                                           ; preds = %entry
+  %1 = load i32, i32* %n1
+  %subtmp = sub i32 %1, 1
+  %2 = call i32 @fib(i32 %subtmp)
+  %3 = load i32, i32* %n1
+  %subtmp2 = sub i32 %3, 2
+  %4 = call i32 @fib(i32 %subtmp2)
+  %addtmp = add i32 %2, %4
+  ret i32 %addtmp
+  ret i32 %addtmp
 }
 
 define void @main() {
 entry:
-  %a = alloca i32
-  store i32 0, i32* %a
-  %0 = call i32 @gcd(i32 11, i32 6)
-  %1 = load i32, i32* %a
-  store i32 %0, i32* %a
-  %2 = load i32, i32* %a
-  %3 = call i32 @printf(i8* getelementptr inbounds ([14 x i8], [14 x i8]* @0, i32 0, i32 0), i32 %2)
+  %i = alloca i32
+  %result = alloca i32
+  store i32 0, i32* %result
+  store i32 1, i32* %i
+  br label %loop
+
+loop:                                             ; preds = %loop, %entry
+  %i1 = phi i32 [ 1, %entry ], [ %NextVal, %loop ]
+  %0 = load i32, i32* %i
+  %1 = call i32 @fib(i32 %0)
+  %2 = load i32, i32* %result
+  store i32 %1, i32* %result
+  %3 = load i32, i32* %i
+  %4 = load i32, i32* %result
+  %5 = call i32 @printf(i8* getelementptr inbounds ([29 x i8], [29 x i8]* @0, i32 0, i32 0), i32 %3, i32 %4)
+  %i2 = load i32, i32* %i
+  %NextVal = add i32 %i2, 1
+  store i32 %NextVal, i32* %i
+  %loopcondition = icmp slt i32 %NextVal, 5
+  br i1 %loopcondition, label %loop, label %afterloop
+
+afterloop:                                        ; preds = %loop
   ret void
 }
 
-declare i32 @printf(i8*, i32)
+declare i32 @printf(i8*, i32, i32)

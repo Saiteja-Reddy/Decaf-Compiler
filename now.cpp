@@ -1,26 +1,22 @@
 class Program{
-	int gcd(int x, int y)
-	 {
-		if(x == y)
+
+	int fib(int n)
+	{
+		if(n <= 1)
 		{
-			return [x];
+			return [1];
 		}
-		else
-		{
-			if(x < y)
-			{
-				return [gcd(x, y - x)];
-			}
-			else
-			{
-				return [gcd(x - y, y)];
-			}
-		}
+		return [fib(n - 1) + fib(n - 2)];
 	}
+
 	void main()
 	{
-		int a;
-		a = gcd(6,12);
-		callout("printf","gcd is %d\n",a);
+		int result;
+		for i=1, 5
+		{		
+			result = fib(i);
+			callout("printf","%dth fibonacci number is %d\n",i,result);
+		}
 	}
+
 }

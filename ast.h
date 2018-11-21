@@ -60,6 +60,7 @@ static int errors_IR = 0;
 
 AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string type);
 Value *reportError(string error_str);
+string replace_newline(string str);
 
 class meth_dec;
 class meth_decs;
@@ -737,7 +738,13 @@ class stringLit: public Lit {
     string value;
 
 
-    stringLit(string value) : value(value), Lit(::String) {};
+    stringLit(string value1) : Lit(::String)
+    {
+        value1 = value1.substr(1, value1.length() - 2);
+        value1 = replace_newline(value1);
+        value = value1;
+        // cout << value << endl;
+    }
 
     virtual string getVal() {return value;};
 
@@ -1452,7 +1459,7 @@ class calloutArg: public ASTnode{
 class calloutArgs: public ASTnode {
     vector<class calloutArg *> args;
 
-    public:
+    public: 
 
     calloutArgs() {};
 
@@ -1487,7 +1494,7 @@ class callout_call: public meth_call{
     
     callout_call(string name1, class calloutArgs *args1)
     {
-        name = name1.substr(1, name1.length() - 2);;
+        name = name1;
         // cout << " here in callout name << " << name << endl;
         args = args1;
     }
