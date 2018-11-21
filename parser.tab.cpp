@@ -1809,7 +1809,7 @@ yyreduce:
 
   case 37:
 #line 194 "parser.ypp"
-    {(yyval.statement_type) = new returnState((yyvsp[(3) - (5)].expr_type));;}
+    {cout << "Here ret" << endl;(yyval.statement_type) = new returnState((yyvsp[(3) - (5)].expr_type));;}
     break;
 
   case 38:
@@ -1979,7 +1979,7 @@ yyreduce:
 
   case 71:
 #line 238 "parser.ypp"
-    {(yyval.expr_type) = (yyvsp[(1) - (1)].meth_call_type); (yyval.expr_type)->updateEdata(::integer);;}
+    {cout << "methccall Here" << endl; (yyval.expr_type) = (yyvsp[(1) - (1)].meth_call_type); (yyval.expr_type)->updateEdata(::integer);;}
     break;
 
   case 72:
