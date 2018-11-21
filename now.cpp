@@ -2,11 +2,14 @@ class Program
 {
 // max size of array 100
 	boolean hello;
-	boolean a;
+	int a;
 
 	void main()
 	{
-		callout("printf", "hello");
+		int b;
+		b = 122;
+		a = 1;
+		callout("printf", "%d -- Hererere\n", b);
 	}
 
 }

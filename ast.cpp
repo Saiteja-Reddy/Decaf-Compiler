@@ -13,6 +13,21 @@ AllocaInst *CreateEntryBlockAlloca(Function *TheFunction, string VarName, string
     return alloca_instruction;
 }
 
+void ProgramASTnode::generateCodeDump()
+{
+    cerr << "Generating LLVM IR Code\n\n";
+    std::string Str;
+    raw_string_ostream OS(Str);
+    OS << *TheModule;
+    OS.flush();
+    ofstream out("output.txt");
+    out << Str;
+    out.close();
+    // TheModule->print(errs(), nullptr);
+    // cout << NamedValues.size() << " -- adasd \n";
+    // TheModule->print(llvm::outs(), nullptr);
+}
+
 Value* ASTnode::Codegen()
 {
     return nullptr;
@@ -305,6 +320,7 @@ Value *callout_call::Codegen() {
             return nullptr;
         }
         Args.push_back(tmp);
+        // cout << tmp->getType() << " type\n" ;
         argTypes.push_back(tmp->getType());
     }
     /* Generate the code for the function execution */
@@ -312,10 +328,13 @@ Value *callout_call::Codegen() {
     ArrayRef<Value *> funcargs(Args);
     FunctionType *FType = FunctionType::get(Type::getInt32Ty(Context), argsRef, false);
     Constant *func = TheModule->getOrInsertFunction(name, FType);
+    // TheModule->print(llvm::outs(), nullptr);
+
     if (!func) {
         return nullptr;
         // return reportError("Error in inbuilt function. Unknown Function name " + method_name);
     }
+    // cout << "Success\n";
     Value *v = Builder.CreateCall(func, funcargs);
     return v;
 }
@@ -479,6 +498,7 @@ Value *Location::Codegen() {
     /* Try to get the value of the variable */
     Value *V = NamedValues[var];
     if (V == nullptr) {
+        // cout << " Herere Global -- " << var << "\n";
         V = TheModule->getNamedGlobal(var);
     }
     if (V == nullptr) {
@@ -488,6 +508,7 @@ Value *Location::Codegen() {
     }
     /* If location is variable return the code generated */
     if (this->location_type == ::variable) {
+        // cout << " Herere Global -- " << var << "\n";
         return V;
     }
     /* Check if we have an index for array */
@@ -526,6 +547,7 @@ Value *Assign::Codegen() {
     }
 
     Value *val = exp->Codegen();
+    // cout << " Value -- " << val  <<  " " << loc->getName() << endl;
     if (exp->getEtype() == ::location) {
         val = Builder.CreateLoad(val);
     }
@@ -543,6 +565,7 @@ Value *Assign::Codegen() {
     } else if (op == "-=") {
         val = Builder.CreateSub(cur, val, "subEqualToTmp");
     }
+    // cout << "Here\n" ;
     return Builder.CreateStore(val, lhs);
 }
 
@@ -568,6 +591,9 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
         llvm::Value *initval = nullptr;
         llvm::AllocaInst *Alloca = nullptr;
         if (type == "int") {
+
+            // cout << var << " namedvalues\n";
+
             initval = ConstantInt::get(Context, APInt(32, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "int");
         } else if (type == "boolean") {
@@ -578,6 +604,8 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
         /* Store the old value to old_vals and new value to named values */
         Old_vals[var] = NamedValues[var];
         NamedValues[var] = Alloca;
+        // cout << NamedValues.size() << " -- adasd \n";
+
     }
     Value *v = ConstantInt::get(Context, APInt(32, 1));
     return v;    
@@ -585,7 +613,9 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
 
 Value* integerLit::Codegen()
 {
-    return ConstantInt::get(Context, llvm::APInt(32, static_cast<uint64_t>(value)));
+    // cout << "Value -- " << value << endl;
+    Value *v = ConstantInt::get(Context, APInt(32, static_cast<uint64_t>(value)));
+    return v;
 }  
 
 Value *stringLit::Codegen() {
@@ -609,7 +639,7 @@ Value* FieldDecList::Codegen()
         i->Codegen();
         // cout << "Dones" << endl;
     }
-        
+
     Value *v = ConstantInt::get(Context, APInt(32, 1));
     return v;
 }

@@ -1,0 +1,20 @@
+; ModuleID = 'Decaf compiler'
+source_filename = "Decaf compiler"
+
+@hello = global i1 false
+@a = global i32 0
+@0 = private unnamed_addr constant [19 x i8] c"\22%d -- Hererere\5Cn\22\00"
+
+define void @main() {
+entry:
+  %b = alloca i32
+  store i32 0, i32* %b
+  %0 = load i32, i32* %b
+  store i32 121, i32* %b
+  %1 = load i32, i32* @a
+  store i32 121, i32* @a
+  %2 = call i32 @printf(i8* getelementptr inbounds ([19 x i8], [19 x i8]* @0, i32 0, i32 0), i32* %b)
+  ret void
+}
+
+declare i32 @printf(i8*, i32*)

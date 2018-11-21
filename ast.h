@@ -204,19 +204,8 @@ class ProgramASTnode: public ASTnode {
 
     virtual Value* Codegen();
 
-    void generateCodeDump()
-    {
-        cerr << "Generating LLVM IR Code\n\n";
-        // std::string Str;
-        // raw_string_ostream OS(Str);
-        // OS << *TheModule;
-        // OS.flush();
-        // ofstream out("output.txt");
-        // out << Str;
-        // out.close();
-        TheModule->print(errs(), nullptr);
-        // TheModule->print(llvm::outs(), nullptr);
-    }
+    void generateCodeDump();
+
 
 };
 
