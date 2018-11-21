@@ -21,18 +21,23 @@ Value* ASTnode::Codegen()
 Value* ProgramASTnode::Codegen()
 {
     Value *V;
+    cout << "Now generating code\n";
     V = fields->Codegen();
     if (V == nullptr)
     {
+        cout << "Invalid field Declarations\n";
         // reportError("Invalid field Declarations");
         return nullptr;
     }
+    cout << "Done field Declarations\n";
     V = methods->Codegen();
     if (V == nullptr)
     {
+        cout << "Invalid method Declarations\n";
         // reportError("Invalid method Declarations");
         return nullptr;
-    }        
+    }       
+    cout << "Done method Declarations\n"; 
     return V;
 }
 
@@ -600,8 +605,11 @@ Value* boolLit::Codegen()
 Value* FieldDecList::Codegen()
 {
     for (auto &i : declaration_list) {
+        // cout << i->getType() << endl;
         i->Codegen();
+        // cout << "Dones" << endl;
     }
+        
     Value *v = ConstantInt::get(Context, APInt(32, 1));
     return v;
 }
@@ -615,6 +623,7 @@ Value* FieldDec::Codegen()
         ty = Type::getInt1Ty(Context);
 
     for (auto var : var_list) {
+        // cout << "Field Dec = " << var->getName() << endl;
         if (var->isArray())
         {
             ArrayType *arrType = ArrayType::get(ty, var->getLength());
@@ -624,10 +633,10 @@ Value* FieldDec::Codegen()
         else
         {
             GlobalVariable *gv = new GlobalVariable(*(TheModule), ty, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
+            // cout << ty << "\n";
             gv->setInitializer(Constant::getNullValue(ty));
         }
     }
-
     Value *v = ConstantInt::get(Context, APInt(32, 1));
     return v;
 }

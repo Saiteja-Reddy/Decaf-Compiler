@@ -283,6 +283,10 @@ int main(int argc, char **argv)
 	PostFixVisitor* dfs;
 	dfs=new PostFixVisitor();
 	start->accept(*dfs);
+	start->Codegen();
+	cout << "Errors during IR Generation: " << errors_IR << endl;
+	if(!errors_IR)
+		start->generateCodeDump();	
 	printf("\nParsing Over\n");
 }
 

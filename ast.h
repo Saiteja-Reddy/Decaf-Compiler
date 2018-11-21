@@ -45,8 +45,10 @@ public:
     string getLoopVariable() { return loopVariable; }
 };
 
+
+
 static LLVMContext Context;
-static Module *TheModule; // Contains all functions and variables
+static Module *TheModule = new Module("Decaf compiler", Context); // Contains all functions and variables
 static IRBuilder<> Builder(Context); // helps to generate LLVM IR with helper functions
 static map <string, AllocaInst*>NamedValues; // keeps track of all the values defined in the current scope like a symbol table
 static stack<loopInfo *> *loops = new stack<loopInfo*>();
@@ -204,8 +206,16 @@ class ProgramASTnode: public ASTnode {
 
     void generateCodeDump()
     {
-        cerr << "Generating LLVM IR Code\n";
-        TheModule->print(llvm::outs(), nullptr);
+        cerr << "Generating LLVM IR Code\n\n";
+        // std::string Str;
+        // raw_string_ostream OS(Str);
+        // OS << *TheModule;
+        // OS.flush();
+        // ofstream out("output.txt");
+        // out << Str;
+        // out.close();
+        TheModule->print(errs(), nullptr);
+        // TheModule->print(llvm::outs(), nullptr);
     }
 
 };
