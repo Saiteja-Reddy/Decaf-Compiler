@@ -44,6 +44,7 @@ void ProgramASTnode::generateCodeDump()
     ofstream out("output.txt");
     out << Str;
     out.close();
+    system("sh decaf_linker.sh");
 }
 
 Value* ASTnode::Codegen()

@@ -1,14 +1,26 @@
 class Program{
 
 	int a[10];
+	boolean c;
+
+	int ab(int n)
+	{
+		callout("printf", "%d - printed\n", n);
+		return [1];
+	}
 
 	void main()
 	{
-		for i=0, 10
+		int c;
+		int i;
+		i = 100;
+		for i=0, 4
 		{
-			a[i] = i;
+			ab(i*i+1);
 		}
-		callout("printf", "%d printed\n", a[4]);
+		callout("printf", "%d - printed\n", i);
+		i = callout("read_integer");
+		callout("printf", "%d - printed\n", i);
 	}
 
 }

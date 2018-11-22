@@ -46,8 +46,6 @@ public:
 };
 
 
-
-
 static LLVMContext Context;
 static Module *TheModule = new Module("Decaf compiler", Context); // Contains all functions and variables
 static IRBuilder<> Builder(Context); // helps to generate LLVM IR with helper functions
