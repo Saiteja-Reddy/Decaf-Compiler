@@ -1099,22 +1099,22 @@ class meth_call: public Statement, public Expr {
         {
             vector <string> meth_data_types = methods_decs_map[name];
             vector <string> data_types = params1->data_types;
-            if(meth_data_types.size() != data_types.size())
-            {
-                cout << "ERROR : Method " << name << " needs " <<  meth_data_types.size() << " arguments\n";
-            }
-            else
-            {
-                for (int i = 0; i < data_types.size(); ++i)
-                {
-                    // cout << meth_data_types[i] << "  fasasfad " << data_types[i] << endl;
-                   if(meth_data_types[i] != data_types[i])
-                   {
-                     cout << "ERROR : Usage of Method " << name << "'s Parameters is wrong in method call.\n";
-                     break;
-                   }
-                }
-            }
+            // if(meth_data_types.size() != data_types.size())
+            // {
+            //     cout << "ERROR : Method " << name << " needs " <<  meth_data_types.size() << " arguments\n";
+            // }
+            // else
+            // {
+            //     for (int i = 0; i < data_types.size(); ++i)
+            //     {
+            //         // cout << meth_data_types[i] << "  fasasfad " << data_types[i] << endl;
+            //        if(meth_data_types[i] != data_types[i])
+            //        {
+            //          cout << "ERROR : Usage of Method " << name << "'s Parameters is wrong in method call.\n";
+            //          break;
+            //        }
+            //     }
+            // }
 
             if(methods_decs_return[name] == "void")
                 setEdata(::mixed);
@@ -1287,10 +1287,10 @@ class ifElseState: public Statement {
     ifElseState(class Expr* conds, class Block* if_blocks, class Block* else_blocks)
     {
         cond = conds;
-        if(if_blocks->check_control())
-            cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl; 
-        if(else_blocks->check_control())
-            cout << "ERROR: BREAK/CONTINUE in else block invalid" << endl;                     
+        // if(if_blocks->check_control())
+        //     cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl; 
+        // if(else_blocks->check_control())
+        //     cout << "ERROR: BREAK/CONTINUE in else block invalid" << endl;                     
 
         if_block = if_blocks;
         else_block= else_blocks;
@@ -1299,8 +1299,8 @@ class ifElseState: public Statement {
     ifElseState(class Expr* conds, class Block* if_blocks)
     {
         cond = conds;
-        if(if_blocks->check_control())
-            cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl;        
+        // if(if_blocks->check_control())
+        //     cout << "ERROR: BREAK/CONTINUE in if block invalid" << endl;        
 
         if_block = if_blocks;
         else_block = NULL;
@@ -1354,10 +1354,10 @@ class forState: public Statement {
         int a = init->getEdata();
         int b = end_cond->getEdata();
 
-        if(a != ::integer || b!= ::integer)
-        {
-            cout << "Error" << ":  initial and the ending EXPRS of FOR must have type int.\n";
-        }
+        // if(a != ::integer || b!= ::integer)
+        // {
+        //     cout << "Error" << ":  initial and the ending EXPRS of FOR must have type int.\n";
+        // }
     }
 
 
@@ -1484,17 +1484,17 @@ class Location: public Expr {
             location_type = ::array; 
             array_index = array_indexs;
             etype = ::location;
-            check_array_index();
+            // check_array_index();
     }
 
-    void check_array_index()
-    {
-        int a = array_index->getEdata();
-        if(a != ::integer)
-        {
-                cout << "ERROR: Array Index must be of type int.\n";
-        }
-    }
+    // void check_array_index()
+    // {
+    //     int a = array_index->getEdata();
+    //     if(a != ::integer)
+    //     {
+    //             cout << "ERROR: Array Index must be of type int.\n";
+    //     }
+    // }
 
     string getName() { return var; }
 

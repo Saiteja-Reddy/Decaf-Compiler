@@ -263,12 +263,6 @@ class PostFixVisitor: public ASTvisitor {
         string op = node.getOp();
 
         int a = expr->getEdata();
-        if(a != ::boolean)
-        {
-            cout << "ERROR: Unary Operator must have only boolean type. \n";
-        }        
-        
-        // cout << op;
 
         if(expr->check_meth_call)
             expr->check_accept(*this);

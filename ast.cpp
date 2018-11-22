@@ -335,11 +335,11 @@ Value *BinExpr::Codegen() {
     }
 
 
-    // if( (op== "||" || op== "&&") && !(left->getType()->isIntegerTy(1) && right->getType()->isIntegerTy(1)))
-    // {
-    //     errors_IR++;
-    //     return reportError("Error: operand " + op + " must have booleans on both sides");
-    // }    
+    if( (op== "||" || op== "&&") && !(left->getType()->isIntegerTy(1) && right->getType()->isIntegerTy(1)))
+    {
+        errors_IR++;
+        return reportError("Error: operand " + op + " must have booleans on both sides");
+    }    
 
     Value *v = nullptr;
     if (op == "+") {
@@ -385,6 +385,11 @@ Value *UnExpr::Codegen() {
         return Builder.CreateNeg(v, "negtmp");
     }
     // else if (op == "!") {
+    if(!(v->getType()->isIntegerTy(1)))
+    {
+        errors_IR++;
+        return reportError("Error: operand " + op + " must have boolean.");
+    }        
         return Builder.CreateNot(v, "nottmp");
     // }
 }
@@ -485,6 +490,13 @@ Value *forState::Codegen() {
     if (init->getEtype() == ::location) {
         start = Builder.CreateLoad(start);
     }
+
+    if(!(start->getType()->isIntegerTy(32)))
+    {
+        errors_IR++;
+        return reportError("Error: For loop initial expr must have type integer");
+    }    
+
     /* Get the parent method of this for loop */
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
     /* Create memory for the loop variable */
@@ -505,12 +517,19 @@ Value *forState::Codegen() {
     if (cond == nullptr) {
         errors_IR++;
         return reportError("Invalid Condition");
-    }
+    }    
 
     // Check if condition is a location
     if (end_cond->getEtype() == ::location) {
         cond = Builder.CreateLoad(cond);
     }
+
+    if(!(cond->getType()->isIntegerTy(32)))
+    {
+        errors_IR++;
+        return reportError("Error: For loop ending expr must have type integer");
+    }   
+
     loops->push(new loopInfo(afterBB, loop_body, cond, var, Variable));
     llvm::AllocaInst *OldVal = NamedValues[var];
     NamedValues[var] = Alloca;
@@ -631,20 +650,23 @@ Value *Location::Codegen() {
         return reportError("Unknown Variable name " + var);
     }
 
-    // Type* chech_type = V->getType();
-    // chech_type->print(1);        
-    // cout << "Array type in location : " << chech_type << " " << chech_type->isArrayTy()  << " " << var << endl;
-
     /* If location is variable return the code generated */
     if (this->location_type == ::variable) {
         return V;
     }
 
-    // if(!(type_array->isArrayTy()))
-    // {
-    //     errors_IR++;
-    //     return reportError("Unknown Array name " + var);        
-    // }
+    Type* chech_type = V->getType();
+
+    if (PointerType *pointerType = dyn_cast<PointerType>(chech_type)) {
+        Type* elementType = pointerType->getElementType();
+        // errs() << "The element type is: " << *elementType << "\n";
+
+        if (!elementType->isArrayTy()) {
+            errors_IR++;
+            return reportError("Unknown Array name " + var);                
+            // errs() << "  .. points to an array!\n";
+        }
+    }        
 
     /* Check if we have an index for array */
     if (this->array_index == nullptr) {
@@ -657,6 +679,12 @@ Value *Location::Codegen() {
     }
 
     // Type * type_index = V->getType();
+
+    if(!(index->getType()->isIntegerTy(32)))
+    {
+        errors_IR++;
+        return reportError("ERROR: for array " + var + " give integer as index.");
+    }
 
     /* If index is invalid then report error */
     if (index == nullptr) {

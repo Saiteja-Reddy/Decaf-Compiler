@@ -1,21 +1,14 @@
 class Program{
 
-	void ab(boolean c)
-	{
-		int b;
-		b =1;
-		if((b == 1) && (c == true))
-		{
-			callout("printf","there %d\n", 121);
-		}
-	}
+	int a[10];
 
 	void main()
 	{
-		int result;
-		result += 12;
-		ab(true);
-
+		for i=0, 10
+		{
+			a[i] = i;
+		}
+		callout("printf", "%d printed\n", a[4]);
 	}
 
 }

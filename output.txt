@@ -1,40 +1,32 @@
 ; ModuleID = 'Decaf compiler'
 source_filename = "Decaf compiler"
 
-@0 = private unnamed_addr constant [10 x i8] c"there %d\0A\00"
+@a = global [10 x i32] zeroinitializer
+@0 = private unnamed_addr constant [12 x i8] c"%d printed\0A\00"
 
-define void @ab(i1 %c) {
+define void @main() {
 entry:
-  %b = alloca i32
-  %c1 = alloca i1
-  store i1 %c, i1* %c1
-  store i32 0, i32* %b
-  %0 = load i32, i32* %b
-  store i32 1, i32* %b
-  %1 = load i32, i32* %b
-  %equalcomparetmp = icmp eq i32 %1, 1
-  %2 = load i1, i1* %c1
-  %equalcomparetmp2 = icmp eq i1 %2, true
-  %3 = and i1 %equalcomparetmp, %equalcomparetmp2
-  br i1 %3, label %if, label %ifcont
+  %i = alloca i32
+  store i32 0, i32* %i
+  br label %loop
 
-if:                                               ; preds = %entry
-  %4 = call i32 @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @0, i32 0, i32 0), i32 121)
-  br label %ifcont
+loop:                                             ; preds = %loop, %entry
+  %i1 = phi i32 [ 0, %entry ], [ %NextVal, %loop ]
+  %0 = load i32, i32* %i
+  %1 = load i32, i32* %i
+  %a_Index = getelementptr [10 x i32], [10 x i32]* @a, i32 0, i32 %1
+  %2 = load i32, i32* %a_Index
+  store i32 %0, i32* %a_Index
+  %i2 = load i32, i32* %i
+  %NextVal = add i32 %i2, 1
+  store i32 %NextVal, i32* %i
+  %loopcondition = icmp slt i32 %NextVal, 10
+  br i1 %loopcondition, label %loop, label %afterloop
 
-ifcont:                                           ; preds = %if, %entry
+afterloop:                                        ; preds = %loop
+  %3 = load i32, i32* getelementptr inbounds ([10 x i32], [10 x i32]* @a, i32 0, i32 4)
+  %4 = call i32 @printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @0, i32 0, i32 0), i32 %3)
   ret void
 }
 
 declare i32 @printf(i8*, i32)
-
-define void @main() {
-entry:
-  %result = alloca i32
-  store i32 0, i32* %result
-  %0 = load i32, i32* %result
-  %addEqualToTmp = add i32 %0, 12
-  store i32 %addEqualToTmp, i32* %result
-  call void @ab(i1 true)
-  ret void
-}
