@@ -563,6 +563,11 @@ class Expr: public ASTnode {
     }
 
     // virtual Value* Codegen();
+    virtual Value* Codegen_check_return()
+    {
+        return nullptr;
+    }
+
 };
 
 class BinExpr: public Expr {
@@ -1430,6 +1435,8 @@ class meth_call: public Statement, public Expr {
     }
 
     virtual Value* Codegen();
+    
+    virtual Value* Codegen_check_return();
 
 };
 

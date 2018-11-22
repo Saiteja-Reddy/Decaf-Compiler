@@ -1,64 +1,26 @@
 ; ModuleID = 'Decaf compiler'
 source_filename = "Decaf compiler"
 
-@0 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
-@1 = private unnamed_addr constant [30 x i8] c"%d th fibonacci number is %d\0A\00"
-
-define i32 @fib(i32 %n) {
-entry:
-  %n1 = alloca i32
-  store i32 %n, i32* %n1
-  %0 = load i32, i32* %n1
-  %lecomparetmp = icmp sle i32 %0, 1
-  br i1 %lecomparetmp, label %if, label %ifcont
-
-if:                                               ; preds = %entry
-  ret i32 1
-
-ifcont:                                           ; preds = %entry
-  %1 = load i32, i32* %n1
-  %subtmp = sub i32 %1, 1
-  %2 = call i32 @fib(i32 %subtmp)
-  %3 = load i32, i32* %n1
-  %subtmp2 = sub i32 %3, 2
-  %4 = call i32 @fib(i32 %subtmp2)
-  %addtmp = add i32 %2, %4
-  ret i32 %addtmp
-  ret i32 %addtmp
-}
+@0 = private unnamed_addr constant [10 x i8] c"there %d\0A\00"
 
 define void @main() {
 entry:
-  %i = alloca i32
-  %hell = alloca i32
   %result = alloca i32
   store i32 0, i32* %result
-  store i32 0, i32* %hell
-  %0 = load i32, i32* %hell
-  store i32 65, i32* %hell
-  store i32 1, i32* %i
-  br label %loop
-
-loop:                                             ; preds = %loop, %entry
-  %i1 = phi i32 [ 1, %entry ], [ %NextVal, %loop ]
-  %1 = load i32, i32* %i
-  %2 = call i32 @fib(i32 %1)
-  %3 = load i32, i32* %result
-  %addEqualToTmp = add i32 %3, %2
+  %0 = load i32, i32* %result
+  %addEqualToTmp = add i32 %0, 12
   store i32 %addEqualToTmp, i32* %result
-  %4 = load i32, i32* %hell
-  %negtmp = sub i32 0, %4
-  %5 = call i32 @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %negtmp)
-  %6 = load i32, i32* %i
-  %7 = load i32, i32* %result
-  %8 = call i32 bitcast (i32 (i8*, i32)* @printf to i32 (i8*, i32, i32)*)(i8* getelementptr inbounds ([30 x i8], [30 x i8]* @1, i32 0, i32 0), i32 %6, i32 %7)
-  %i2 = load i32, i32* %i
-  %NextVal = add i32 %i2, 1
-  store i32 %NextVal, i32* %i
-  %loopcondition = icmp slt i32 %NextVal, 5
-  br i1 %loopcondition, label %loop, label %afterloop
+  %1 = load i32, i32* %result
+  %equalcomparetmp = icmp eq i32 %1, 1
+  br i1 %equalcomparetmp, label %if, label %ifcont
 
-afterloop:                                        ; preds = %loop
+if:                                               ; preds = %entry
+  %2 = load i32, i32* %result
+  %addtmp = add i32 121, %2
+  %3 = call i32 @printf(i8* getelementptr inbounds ([10 x i8], [10 x i8]* @0, i32 0, i32 0), i32 %addtmp)
+  br label %ifcont
+
+ifcont:                                           ; preds = %if, %entry
   ret void
 }
 
