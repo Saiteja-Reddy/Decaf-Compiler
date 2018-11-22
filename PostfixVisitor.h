@@ -1,8 +1,5 @@
 #include "ast.h"
 
-int find_init(string op);
-int find_strs(string op);
-
 class PostFixVisitor: public ASTvisitor {
     public:
 
@@ -96,13 +93,8 @@ class PostFixVisitor: public ASTvisitor {
         class var_decs* var_decl = node.get_var_decs();
         var_decl->accept(*this);
         
-        node.init_mymap(var_decl);
-        // cout << "\n inside block declared vars\n ";
-        // node.print_scope_map();
 
-        
         class Statements *statements_list = node.get_states();
-        statements_list->set_scope_map(node.scope_map);
         statements_list->accept(*this, type, meth_name);  
         
         // cout << "statement decs ";
@@ -116,15 +108,12 @@ class PostFixVisitor: public ASTvisitor {
 
         class var_decs* var_decl = node.get_var_decs();
         var_decl->accept(*this);
-        
-        node.init_mymap(var_decl);
-        // node.print_mymap();
-        // node.print_scope_map();
+
 
         // cout << "vars decs ";
         
         class Statements *statements_list = node.get_states();
-        statements_list->set_scope_map(node.scope_map);
+
         statements_list->accept(*this);  
         
         // cout << "statement decs ";
@@ -157,7 +146,6 @@ class PostFixVisitor: public ASTvisitor {
         args->accept(*this);
         // cout << " - ";
         class Block *body = node.getBlock();
-        body->add_to_mymap(args->arg_list);
         body->accept(*this, node.getType(), node.getName());
     
     }      
@@ -193,14 +181,14 @@ class PostFixVisitor: public ASTvisitor {
             else
                 i->accept(*this);
         }
-        if(checked == 1 and type == "void")
-        {
-            cout << "ERROR: Method " << meth_name << " must not return a value\n";
-        }
-        else if(checked == 0 and type != "void")
-        {
-            cout << "ERROR: Method " << meth_name << " must return a value of type " << type << "\n";
-        }
+        // if(checked == 1 and type == "void")
+        // {
+        //     cout << "ERROR: Method " << meth_name << " must not return a value\n";
+        // }
+        // else if(checked == 0 and type != "void")
+        // {
+        //     cout << "ERROR: Method " << meth_name << " must return a value of type " << type << "\n";
+        // }
 
     }    
 
@@ -210,8 +198,6 @@ class PostFixVisitor: public ASTvisitor {
         vector<class Statement *> statements_list = node.getList();
         for(auto& i: statements_list)
         {
-                // cout << " Working 1223\n";
-                // i->print_scope_map();
                 i->accept(*this);
         }                   
     }                 
@@ -243,10 +229,8 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(meth_call& node) 
     {
         // cout << "meth_call " << " declared\n";
-        // node.print_meth_call_scope_map();
         // cout << node.getName() << "(";
         class Parameters* params = node.getParams();
-        params->set_scope_map(node.meth_call_scope_map);
         params->accept(*this);
         // cout << ")";
     }     
@@ -257,27 +241,6 @@ class PostFixVisitor: public ASTvisitor {
         class Expr *lhs = node.getLhs();
         class Expr *rhs = node.getRhs();
         string op = node.getOp();
-
-        lhs->set_scope_map(node.scope_map);
-        rhs->set_scope_map(node.scope_map);
-
-        int a = lhs->getEdata();
-        int b = rhs->getEdata();
-
-        if(find_init(op))
-        {
-            if(a != ::integer || b!= ::integer)
-            {
-                cout << "Error" << ": Both sides of " << op << " must be int.\n";
-            }
-        }
-        else if(find_strs(op))
-        {
-            if(!((a == ::integer && b== ::integer) || (a == ::boolean && b== ::boolean)))
-            {
-                cout << "Error: Both sides of " << op << " must be int or boolean.\n"; 
-            }
-        }
 
         if(lhs->check_meth_call)
             lhs->check_accept(*this);
@@ -305,8 +268,6 @@ class PostFixVisitor: public ASTvisitor {
             cout << "ERROR: Unary Operator must have only boolean type. \n";
         }        
         
-        expr->set_scope_map(node.scope_map);
-
         // cout << op;
 
         if(expr->check_meth_call)
@@ -320,7 +281,6 @@ class PostFixVisitor: public ASTvisitor {
     {
         // cout << "EncExpr " << " declared\n";
         class Expr *expr = node.getexpr();
-        expr->set_scope_map(node.scope_map);        
         // cout << "(";
         if(expr->check_meth_call)
             expr->check_accept(*this);
@@ -336,9 +296,7 @@ class PostFixVisitor: public ASTvisitor {
         // cout << params.size() ;
         for(auto& i: params)
         {
-            // i->set_scope_map(node.scope_map);
             i->accept(*this);
-            // cout << ",";
         }                  
 
     }
@@ -393,8 +351,6 @@ class PostFixVisitor: public ASTvisitor {
         if(node.has_return())
         {
             class Expr * ret = node.getRet();
-            ret->set_scope_map(node.scope_map);
-            // ret->print_scope_map();
             ret->accept(*this);
         }
         // cout << "; ";
@@ -404,23 +360,17 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(forState& node) 
     {
         // cout << " forState " << " declared ";
-        node.add_scope_map(node.var, "int");
-        // node.print_scope_map();
         // cout << " for " << node.getVar() << ": ";
         class Expr * init = node.getInit();
-        init->set_scope_map(node.scope_map);
 
         class Expr * end_cond = node.getEnd();
-        end_cond->set_scope_map(node.scope_map);
 
         class Block* body = node.getBody();
-        body->set_scope_map(node.scope_map);
 
         init->accept(*this);
         // cout << " - ";
         end_cond->accept(*this);
         // cout << "{";
-        body->add_to_mymap(node.scope_map);
         body->accept(*this);
         // cout << "Here";
         // cout << "} ";
@@ -430,17 +380,13 @@ class PostFixVisitor: public ASTvisitor {
     virtual void visit(ifElseState& node) 
     {
         // cout << " ifElseState " << " declared ";
-        // node.print_scope_map();
         // cout << " if(";
         class Expr* cond = node.getCond();
         class Block* if_block = node.getIf();
         class Block* else_block = node.getElse();
         cond->accept(*this);
         // cout << "){";
-        
-        if_block->add_to_mymap(node.scope_map);
-        if_block->add_scope_map(node.scope_map);
-        // if_block->print_scope_map();
+
 
         // cout << "\n if block accepted\n";
         if_block->accept(*this);
@@ -448,10 +394,6 @@ class PostFixVisitor: public ASTvisitor {
         // cout << "} ";
         if(node.getElsePre())
         {
-            // cout <<"else {";
-            else_block->add_scope_map(node.scope_map);
-            else_block->add_to_mymap(node.scope_map);
-            // else_block->print_scope_map();
 
             else_block->accept(*this);
 
@@ -481,62 +423,12 @@ class PostFixVisitor: public ASTvisitor {
         // cout << " Assign " << " declared ";
         class Location *loc = node.getLoc();
         class Expr * exp = node.getRet();
-        map <string, int> exp_map = exp->expr_map;
-        loc->set_scope_map(node.scope_map);
         loc->accept(*this);
-        cout << node.getOp();
-        exp->set_scope_map(node.scope_map);
+        // cout << node.getOp();
         // cout << "working 123\n";
-        // exp->print_scope_map();
 
         exp->accept(*this);
-
-        // cout << " ";   
-        for(auto& i: exp_map)
-        {
-            string type = "int";
-            if(i.second == 1)
-            {
-                type = "boolean";
-            }
-
-            if(!(node.scope_map.count(i.first)) && !(global_map.count(i.first))  )
-            {
-                cout << "\nERROR : Variable '" << i.first << "' used before declared. \n";
-            }
-
-        }
-
-        exprData type_lhs = loc->getEdata();
-        exprData type_rhs = exp->getEdata();
-
-        if(type_lhs != type_rhs)
-            cout << "ERROR: both sides of Assign operator must have same type!";
-
         
     }   
 
 };
-
-
-int find_init(string op)
-{
-    string init[] = {"+", "-", "*", "/", "%", ">", "<", "<=", ">="};
-    for(int i=0; i<9; i++)
-    {
-        if(op == init[i])
-            return 1;
-    }
-    return 0;
-}
-
-int find_strs(string op)
-{
-    string strs[] = { "==", "!="};
-    for(int i=0; i<2; i++)
-    {
-        if(op == strs[i])
-            return 1;
-    }
-    return 0;        
-}

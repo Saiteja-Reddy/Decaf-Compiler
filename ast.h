@@ -151,8 +151,6 @@ class ASTnode {
      virtual Value* Codegen();
 };
 
-map <string, string> check_in_scope(string name, map <string, string> mymap);
-
 class ProgramASTnode: public ASTnode {
     string name;
 
@@ -338,33 +336,12 @@ class FieldDec: public ASTnode {
 class FieldDecList: public ASTnode {
     
     vector<class FieldDec *> declaration_list;
-    map <string, string> mymap;
 
     public:
 
     FieldDecList() {
         // cout << " Field Dec Lis\n";
     };
-
-    void getMap()
-    {
-        // cout << test_var << endl;
-        for(auto& i: declaration_list)
-        {
-            vector <string> now_list = i->getVarNames();
-            for(auto& j: now_list)
-            {
-                string type = i->datatype;
-                // cout << i->getType() << " - " << j << endl;
-                if(mymap.count(j) || methods_decs_map.count(j))
-                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
-                mymap[j] = type;
-                global_map[j] = type;
-
-                // cout << "added global map - " << j << endl;
-            }
-        }
-    }
 
     vector<class FieldDec *> getList()
     {
@@ -378,7 +355,6 @@ class FieldDecList: public ASTnode {
 
     virtual void accept(ASTvisitor& v)
     {
-        getMap();
         v.visit(*this);
     }
 
@@ -405,9 +381,6 @@ class Expr: public ASTnode {
     
     exprType etype;
     exprData edata;
-    map <string, int> expr_map;
-    map <string, string> scope_map;
-    map <string, string> meth_call_scope_map;
     int check_meth_call;
 
     Expr() { edata = ::def; check_meth_call = 0;};
@@ -416,72 +389,9 @@ class Expr: public ASTnode {
     exprType getEtype() { return etype; }
     exprData getEdata() { return edata; }
 
-    void set_scope_map(map <string, string> in_map)
-    {
-        if(check_meth_call)
-        {
-            for(auto& i: in_map)
-            {
-                meth_call_scope_map[i.first] = i.second;
-            }
-        }
-
-        for(auto& i: in_map)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }
-
-    void print_meth_call_scope_map()
-    {
-        cout << "\n\nState Map in Expr\n";
-        for(auto& i: meth_call_scope_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "State Map done\n\n";
-    }
-
-
-    void print_scope_map()
-    {
-        cout << "\n\nState Map in Expr\n";
-        for(auto& i: scope_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "State Map done\n\n";
-    }
-
-    void add_scope_map(string name, string type)
-    {
-        scope_map[name] = type;
-    }    
-
-    void add_scope_map(map <string, string> now)
-    {
-        for(auto& i: now)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }        
-
     void setEdata(exprData now) 
     {
         edata = now;
-    }
-
-    void add_to_expr_map(string name, int type)
-    {
-        expr_map[name] = type;
-    }
-
-    void print_expr_map()
-    {
-        for(auto& i: expr_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
     }
 
     string getExpData()
@@ -582,17 +492,6 @@ class BinExpr: public Expr {
         lhs = lhss;
         rhs = rhss;
         op = ops;
-        map <string, int> now_map = lhss->expr_map;
-        for(auto& i: now_map)
-        {
-            add_to_expr_map(i.first, i.second);
-        }
-        now_map = rhss->expr_map;
-        for(auto& i: now_map)
-        {
-            add_to_expr_map(i.first, i.second);
-        }
-
     }
 
     class Expr * getLhs() { return lhs; }
@@ -615,13 +514,7 @@ class UnExpr: public Expr {
     UnExpr(string ops, class Expr *exps)
     {
         exp = exps;
-        op = ops;
-
-        map <string, int> now_map = exps->expr_map;
-        for(auto& i: now_map)
-        {
-            add_to_expr_map(i.first, i.second);
-        }        
+        op = ops;    
     }
 
     class Expr * getExp() { return exp; }
@@ -643,11 +536,6 @@ class EncExpr: public Expr {
     EncExpr(class Expr *expr1)
     {
         expr = expr1;
-        map <string, int> now_map = expr1->expr_map;
-        for(auto& i: now_map)
-        {
-            add_to_expr_map(i.first, i.second);
-        }
     }
 
     class Expr * getexpr() { return expr; }
@@ -774,8 +662,6 @@ class Statement: public ASTnode {
     stmtType stype;
     int check_control;
     int check_return;
-    map <string, string> scope_map;
-    map <string, int> var_map;
 
     Statement()
     {
@@ -789,47 +675,6 @@ class Statement: public ASTnode {
         stype = ::NonReturn;
         check_return = 0;
         check_control = check_control1;
-    }
-
-    void set_scope_map(map <string, string> in_map)
-    {
-        for(auto& i: in_map)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }
-
-    void print_scope_map()
-    {
-        cout << "\n\nState Map\n";
-        for(auto& i: scope_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "State Map done\n\n";
-    }
-
-    void add_scope_map(string name, string type)
-    {
-        scope_map[name] = type;
-    }
-
-    void add_scope_map(map <string, string> now)
-    {
-        for(auto& i: now)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }      
-
-    void set_var_map(map <string, int> in_map)
-    {
-        var_map = in_map;
-    }
-
-    void add_to_var_map(string name, int type)
-    {
-        var_map[name] = type;
     }
     
     virtual void setReturn() 
@@ -877,22 +722,6 @@ class Statements: public ASTnode {
     bool has_break();
     bool has_continue();
 
-    void set_var_map(map <string, int> in_map)
-    {
-        for(auto& i: statements_list)
-        {
-            i->set_var_map(in_map);
-        }
-    }
-
-    void set_scope_map(map <string, string> in_map)
-    {
-        for(auto& i: statements_list)
-        {
-            i->set_scope_map(in_map);
-        }
-    }    
-
     void push_back(class Statement *state)
     {
         if(state->check_control)
@@ -928,65 +757,15 @@ class Block: public Statement {
 
     class Statements *statements_list;
 
-    map <string, string> mymap;
-
-    map <string, string> scope_map;
-
-
     Block() {
         statements_list = NULL;
     };
-
-    void init_mymap(class var_decs * decs); // in ast.cpp
-    void add_to_mymap(map <string, string> in_map);
-
-    void print_mymap()
-    {
-        cout << "\n\nBlock Map\n";
-        for(auto& i: mymap)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "Block Map done\n\n";
-    }
 
     Block(class var_decs * decs, class Statements *states)
     {
         declarations_list = decs;
         statements_list = states;
     }
-
-
-    void set_scope_map(map <string, string> in_map)
-    {
-        for(auto& i: in_map)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }
-
-    void add_scope_map(map <string, string> now)
-    {
-        for(auto& i: now)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }  
-
-    void print_scope_map()
-    {
-        cout << "\n\nState Map\n";
-        for(auto& i: scope_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "State Map done\n\n";
-    }
-
-    void add_scope_map(string name, string type)
-    {
-        scope_map[name] = type;
-    }    
 
     // virtual boolean hasReturn() {return stype == ::NonReturn;};
 
@@ -1105,7 +884,6 @@ class var_decs: public ASTnode {
     public:
 
     vector<class var_dec *> var_decs_list;
-    map <string, string> mymap;
 
     var_decs() {};
 
@@ -1119,28 +897,9 @@ class var_decs: public ASTnode {
         var_decs_list.push_back(arg);
     }
 
-    void getMap()
-    {
-        for(auto& i: var_decs_list)
-        {
-            string type = i->type;
-            vector <string> now_list = i->getVarNames();
-            for(auto& j: now_list)
-            {
-                // cout << i->getType() << " vardec - " << j << endl;
-                if(global_map.count(j))
-                    cout << "ERROR : Already defined the variable Globally - '" << j << "'" << endl; 
-                if(mymap.count(j))
-                    cout << "ERROR : Already defined the variable '" << j << "'" << endl; 
-                mymap[j] = type;
-            }
-        }
-
-    }   
 
     virtual void accept(ASTvisitor& v)
     {
-      getMap();
       v.visit(*this);
     }
 
@@ -1295,30 +1054,15 @@ class Parameters: public ASTnode {
     
     vector<class Expr *> params;
     vector<string> data_types;
-    map <string, int> expr_map;
 
     Parameters() {};
 
     void push_back(class Expr *E)
     {
         data_types.push_back(E->getExpData());
-        
-        map <string, int> now_map = E->expr_map;
-        for(auto& i: now_map)
-        {
-            expr_map[i.first] = i.second;
-        }
-
         params.push_back(E);
     }
 
-    void set_scope_map(map <string, string> in_map)
-    {
-        for(auto& i: params)
-        {
-            i->set_scope_map(in_map);
-        }
-    }        
 
     vector<class Expr *> getParams()
     {
@@ -1343,7 +1087,6 @@ class meth_call: public Statement, public Expr {
     
     string name;
     class Parameters* params;
-    map <string, string> scope_map;
 
     
     meth_call(){check_meth_call = 1;};
@@ -1384,35 +1127,9 @@ class meth_call: public Statement, public Expr {
             }
 
 
-            map <string, int> now_map = params1->expr_map;
-            for(auto& i: now_map)
-            {
-                add_to_expr_map(i.first, i.second);
-            }
-
-            // print_expr_map();  
-
         }
         else
             cout << "ERROR: Method " << name << " is not defined before use.\n";
-    }
-
-    void set_scope_map(map <string, string> in_map)
-    {
-        for(auto& i: in_map)
-        {
-            scope_map[i.first] = i.second;
-        }
-    }
-
-    void print_scope_map()
-    {
-        cout << "\n\nState Map\n";
-        for(auto& i: scope_map)
-        {
-            cout << i.first <<  "  ---- " << i.second << endl;
-        }
-        cout << "State Map done\n\n";
     }
 
     string getName() {  return name;    }
@@ -1758,7 +1475,6 @@ class Location: public Expr {
             var = vars;
             location_type = ::variable; 
             etype = ::location;
-            add_to_expr_map(vars, 0);
     };
 
     Location(string vars, class Expr *array_indexs)
@@ -1768,12 +1484,6 @@ class Location: public Expr {
             array_index = array_indexs;
             etype = ::location;
             check_array_index();
-            add_to_expr_map(vars, 1);
-            map <string, int> now_map = array_indexs->expr_map;
-            for(auto& i: now_map)
-            {
-                add_to_expr_map(i.first, i.second);
-            }
     }
 
     void check_array_index()
@@ -1793,23 +1503,6 @@ class Location: public Expr {
 
     virtual void accept(ASTvisitor& v)
     {
-
-        map <string, string> out = check_in_scope(var,scope_map);
-        if(out["name"] != "")
-        {
-            if(out["type"] == "int")
-                setEdata(::integer);
-            else if(out["type"] == "boolean")
-                setEdata(::boolean);
-            else
-                setEdata(::mixed);
-        }
-        else
-        {
-            setEdata(::mixed);
-            cout << "ERROR: Variable " << var << " not defined.\n";
-        }
-
       v.visit(*this);
     }
 
