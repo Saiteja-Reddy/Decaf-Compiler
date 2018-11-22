@@ -1404,6 +1404,7 @@ class returnState: public Statement {
     returnState(): Statement()
     {
         setReturn();
+        ret = nullptr;
         return_type = "none";
     }
 
@@ -1418,15 +1419,15 @@ class returnState: public Statement {
       v.visit(*this);
     }
 
-    virtual void accept(ASTvisitor& v, string type, string meth_name)
-    {
-      if(type != return_type)
-      {
-        errors_IR++;
-        cout << "ERROR: expected method " << meth_name << " to return of type " << type << endl;
-      }
-      v.visit(*this);
-    }
+    // virtual void accept(ASTvisitor& v, string type, string meth_name)
+    // {
+    //   if(type != return_type)
+    //   {
+    //     errors_IR++;
+    //     cout << "ERROR: expected method " << meth_name << " to return of type " << type << endl;
+    //   }
+    //   v.visit(*this);
+    // }
 
     virtual Value* Codegen();
 

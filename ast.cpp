@@ -322,7 +322,7 @@ Value *BinExpr::Codegen() {
         return reportError("Error in right operand of " + op);
     }
 
-    if( op!= "==" && op!= "!=" && !(left->getType()->isIntegerTy(32) && right->getType()->isIntegerTy(32)))
+    if( op!= "==" && op!= "!=" && op != "&&" && op != "||" && !(left->getType()->isIntegerTy(32) && right->getType()->isIntegerTy(32)))
     {
         errors_IR++;
         return reportError("Error: operand " + op + " must have integers on both sides");
@@ -365,12 +365,12 @@ Value *BinExpr::Codegen() {
     } else if (op == "!=") {
         v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
     }
-    // else if (op == "||") {
-    //     v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
-    // } 
-    // else if (op == "&&") {
-    //     v = Builder.CreateICmpNE(left, right, "notequalcomparetmp");
-    // }     
+    else if (op == "||") {
+        return Builder.Insert(BinaryOperator::Create(Instruction::Or, left, right, "binaryor"));
+    } 
+    else if (op == "&&") {
+        return Builder.Insert(BinaryOperator::Create(Instruction::And, left, right, "binaryand"));
+    }     
     return v;
 }
 
@@ -408,6 +408,7 @@ Value *returnState::Codegen() {
         Builder.CreateRet(V);
         return V;
     }
+    cout << "here generated void return \n";
     Builder.CreateRetVoid();
     return V;
 }
