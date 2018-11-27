@@ -1141,11 +1141,12 @@ class meth_call: public Statement, public Expr {
 
     virtual void check_accept(ASTvisitor& v)
     {
-      if(methods_decs_return[name] == "void")
-      {
-        // errors_IR++;
-        cout << "\nERROR: Method Call " << name << " must not return a value for expr.\n";
-      }
+      // if(methods_decs_return[name] == "void")
+      // {
+      //   // errors_IR++;
+      //   cout << "\nERROR: Method Call " << name << " must not return a value for expr.\n";
+      // }
+      
       v.visit(*this);
     }
 
