@@ -8,17 +8,15 @@ class Program
 	int fin;
 
 	void main()
-	{
-		callout("printf", "Enter the number: ");
-		
-		n = scanInt();
+	{		
+		n = 12;
 
 		flag = 0;
-		fin = n-1;
+		fin = n - 1;
 
 		if (n <= 1)
 		{
-				callout("printf", "Enter the number between 2 and inf\n");
+				callout("printf", "Use the numbers between 2 and inf\n");
 		}
 		else
 		{

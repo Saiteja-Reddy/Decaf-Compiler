@@ -3,24 +3,24 @@ class Program{
 	 {
 		if(x == y)
 		{
-			return [x];
+			return x;
 		}
 		else
 		{
 			if(x < y)
 			{
-				return [gcd(x, y - x)];
+				return gcd(x, y - x);
 			}
 			else
 			{
-				return [gcd(x - y, y)];
+				return gcd(x - y, y);
 			}
 		}
 	}
 	void main()
 	{
 		int a;
-		a = gcd(6,12);
-		callout("printf","gcd is %d\n",a);
+		a = gcd(3,12);
+		callout("printf","gcd of %d and %d is %d\n",3, 12, a);
 	}
 }

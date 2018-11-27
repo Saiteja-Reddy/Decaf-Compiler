@@ -6,6 +6,13 @@ class Program
 	int n;
 	int temp;
 
+	int scanInt()
+	{
+		int c;
+		c = callout("read_integer");
+		return c;
+	}
+
 	void main()
 	{
 		callout("printf", "Enter the number of elements in the array: ");
@@ -14,7 +21,7 @@ class Program
 
 		callout("printf", "Enter the elements in the array: \n");
 
-		for i = 1, n
+		for i = 0, n
 		{
 			arr[i] = scanInt();
 		}
@@ -23,13 +30,12 @@ class Program
 		
 		temp = 0;
 
-		for i = 1, n
+		for i = 0, n
 		{
 			temp += arr[i];
 		}
 
 		callout("printf", "%d\n", temp);
-		return;
 
 	}
 

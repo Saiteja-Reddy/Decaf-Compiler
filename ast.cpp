@@ -132,14 +132,14 @@ Value* ProgramASTnode::Codegen()
     if (V == nullptr)
     {
         errors_IR++;
-        generateError("Invalid field Declarations");
+        generateError("ERROR: Invalid field Declarations");
         return nullptr;
     }
     V = methods->Codegen();
     if (V == nullptr)
     {
         errors_IR++;
-        generateError("Invalid method Declarations");
+        generateError("ERROR: Invalid method Declarations");
         return nullptr;
     }       
     return V;
@@ -176,7 +176,7 @@ Value* meth_dec::Codegen()
             arguments.push_back(Type::getInt1Ty(Context));
         } else {
             errors_IR++;
-            generateError("Arguments can only be int or boolean");
+            generateError("ERROR: Arguments can only be int or boolean");
             return nullptr;
         }
         argTypes.emplace_back(arg_type);
@@ -192,7 +192,7 @@ Value* meth_dec::Codegen()
         returnType = Type::getVoidTy(Context);
     } else {
         errors_IR++;
-        generateError("Invalid Return Type for " + name + ". Return Type can only be int or boolean or bool");
+        generateError("ERROR: Invalid Return Type for " + name + ". Return Type can only be int or boolean or bool");
         return nullptr;
     } 
 
@@ -226,7 +226,7 @@ Value* meth_dec::Codegen()
         if(return_type == "boolean" or return_type == "int")
         {
             errors_IR++;
-            generateError("Invalid Return Type for " + name + ". Return Type can only be " + return_type + " as defined");
+            generateError("ERROR: Invalid Return Type for " + name + ". Return Type can only be " + return_type + " as defined");
         }    
 
         verifyFunction(*F);
@@ -242,7 +242,7 @@ Value* meth_dec::Codegen()
             // if(RetVal->getType()->isIntegerTy(32) || RetVal->getType()->isIntegerTy(32))
             // {
             //     errors_IR++;
-            //     generateError("Invalid Return Type for " + name + ". Return Type can only be void as defined");
+            //     generateError("ERROR: Invalid Return Type for " + name + ". Return Type can only be void as defined");
             //     return nullptr;
             // }
 
@@ -252,14 +252,14 @@ Value* meth_dec::Codegen()
             if(!RetVal->getType()->isIntegerTy(32) and return_type == "int")
             {
                 errors_IR++;
-                generateError("Invalid Return Type for " + name + ". Return Type can only be int as defined");
+                generateError("ERROR: Invalid Return Type for " + name + ". Return Type can only be int as defined");
                 return nullptr;
             }
 
             if(!RetVal->getType()->isIntegerTy(1) and return_type == "boolean")
             {
                 errors_IR++;                
-                generateError("Invalid Return Type for " + name + ". Return Type can only be int as defined");
+                generateError("ERROR: Invalid Return Type for " + name + ". Return Type can only be int as defined");
                 return nullptr;
             }       
 
@@ -364,13 +364,13 @@ Value* meth_call::Codegen()
     Function *calle = TheModule->getFunction(name);
     if (calle == nullptr) {
         errors_IR++;
-        return generateError("Unknown Function name" + name);
+        return generateError("ERROR: Unknown Function name" + name);
     }
 
     vector<class Expr *> args_list = params->getParams();
     if (calle->arg_size() != args_list.size()) {
         errors_IR++;
-        return generateError("Incorrect Number of Parameters Passed");
+        return generateError("ERROR: Incorrect Number of Parameters Passed");
     }
     
     FunctionType *FTy = calle->getFunctionType();
@@ -390,13 +390,13 @@ Value* meth_call::Codegen()
         }
         if (argVal == nullptr) {
             errors_IR++;
-            generateError("Argument is not valid");
+            generateError("ERROR: Argument is not valid");
         }
 
         if(argVal->getType() != FTy->getParamType(i))
         {
             errors_IR++;
-            return generateError("Incorrect type found in passing " + name + " function parameters");
+            return generateError("ERROR: Incorrect type found in passing " + name + " function parameters");
         }
 
     }
@@ -409,7 +409,7 @@ Value* meth_call::Codegen()
         }
         if (argVal == nullptr) {
             errors_IR++;
-            generateError("Argument is not valid");
+            generateError("ERROR: Argument is not valid");
         }
         Args.push_back(argVal);
     }
@@ -436,29 +436,29 @@ Value *BinExpr::Codegen() {
     }
     if (left == 0) {
         errors_IR++;
-        return generateError("Error in left operand of " + op);
+        return generateError("ERROR: Error in left operand of " + op);
     } else if (right == 0) {
         errors_IR++;
-        return generateError("Error in right operand of " + op);
+        return generateError("ERROR: Error in right operand of " + op);
     }
 
     if( op!= "==" && op!= "!=" && op != "&&" && op != "||" && !(left->getType()->isIntegerTy(32) && right->getType()->isIntegerTy(32)))
     {
         errors_IR++;
-        return generateError("Error: operand " + op + " must have integers on both sides");
+        return generateError("ERROR: operand " + op + " must have integers on both sides");
     }
 
     if((op == "==" || op== "!=") && !((left->getType()->isIntegerTy(32) == right->getType()->isIntegerTy(32)) || (left->getType()->isIntegerTy(1) == right->getType()->isIntegerTy(1)) ))
     {
         errors_IR++;
-        return generateError("Error: operand " + op + " must have either integers/booleans on both sides");
+        return generateError("ERROR: operand " + op + " must have either integers/booleans on both sides");
     }
 
 
     if( (op== "||" || op== "&&") && !(left->getType()->isIntegerTy(1) && right->getType()->isIntegerTy(1)))
     {
         errors_IR++;
-        return generateError("Error: operand " + op + " must have booleans on both sides");
+        return generateError("ERROR:  operand " + op + " must have booleans on both sides");
     }    
 
     Value *v = nullptr;
@@ -506,7 +506,7 @@ Value *UnExpr::Codegen() {
     if(!(v->getType()->isIntegerTy(1)))
     {
         errors_IR++;
-        return generateError("Error: operand " + op + " must have boolean.");
+        return generateError("ERROR:  operand " + op + " must have boolean.");
     } 
         return Builder.CreateNot(v, "notop");
 }
@@ -516,11 +516,11 @@ Value *breakState::Codegen() {
     loopInfo *currentLoop = loops->top();
     Builder.CreateBr(currentLoop->getAfterBlock());
 
-    cout << loops->size() << "loops size" <<endl;
+    // cout << loops->size() << "loops size" <<endl;
     if(loops->size() == 0)
     {
         errors_IR++;
-        return generateError("Error: break must be in for loop only.");
+        return generateError("ERROR: break must be in for loop only.");
     }
 
     return V;
@@ -536,7 +536,7 @@ Value *returnState::Codegen() {
         Builder.CreateRet(V);
         return V;
     }
-    cout << "here generated void return \n";
+    // cout << "here generated void return \n";
     Builder.CreateRetVoid();
     return V;
 }
@@ -545,7 +545,7 @@ Value *returnState::Codegen() {
 Value *calloutArg::Codegen() {
     if (expr == nullptr) {
         errors_IR++;
-        return generateError("Invalid Callout Arg");
+        return generateError("ERROR: Invalid Callout Arg");
     }
     Value *v = expr->Codegen();
     if (expr->getEtype() == ::location) {
@@ -576,7 +576,7 @@ Value *callout_call::Codegen() {
 
     if (!func) {
         errors_IR++;
-        return generateError("Error in inbuilt function. Unknown Function name " + name);
+        return generateError("ERROR:  in inbuilt function. Unknown Function name " + name);
     }
     Value *v = Builder.CreateCall(func, funcargs);
     return v;
@@ -615,7 +615,7 @@ Value *forState::Codegen() {
     if(!(start->getType()->isIntegerTy(32)))
     {
         errors_IR++;
-        return generateError("Error: For loop initial expr must have type integer");
+        return generateError("ERROR:  For loop initial expr must have type integer");
     }    
 
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
@@ -634,7 +634,7 @@ Value *forState::Codegen() {
     Value *cond = end_cond->Codegen();
     if (cond == nullptr) {
         errors_IR++;
-        return generateError("Invalid Condition");
+        return generateError("ERROR: Invalid Condition");
     }    
 
     if (end_cond->getEtype() == ::location) {
@@ -644,7 +644,7 @@ Value *forState::Codegen() {
     if(!(cond->getType()->isIntegerTy(32)))
     {
         errors_IR++;
-        return generateError("Error: For loop ending expr must have type integer");
+        return generateError("ERROR:  For loop ending expr must have type integer");
     }   
 
     loops->push(new loopInfo(afterBB, loop_body, cond, var, Variable));
@@ -679,13 +679,13 @@ Value *ifElseState::Codegen() {
     Value *cond = this->cond->Codegen();
     if (cond == nullptr) {
         errors_IR++;
-        return generateError("Invalid Expression in the IF");
+        return generateError("ERROR: Invalid Expression in the IF");
     }
 
     if(!cond->getType()->isIntegerTy(1))
     {
         errors_IR++;
-        return generateError("Condition in IF must be of boolean type");        
+        return generateError("ERROR: Condition in IF must be of boolean type");        
     }
 
     Function *TheFunction = Builder.GetInsertBlock()->getParent();
@@ -747,7 +747,7 @@ Value *ifElseState::Codegen() {
 
 Value *Location::invalidArrayIndex() {
     errors_IR++;
-    return generateError("Invalid array index");
+    return generateError("ERROR: Invalid array index");
 }
 
 Value *Location::Codegen() {
@@ -758,7 +758,7 @@ Value *Location::Codegen() {
     }
     if (V == nullptr) {
         errors_IR++;
-        return generateError("Unknown Variable name " + var);
+        return generateError("ERROR: Unknown Variable name " + var);
     }
 
     if (this->location_type == ::variable) {
@@ -772,7 +772,7 @@ Value *Location::Codegen() {
 
         if (!elementType->isArrayTy()) {
             errors_IR++;
-            return generateError("Unknown Array name " + var);                
+            return generateError("ERROR: Unknown Array name " + var);                
         }
     }        
 
@@ -812,7 +812,7 @@ Value *Assign::Codegen() {
     }
     if (cur == nullptr) {
         errors_IR++;
-        return generateError("Unknown Variable Name " + loc->getName());
+        return generateError("ERROR: Unknown Variable Name " + loc->getName());
     }
 
     Value *val = NULL;
@@ -828,20 +828,20 @@ Value *Assign::Codegen() {
 
     if (val == nullptr) {
         errors_IR++;
-        return generateError("Error in right hand side of the Assignment");
+        return generateError("ERROR: Error in right hand side of the Assignment");
     }
 
  
     if(!((cur->getType()->isIntegerTy(1) && val->getType()->isIntegerTy(1)) || (cur->getType()->isIntegerTy(32) && val->getType()->isIntegerTy(32)) ))
     {
         errors_IR++;
-        return generateError("Error both sides of assignment op " + op + " must have same type.");        
+        return generateError("ERROR:  both sides of assignment op " + op + " must have same type.");        
     }
 
     if( op != "=" && !(cur->getType()->isIntegerTy(32)) && !(val->getType()->isIntegerTy(32)) )
     {
         errors_IR++;
-        return generateError("Error both sides of assignment op " + op + " must be integer type.");        
+        return generateError("ERROR:  both sides of assignment op " + op + " must be integer type.");        
     }    
     
     if (op == "+=") {
@@ -879,7 +879,7 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
             V_test = NamedValues[var];
             // if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var);}
             
-            // if (V_test != nullptr) { errors_IR++; return generateError(" Variable " + var + " already declared"); }
+            // if (V_test != nullptr) { errors_IR++; return generateError("ERROR:  Variable " + var + " already declared"); }
 
             initval = ConstantInt::get(Context, APInt(32, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "int");
@@ -887,7 +887,7 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
 
             V_test = NamedValues[var];
             // if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var);}
-            if (V_test != nullptr) { errors_IR++; return generateError(" Variable " + var + " already declared"); }
+            if (V_test != nullptr) { errors_IR++; return generateError("ERROR: Variable " + var + " already declared"); }
 
             initval = ConstantInt::get(Context, APInt(1, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "boolean");
@@ -953,7 +953,7 @@ Value* FieldDec::Codegen()
         {
 
             V_test = TheModule->getNamedGlobal(var->getName());
-            if (V_test != nullptr) { errors_IR++; return generateError(" Variable " + var->getName() + " already declared"); }
+            if (V_test != nullptr) { errors_IR++; return generateError("ERROR:  Variable " + var->getName() + " already declared"); }
 
             ArrayType *arrType = ArrayType::get(ty, var->getLength());
             GlobalVariable *gv = new GlobalVariable(*(TheModule), arrType, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
@@ -963,7 +963,7 @@ Value* FieldDec::Codegen()
         else
         {
             V_test = TheModule->getNamedGlobal(var->getName());
-            if (V_test != nullptr) { errors_IR++; return generateError(" Variable " + var->getName() + " already declared"); }
+            if (V_test != nullptr) { errors_IR++; return generateError("ERROR:  Variable " + var->getName() + " already declared"); }
 
             GlobalVariable *gv = new GlobalVariable(*(TheModule), ty, false, GlobalValue::ExternalLinkage, nullptr, var->getName());
             gv->setInitializer(Constant::getNullValue(ty));
