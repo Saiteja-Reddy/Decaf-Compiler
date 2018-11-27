@@ -90,6 +90,7 @@ Value* meth_dec::Codegen()
     vector<string> argTypes;
 
     vector<class meth_arg *> args = arg_list->getList();
+    // reverse(args.begin(), args.end());
 
     vector<Type *> arguments;
 
@@ -146,9 +147,9 @@ Value* meth_dec::Codegen()
 
     Value *RetVal = body->Codegen();
     if (RetVal) {
-        if (return_type != "void")
-            Builder.CreateRet(RetVal);
-        else
+        if (return_type == "void")
+            // Builder.CreateRet(RetVal);
+        // else
             Builder.CreateRetVoid();
 
         verifyFunction(*F);
@@ -186,65 +187,65 @@ Value* Statements::Codegen()
     return v;
 }
 
-Value* meth_call::Codegen_check_return()
-{
+// Value* meth_call::Codegen_check_return()
+// {
 
-    Function *calle = TheModule->getFunction(name);
-    if (calle == nullptr) {
-        errors_IR++;
-        return reportError("Unknown Function name" + name);
-    }
-    /* Check if required number of parameters are passed */
-    vector<class Expr *> args_list = params->getParams();
-    if (calle->arg_size() != args_list.size()) {
-        errors_IR++;
-        return reportError("Incorrect Number of Parameters Passed");
-    }
+//     Function *calle = TheModule->getFunction(name);
+//     if (calle == nullptr) {
+//         errors_IR++;
+//         return reportError("Unknown Function name" + name);
+//     }
+//     /* Check if required number of parameters are passed */
+//     vector<class Expr *> args_list = params->getParams();
+//     if (calle->arg_size() != args_list.size()) {
+//         errors_IR++;
+//         return reportError("Incorrect Number of Parameters Passed");
+//     }
     
-    FunctionType *FTy = calle->getFunctionType();
+//     FunctionType *FTy = calle->getFunctionType();
 
-    if(calle->getReturnType()->isVoidTy())
-    {
-        errors_IR++;
-        reportError("Function " + name + " must return a value for Expr");
-    }
+//     if(calle->getReturnType()->isVoidTy())
+//     {
+//         errors_IR++;
+//         reportError("Function " + name + " must return a value for Expr");
+//     }
 
-    for(int i=0; i<args_list.size(); i++)
-    {
-        Value *argVal = args_list[i]->Codegen();
-        if (args_list[i]->getEtype() == ::location) {
-            argVal = Builder.CreateLoad(argVal);
-        }
-        if (argVal == nullptr) {
-            errors_IR++;
-            reportError("Argument is not valid");
-        }
+//     for(int i=0; i<args_list.size(); i++)
+//     {
+//         Value *argVal = args_list[i]->Codegen();
+//         if (args_list[i]->getEtype() == ::location) {
+//             argVal = Builder.CreateLoad(argVal);
+//         }
+//         if (argVal == nullptr) {
+//             errors_IR++;
+//             reportError("Argument is not valid");
+//         }
 
-        if(argVal->getType() != FTy->getParamType(i))
-        {
-            return reportError("Incorrect type found");
-        }
+//         if(argVal->getType() != FTy->getParamType(i))
+//         {
+//             return reportError("Incorrect type found");
+//         }
 
-    }
-    /// Generate the code for the arguments
-    vector<Value *> Args;
-    for (auto &arg : args_list) {
-        Value *argVal = arg->Codegen();
-        if (arg->getEtype() == ::location) {
-            argVal = Builder.CreateLoad(argVal);
-        }
-        if (argVal == nullptr) {
-            errors_IR++;
-            reportError("Argument is not valid");
-        }
-        Args.push_back(argVal);
-    }
-    // Reverse the order of arguments as the parser parses in the reverse order
-    reverse(Args.begin(), Args.end());
-    // Generate the code for the function call
-    Value *v = Builder.CreateCall(calle, Args);
-    return v;
-}
+//     }
+//     /// Generate the code for the arguments
+//     vector<Value *> Args;
+//     for (auto &arg : args_list) {
+//         Value *argVal = arg->Codegen();
+//         if (arg->getEtype() == ::location) {
+//             argVal = Builder.CreateLoad(argVal);
+//         }
+//         if (argVal == nullptr) {
+//             errors_IR++;
+//             reportError("Argument is not valid");
+//         }
+//         Args.push_back(argVal);
+//     }
+//     // Reverse the order of arguments as the parser parses in the reverse order
+//     // reverse(Args.begin(), Args.end());
+//     // Generate the code for the function call
+//     Value *v = Builder.CreateCall(calle, Args);
+//     return v;
+// }
 
 Value* meth_call::Codegen()
 {
@@ -295,7 +296,7 @@ Value* meth_call::Codegen()
         Args.push_back(argVal);
     }
     // Reverse the order of arguments as the parser parses in the reverse order
-    reverse(Args.begin(), Args.end());
+    // reverse(Args.begin(), Args.end());
     // Generate the code for the function call
     Value *v = Builder.CreateCall(calle, Args);
     return v;
@@ -305,10 +306,13 @@ Value* meth_call::Codegen()
 
 
 Value *BinExpr::Codegen() {
-    if(lhs->check_meth_call)
-        Value *left = lhs->Codegen_check_return();
-    Value *left = lhs->Codegen();
-    Value *right = rhs->Codegen();
+    Value *left = NULL;
+    Value *right = NULL;
+
+    left = lhs->Codegen();
+
+    right = rhs->Codegen();
+
     if (lhs->getEtype() == ::location) {
         left = Builder.CreateLoad(left);
     }
@@ -377,6 +381,7 @@ Value *BinExpr::Codegen() {
 
 Value *UnExpr::Codegen() {
     /// Generate IR for body of the expression
+
     Value *v = exp->Codegen();
     if (exp->getEtype() == ::location) {
         v = Builder.CreateLoad(v);
@@ -595,6 +600,7 @@ Value *ifElseState::Codegen() {
     }
     /// Create a break for next part of the code after else block
 
+    // if (!ret_if && !break_if && !continue_if) {
     if (!ret_if && !break_if && !continue_if) {
         Builder.CreateBr(nextBlock);
     }
@@ -617,6 +623,7 @@ Value *ifElseState::Codegen() {
         continue_else = else_block->has_continue();
 
         if (!ret_else && !break_else && !continue_else)
+        // if (!ret_else)
             Builder.CreateBr(nextBlock);
     }
     // Create a break for the next part of the code
@@ -712,7 +719,10 @@ Value *Assign::Codegen() {
         return reportError("Unknown Variable Name " + loc->getName());
     }
 
-    Value *val = exp->Codegen();
+    Value *val = NULL;
+    
+    val = exp->Codegen();
+
     if (exp->getEtype() == ::location) {
         val = Builder.CreateLoad(val);
     }
@@ -773,7 +783,8 @@ Value *var_dec::Codegen(map<string, AllocaInst *> &Old_vals)
 
             V_test = NamedValues[var];
             // if (V_test == nullptr) {V_test = TheModule->getNamedGlobal(var);}
-            if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var + " already declared"); }
+            
+            // if (V_test != nullptr) { errors_IR++; return reportError(" Variable " + var + " already declared"); }
 
             initval = ConstantInt::get(Context, APInt(32, 0));
             Alloca = CreateEntryBlockAlloca(TheFunction, var, "int");

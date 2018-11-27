@@ -1151,7 +1151,7 @@ class meth_call: public Statement, public Expr {
 
     virtual Value* Codegen();
     
-    virtual Value* Codegen_check_return();
+    // virtual Value* Codegen_check_return();
 
 };
 

@@ -1,0 +1,55 @@
+; ModuleID = 'Decaf compiler'
+source_filename = "Decaf compiler"
+
+@x = global i32 0
+@0 = private unnamed_addr constant [3 x i8] c"%d\00"
+
+define void @main() {
+entry:
+  %i = alloca i32
+  %x = alloca i32
+  store i32 0, i32* %x
+  %0 = load i32, i32* %x
+  store i32 0, i32* %x
+  store i32 0, i32* %i
+  br label %loop
+
+loop:                                             ; preds = %ifcont5, %if, %entry
+  %i1 = phi i32 [ 0, %entry ], [ %NextVal7, %ifcont5 ]
+  %1 = load i32, i32* %i
+  %equalcomparetmp = icmp eq i32 %1, 20
+  br i1 %equalcomparetmp, label %if, label %ifcont
+
+afterloop:                                        ; preds = %ifcont5, %if4, %if
+  %2 = load i32, i32* %x
+  %3 = call i32 @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @0, i32 0, i32 0), i32 %2)
+  ret void
+
+if:                                               ; preds = %loop
+  %i2 = load i32, i32* %i
+  %NextVal = add i32 %i2, 1
+  store i32 %NextVal, i32* %i
+  %loopcondition = icmp ule i32 %NextVal, 99
+  br i1 %loopcondition, label %loop, label %afterloop
+
+ifcont:                                           ; preds = %loop
+  %4 = load i32, i32* %x
+  %addtmp = add i32 %4, 1
+  %5 = load i32, i32* %x
+  store i32 %addtmp, i32* %x
+  %6 = load i32, i32* %i
+  %equalcomparetmp3 = icmp eq i32 %6, 30
+  br i1 %equalcomparetmp3, label %if4, label %ifcont5
+
+if4:                                              ; preds = %ifcont
+  br label %afterloop
+
+ifcont5:                                          ; preds = %ifcont
+  %i6 = load i32, i32* %i
+  %NextVal7 = add i32 %i6, 1
+  store i32 %NextVal7, i32* %i
+  %loopcondition8 = icmp slt i32 %NextVal7, 99
+  br i1 %loopcondition8, label %loop, label %afterloop
+}
+
+declare i32 @printf(i8*, i32)
