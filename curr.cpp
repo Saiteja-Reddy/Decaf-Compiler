@@ -1,59 +1,60 @@
-class Program{
-	int arr[100];
-	int size;
-	int partition(int l, int r)
+class Program
+{
+// max size of array 100
+	int n;
+	int i;
+	int flag;
+	int temp;
+	int fin;
+
+	int scanInt()
 	{
-		int pivot;
-		int retVal;
-		int temp;
-		pivot = arr[r];
-		retVal = l - 1;
+		int c;
+		c = callout("read_integer");
+		return c;
+	}
 
-		for it = l,r
+
+	void main()
+	{
+		callout("printf", "Enter the number: ");
+		
+		n = scanInt();
+
+		flag = 0;
+		fin = n - 1;
+
+		if (n <= 1)
 		{
-
-			if(pivot >= arr[it])
+				callout("printf", "Enter the number between 2 and inf\n");
+		}
+		else
+		{
+			if (n == 2)
 			{
-				retVal = retVal + 1;
-				temp = arr[it];
-				arr[it] = arr[retVal];
-				arr[retVal] = temp;
+				callout("printf", "Prime\n");
 			}
+			else
+			{
+				for i = 2, fin
+				{
+					temp = n%i;
+					if(temp == 0)
+					{
+						flag = 1;
+						callout("printf", "Not Prime\n");
+						break;
+					}
+				}
+
+				if(flag == 0)			
+				{
+						callout("printf", "Prime\n");
+				}
+			}
+
 		}
-		temp = arr[retVal + 1];
-		arr[retVal + 1] = arr[r];
-		arr[r] = temp;
-		retVal = retVal + 1;
-		return retVal;
+
 	}
-
-	void quickSort(int l, int r){
-
-		if(l < r)
-		{
-			int pivotIndex;
-			pivotIndex = partition(l,r);
-			quickSort(l,pivotIndex - 1);
-			quickSort(pivotIndex+1,r);
-		}
-
-	}
-
-	void main(){
-		size = 100;
-		for i = 0,size{
-			arr[i] = size - i;
-		}
-		quickSort(0,size - 1);
-
-		callout("printf","sorted array : ");
-
-		for i = 0,size{
-			callout("printf", "%d ",arr[i]);
-		}
-
-		callout("printf","\n");
-	}
-
 
 }
