@@ -265,6 +265,12 @@ Value* meth_call::Codegen()
     FunctionType *FTy = calle->getFunctionType();
     // cout << FTy->getParamType(0) << " -a ada\n";
 
+    // if(calle->getReturnType()->isVoidTy())
+    // {
+    //     errors_IR++;
+    //     reportError("Function " + name + " must return a value for Expr");
+    // }
+    
     for(int i=0; i<args_list.size(); i++)
     {
         Value *argVal = args_list[i]->Codegen();
@@ -600,8 +606,8 @@ Value *ifElseState::Codegen() {
     }
     /// Create a break for next part of the code after else block
 
-    // if (!ret_if && !break_if && !continue_if) {
     if (!ret_if && !break_if && !continue_if) {
+    // if (!ret_if && !break_if && !continue_if) {
         Builder.CreateBr(nextBlock);
     }
 
