@@ -990,15 +990,15 @@ class meth_dec: public ASTnode {
      // cout << " MEth decHere" << name << " - " << global_map.count(name) << "\n";
      if(methods_decs_map.count(name) || global_map.count(name))
      {
-        cout << "ERROR: Method/Variable " << name << " is redefined.\n";
+        // cout << "ERROR: Method/Variable " << name << " is redefined.\n";
      }
 
      methods_decs_map[name] = args1->arg_list_types;
      methods_decs_return[name] = return_type;
 
      arg_list = args1;
-     if(blc->check_control())
-        cout << "ERROR: BREAK/CONTINUE in method declaration is invalid" << endl;     
+     // if(blc->check_control())
+        // cout << "ERROR: BREAK/CONTINUE in method declaration is invalid" << endl;     
      body = blc;
     }
 
@@ -1126,8 +1126,8 @@ class meth_call: public Statement, public Expr {
 
 
         }
-        else
-            cout << "ERROR: Method " << name << " is not defined before use.\n";
+        // else
+            // cout << "ERROR: Method " << name << " is not defined before use.\n";
     }
 
     string getName() {  return name;    }

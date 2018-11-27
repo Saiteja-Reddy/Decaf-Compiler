@@ -1,16 +1,21 @@
-class Program{
-	int a,d,e;
+class Program
+{
+	int a;
 	boolean p;
 
-	int abc(int b)
+	int ab(int s, boolean r)
 	{
-		return 1;
+		return 10;
 	}
+
 
 	void main()
 	{
-		a = 1+abc(a);
+		for i =  0, 2
+		{
+			a = i;
+		}
+		callout("printf", "hello World %d\n" , 10+ ab(a, p));
 	}
+
 }
-
-
