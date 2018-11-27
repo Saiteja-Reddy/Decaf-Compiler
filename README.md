@@ -37,6 +37,7 @@ _Sai Teja Reddy Moolamalla_
 **_Things to Complete:_**
 
 - Exhaustive Testing for Errors
+- Run Time Checking - dynamically during runtime, checking for the subscript of an array if in bounds.
 
 
 ## Example Runs
