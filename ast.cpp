@@ -845,9 +845,9 @@ Value *Assign::Codegen() {
     }    
     
     if (op == "+=") {
-        val = Builder.CreateAdd(cur, val, "addEqualToTmp");
+        val = Builder.CreateAdd(cur, val, "addEqualTo");
     } else if (op == "-=") {
-        val = Builder.CreateSub(cur, val, "subEqualToTmp");
+        val = Builder.CreateSub(cur, val, "subEqualTo");
     }
     return Builder.CreateStore(val, lhs);
 }
