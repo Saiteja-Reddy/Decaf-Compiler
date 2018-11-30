@@ -176,6 +176,11 @@ class ProgramASTnode: public ASTnode {
                 errors_IR++;
                 cout << "ERROR: There must be a main method with no parameters\n"; 
             }
+            else if(methods_decs_return["main"] != "void")
+            {
+                errors_IR++;
+                cout << "ERROR: There must be a main method with void return type\n";                 
+            }
         }
         else
         {
